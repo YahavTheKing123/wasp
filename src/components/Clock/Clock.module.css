@@ -1,0 +1,12 @@
+.DateTime {
+    font-weight: 500;
+    font-size: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    margin-left: 20px;
+}
+.Hour {
+    font-weight: 400;
+    margin-left: 5px;
+}

@@ -1,0 +1,102 @@
+.h2 {
+    margin-top: 0;    
+    text-overflow: ellipsis;
+    height: 56px;
+    font-size: 18px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: 400;
+  }
+  
+.Overlay {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(0, 0, 0, 0.8);
+    height: 100vh;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+  
+.Popup {
+    width: 45%;    
+    background-color: var(--app-bg-color);
+    border: 1px solid var(--app-bg-color);
+    min-width: 650px;
+    max-height: 600px; 
+}
+
+  .PopupHeaderWrapper {
+    background-color: var(--popup-header-footer-bg-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-right: 20px;
+    padding-left: 20px;
+  }
+  
+  .PopupBody {
+    padding: 30px 55px;
+    max-height: 450px;
+    overflow-y: overlay;
+  }
+  
+  .PopupBody.NoBodyOverFlow {
+    overflow-y: unset;
+  }
+
+  .PopupFooter {
+    background-color: var(--popup-header-footer-bg-color);
+    padding: 18px 55px;
+    display: flex;
+    justify-content: flex-end;
+    align-content: center;  
+  }
+  
+  .closeBtn {
+    width: 12px;
+    display: flex;
+  }
+
+  .FormButton {
+    background-color: transparent;
+    font-size: 14px;
+    height: 40px;
+    min-width: 150px;
+    color: inherit;
+    border: 1px solid var(--button-border-color);
+    font-family: inherit;
+    cursor: pointer;
+    outline: none;
+    padding: 0 10px;
+    border-radius: var(--button-border-radius);
+    font-weight: 400;
+  }
+  
+  .FormButton:hover {
+    border: 1px solid var(--button-border-color-hover);
+  }
+  
+  .FormButton.Apply {
+    background-color: var(--button-primary-bg-color);
+    margin-left: 13px;
+  }
+  
+  .FormButton.Apply:hover {
+    background-color: var(--button-primary-hover-bg-color);
+  }
+
+  .Popup.small {
+    max-width: 450px;
+    min-width: 0;
+  }
+
+  .Popup.medium {
+    max-width: 550px;
+    min-width: 0;
+  }

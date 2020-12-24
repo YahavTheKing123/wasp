@@ -1,0 +1,88 @@
+:root {
+  --app-bg-color: #404040;
+  --app-font: 'Roboto', sans-serif;
+  --app-font-color: #ffffff;
+  --app-font-readonly: #828282;
+  --app-bg-color-alt: #2D2D2D;
+  --app-main-yellow: #cabe4e;
+  --app-system-yellow: #FFFF00;
+  --popup-header-footer-bg-color: #191919;
+  --app-validation-color: #FF2846;
+  --app-success-color: #00FF24;
+  --input-border-color: #D9D9D9;
+  --select-element-hover-bg-color: #303030;
+  --button-primary-bg-color: #2979FF;
+  --button-primary-hover-bg-color: #215FC7;
+  --button-border-color: #2979FF;
+  --button-border-color-hover: #215FC7;
+  --button-border-radius: 2px;
+  --button-clear-color: #B4B4B4;
+  --app-header-height: 50px;
+}
+
+* {
+	margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--app-font);
+  box-sizing: border-box;
+  overflow-x: hidden;
+  overflow-y: hidden;  
+  background: var(--app-bg-color);
+  color: var(--app-font-color);
+}
+
+::-webkit-scrollbar {
+  width: 30px;
+  height: 32px;
+  background-color: transparent;
+  cursor: pointer;
+}
+
+::-webkit-scrollbar-button {
+  background-repeat: no-repeat;
+  background-position: 50%;
+  height: 32px;
+  width: 32px;
+  background-size: 100%;
+  display: flex;
+  background-image: url('../src/assets/images/scroll-arrow.svg');
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #313131;
+  border: 11px solid transparent;
+  background-clip: content-box;
+  min-height: 25px
+}
+::-webkit-scrollbar-thumb:vertical {
+  border-top-width: 0;
+  border-bottom-width: 0
+}
+
+::-webkit-scrollbar-thumb:horizontal {
+  border-left-width: 0;
+  border-right-width: 0
+}
+
+::-webkit-scrollbar-button:vertical:increment {
+  background-position: 0 -32px
+}
+
+::-webkit-scrollbar-button:vertical:decrement {
+  background-position: 0 0
+}
+
+::-webkit-scrollbar-button:horizontal:increment {
+  background-position: 0 -96px
+}
+
+::-webkit-scrollbar-button:horizontal:decrement {
+  background-position: 0 -64px
+}
+::-webkit-scrollbar-corner {
+  background: transparent;
+}

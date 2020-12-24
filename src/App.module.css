@@ -1,0 +1,88 @@
+.App {
+  height: 100vh;
+}
+.AppHeader {
+  padding: 0 20px;
+  height: var(--app-header-height);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: var(--app-font-color);
+  background-color: var(--app-bg-color-alt);
+}
+.ActionsBar {
+  background-color: var(--app-bg-color-alt);
+  padding: 20px 20px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  height: 80px;
+  justify-content: space-between;
+}
+
+.ActionButtons {
+  display: flex;
+}
+.HeaderElementWrapper{
+  height: 100%;
+}
+.HeaderElementWrapper:first-child {
+  margin-right: 10px;
+}
+.ExportBtn {  
+  font-size: 16px;
+  width: 175px;
+  background-color:var(--app-main-yellow);
+  cursor: pointer;
+  padding: 10px 15px;
+  border-radius: var(--button-border-radius);
+  font-weight: 400;
+  color: #000000;
+  border: none;
+  outline: none;
+  font-family: inherit;
+  transition: .3s ease;  
+}
+
+.ExportBtn.Disabled {
+  background-color: #635e2e;
+  pointer-events: none;
+  cursor: unset;
+}
+
+.ExportBtn:hover {
+  background-color: #ADA344;
+}
+.MainContentWrapper {
+  display: flex;
+  width: 100%;
+  height: calc(100% - var(--app-header-height));
+  padding: 20px 20px;
+  background-color: var(--app-bg-color);
+  justify-content: space-between;
+}
+.Split{
+  height: 100%;
+}
+.Split.Left{
+  width: 63%;
+}
+.Split.Right{
+  width: 35%;
+}
+.FileInput {
+  display: none;
+}
+.RightHeader{
+  display: flex;
+}
+.RightPaneWrapper {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.RightPaneWrapperItem {
+  height: 48.5%;
+}
