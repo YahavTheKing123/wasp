@@ -3,9 +3,29 @@
     background-color: var(--app-bg-color);
     border-right: 1px solid #676767;
     border: 1px solid var(--app-bg-color-alt);
-  }
-  .VideoImage {
+}
+
+.VideoImage {
     /*width: auto;*/
     height: 100%;
     width: 100%;
-  }
+}
+
+.ErrorIcon {
+  display: inline-block;    
+  width: 18px;
+  height: 18px;
+  background-position: center;
+  background-repeat: no-repeat;    
+  background-size: contain; 
+  margin-right: 10px;  
+  background-image: url(../../assets/images/errorIcon2.svg);
+}
+
+.ErrorMessage {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.2);
+}

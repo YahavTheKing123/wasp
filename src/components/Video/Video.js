@@ -7,34 +7,55 @@ import config from '../../config';
 
 class Video extends Component {
 
-    async getVideoSrc() {
-        const {BE_PORT, BE_IP} = await externalConfig.getConfiguration();
+    state = {
+        isImageLoadingError: false
+    }
 
-        //const snapshotUrl = `${config}`
+    getVideoSrc() {
+        const {BE_PORT, BE_IP} = externalConfig.getConfiguration();
+
+        const snapshotUrl = `//${BE_IP}:${BE_PORT}${config.urls.snapshot}`;
+        const streamUrl = `//${BE_IP}:${BE_PORT}${config.urls.stream}`;
 
         if (this.props.isPaused) {
-            //return `http://192.168.1.100:8081/snapshot?topic=/d415/color/image_raw`
-            return `//camera.ehps.ncsu.edu:8100/c8`
+            return snapshotUrl;
+            //return `//camera.ehps.ncsu.edu:8100/c8`
         } else {
-            //return `//192.168.1.100:8081/stream?topic=/d415/color/image_raw`
-            return `//camera.ehps.ncsu.edu:8100/c8`
+            return streamUrl;
+            //return `//camera.ehps.ncsu.edu:8100/c8`
         }
     }
     
-    onVideoError = (e) => {
+    onVideoError = (e) => {        
         console.log('error when trying to load camera video', e);
+        this.setState({
+            isImageLoadingError: true
+        })
+    }
+
+    renderImgElement() {
+
+        if (this.state.isImageLoadingError) {
+            return (
+                <div className={cn.ErrorMessage}><span className={cn.ErrorIcon}></span> Error loading video stream</div>
+            )
+        }
+
+        return (
+            <img
+                onError={this.onVideoError}
+                className={cn.VideoImage}
+                src={this.getVideoSrc()}
+                id='droneImage'
+                onClick={this.props.pointVideoImage}
+            />
+        )
     }
 
     render() {
         return (
             <div className={cn.Wrapper}>
-                <img
-                    onError={this.onVideoError}
-                    className={cn.VideoImage}
-                    src={this.getVideoSrc()}
-                    id='droneImage'
-                    onClick={this.props.pointVideoImage}
-                />
+                {this.renderImgElement()}
             </div>
         );
     }

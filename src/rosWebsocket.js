@@ -10,7 +10,7 @@ class RosWebSocket {
     async register(store) {
         try {
                         
-            const { ROS_BE_PROTOCOL, BE_IP, ROS_BE_PORT } = await externalConfig.getConfiguration();
+            const { ROS_BE_PROTOCOL, BE_IP, ROS_BE_PORT } = externalConfig.getConfiguration();
             const url =  `${ROS_BE_PROTOCOL}://${BE_IP}:${ROS_BE_PORT}`;
             store.dispatch({type: actionTypes.SHOW_GLOBAL_MESSAGE, payload: {text: `Trying to connect ros websocket on: ${url}`, type:logSeverities.info}})
 
