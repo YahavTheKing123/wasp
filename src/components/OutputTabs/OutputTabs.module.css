@@ -4,3 +4,8 @@
     border-right: 1px solid #676767;
     border: 1px solid var(--app-bg-color-alt);
   }
+  .Tabs {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }

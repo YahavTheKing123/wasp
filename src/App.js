@@ -9,6 +9,7 @@ import MapContainer from './components/MapContainer/MapContainer';
 import OutputTabs from './components/OutputTabs/OutputTabs';
 import Video from './components/Video/Video';
 import ActionButtons from './components/ActionButtons/ActionButtons';
+import GlobalMessage from './components/GlobalMessage/GlobalMessage';
 
 class App extends Component {
     closeErrorPopup = () => {
@@ -86,6 +87,7 @@ class App extends Component {
 
         return (
             <div className={classNames.App}>
+                <GlobalMessage />
                 {this.getActionButtons()}
                 {this.getGeneralErrorPopup()}
                 {this.getMainHeader()}
@@ -96,7 +98,3 @@ class App extends Component {
 }
 
 export default App;
-
-App.defaultProps = {
-    isLoading: false,
-};

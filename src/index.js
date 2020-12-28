@@ -8,7 +8,7 @@ import { Provider } from 'react-redux';
 import reduxThunk from 'redux-thunk';
 import rootReducer from './store/reducers';
 import initInterceptor from './store/interceptor';
-import { websocketRegistration } from './store/websocketRegistration';
+import rosWebsocketInstance from './rosWebsocket';
 
 const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
 
@@ -18,7 +18,7 @@ const store = createStore(
 );
 
 initInterceptor(store);
-websocketRegistration(store);
+rosWebsocketInstance.register(store);
 
 ReactDOM.render(  
   <React.StrictMode>

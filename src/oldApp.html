@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 
-<script type="text/javascript" src="roslib.min.js"></script>
+<script type="text/javascript" src="../public/roslib.min.js"></script>
 <script type="text/javascript" type="text/javascript">
 
 var isPauseVideo = false;
@@ -37,7 +37,7 @@ var seekerReset = new ROSLIB.Service({
     serviceType : 'seeker/Reset'
 });
 
-var  = new ROSLIB.Service({
+var seekerTakeoff = new ROSLIB.Service({
     ros : ros,
     name : 'seeker/Takeoff',
     serviceType : 'seeker/Takeoff'
@@ -205,12 +205,10 @@ window.onload = function()
     <button id="reset">Reset</button>
     <button id="takeoff">Takeoff</button>
     <div></div>
-    <img src="//192.168.1.100:8081/stream?topic=/d415/color/image_raw" id="droneImage"></img>
+    <img src="http://camera.ehps.ncsu.edu:8100/c8" id="droneImage"></img>
     <h1>AI camera:</h1>
     <img src="//192.168.1.100:8081/stream?topic=/seeker/detectionImage" id="detectionImage"></img>
     
 </body>
 </html>
-
-
-<!--Ross example: http://wiki.ros.org/roslibjs/Tutorials/BasicRosFunctionality-->
+<!--http://wiki.ros.org/roslibjs/Tutorials/BasicRosFunctionality-->

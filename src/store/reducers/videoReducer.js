@@ -1,15 +1,20 @@
 import actionTypes from '../actions/actionTypes';
 
-const initialState = {    
-    systemCurrentAction: '',
+const initialState = {        
+    isPaused: false
 };
 
 const videoReducer = (state = initialState, action ) => {
     switch (action.type) {
-        case actionTypes.COMPOSE_WITH_PULL_SUCCESS:
+        case actionTypes.PAUSE_VIDEO:
             return {
                 ...state,
-                isComposeWithPullAction: false
+                isPaused: true
+            }
+        case actionTypes.RESUME_VIDEO:
+            return {
+                ...state,
+                isPaused: false
             }
         default:
             return state;

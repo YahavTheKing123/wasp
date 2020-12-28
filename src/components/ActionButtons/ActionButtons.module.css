@@ -6,12 +6,17 @@
     display: flex;
     flex-direction: column;
     z-index: 1;
+    transition: 0.3s ease;
 }
+.Wrapper.Hidden {
+    left: calc(var(--action-button-size) * -1);
+}
+
 .Button {
     position: relative;
     background: rgba(0,0,0,0.8);
-    height: 65px;
-    width: 65px;    
+    height: var(--action-button-size);
+    width: var(--action-button-size);    
     border: 1px solid #5c5c5c;
     border-left: none;
     border-top: none;
@@ -43,10 +48,14 @@
 
 .ResetIcon {
     background-image: url(../../assets/images/refresh1.svg);
-    height: 26px;
-    width: 26px;
+    height: 24px;
+    width: 24px;
 }
 
 .TakeoffIcon {
     background-image: url(../../assets/images/drone.svg);
+}
+
+.PlayIcon {
+    background-image: url(../../assets/images/play.svg);
 }
