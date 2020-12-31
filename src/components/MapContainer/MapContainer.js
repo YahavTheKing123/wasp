@@ -39,7 +39,9 @@ class MapContainer extends PureComponent {
         mapLayerGroups: new Map(),
         lastTerrainConfiguration: null,
         lastViewportConfiguration: null /*  2D/3D, 3D/2D, 2D, 3D */,
-        bSameCanvas: true
+        bSameCanvas: true,
+        isDTMClicked: false,
+        is3DClicked: false,
     }
 
     mapTerrains = new Map;
@@ -77,8 +79,10 @@ class MapContainer extends PureComponent {
     }
 
     componentDidUpdate(prevProps) {
-        if (!prevProps.isMapCoreSDKLoaded && this.props.isMapCoreSDKLoaded) {
-            this.openMap(externalConfig.getConfiguration().streamingLayers[0].groupName, false);
+        // first time map load or channing from map a to map b
+        if ((!prevProps.isMapCoreSDKLoaded && this.props.isMapCoreSDKLoaded) || 
+                (this.props.isMapCoreSDKLoaded && prevProps.mapToShow !== this.props.mapToShow)) {
+            this.openMap(this.props.mapToShow.groupName, false);
         }
     }
 
@@ -609,7 +613,7 @@ class MapContainer extends PureComponent {
     }
 
     // function switching DTM-visualization (height map) on/off
-    doDtmVisualization() {
+    doDtmVisualization = () => {
         if (!this.viewport.GetDtmVisualization()) {
             let result = this.calcMinMaxHeights();
             let DtmVisualization = new window.MapCore.IMcMapViewport.SDtmVisualizationParams();
@@ -1026,7 +1030,7 @@ class MapContainer extends PureComponent {
                     console.log('error when trying to call getCapabilities: ', e);
                 }
             } else {
-                this.parseLayersConfiguration(externalConfig.getConfiguration().streamingLayers)
+                this.parseLayersConfiguration([this.props.mapToShow])
             }
 
 
@@ -1160,27 +1164,53 @@ class MapContainer extends PureComponent {
         )
     }
 
-    onMoreActionsClick = (e) =>{
+    onSelectOtherMapClicked = () => {
+
+    }
+
+    showHideDtmActionClicked = () => {
+        this.setState({isDTMClicked: !this.state.isDTMClicked}, this.doDtmVisualization)
+    }
+
+    showHide3DActionClicked = () => {
+        this.setState(
+            {
+                is3DClicked: !this.state.is3DClicked
+            }, () => this.openMap(this.props.mapToShow.groupName, this.state.is3DClicked))
+    }
+
+    onMoreActionsClick = (e) => {
         e.preventDefault();
         e.stopPropagation();
 
-        const menuItemsList = [{
-            name: "Show DTM visualization",
-            //func: this.props.start.bind(this, [this.props.name]),
-            iconCss: "Run"
-        },
-        {
-            name: "Switch To 3D",
-            //func: this.props.restart.bind(this, [this.props.name]),
-            iconCss: "Restart"
-        },
-        {
+        const selectOtherMapAction = {            
             name: "Select Other Map",
-            //func: this.props.stop.bind(this, [this.props.name]),
-            iconCss: "Stop"
+            func: this.onSelectOtherMapClicked,
+            iconCss: "Map"            
+        };
+
+        const menuItemsList = [];
+
+        const dtmLayer = this.props.mapToShow.layers.find(layer => layer.type.toLowerCase().includes('dtm'));
+
+        if (dtmLayer) {
+            const showHideDtmAction = {
+                name: (this.state.isDTMClicked ? 'Hide' : 'Show') + " DTM visualization",
+                func: this.showHideDtmActionClicked,
+                iconCss: "DTM"
+            }
+    
+            const showHide3DAction = {
+                name: 'Switch To ' + (this.state.is3DClicked ? '2D' : '3D'),
+                func: this.showHide3DActionClicked,
+                iconCss: "ThreeD"
+            }
+
+            menuItemsList.push(showHideDtmAction);
+            menuItemsList.push(showHide3DAction);
+            menuItemsList.push(selectOtherMapAction);
         }
-    ];
-                
+
         this.props.showContextMenu(e.nativeEvent.x, e.nativeEvent.y, menuItemsList);        
     }
 
@@ -1188,7 +1218,7 @@ class MapContainer extends PureComponent {
         return (
             <div className={`${cn.MapToolbox}`}>
                 <div className={cn.Description}>
-                    {externalConfig.getConfiguration().streamingLayers[0].groupName}
+                    {this.props.mapToShow.groupName}
                 </div>
                 <span className={cn.MoreActionsBtn} onClick={this.onMoreActionsClick}></span>
             </div>
@@ -1197,7 +1227,8 @@ class MapContainer extends PureComponent {
 
     getCanvas() {
         return (
-            <div className={cn.CanvasContainer} id='canvasesContainer'>
+            <div className={cn.MapWrapper}>
+                <div className={cn.CanvasContainer} id='canvasesContainer'></div>
                 {this.renderMapToolbox()}
             </div>
         );
@@ -1214,7 +1245,8 @@ class MapContainer extends PureComponent {
 
 const mapStateToProps = (state) => {
     return {
-        isMapCoreSDKLoaded: state.map.isMapCoreSDKLoaded
+        isMapCoreSDKLoaded: state.map.isMapCoreSDKLoaded,
+        mapToShow: state.map.mapToShow
     };
 };
 

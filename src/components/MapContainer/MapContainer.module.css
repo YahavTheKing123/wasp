@@ -16,6 +16,10 @@
   position: relative;
   height: 100%;
 }
+.MapWrapper {
+  position: relative;
+  height: 100%;
+}
 .MapToolbox {
   position: absolute;
   width: 100%;

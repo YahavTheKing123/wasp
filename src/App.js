@@ -13,11 +13,15 @@ import GlobalMessage from './components/GlobalMessage/GlobalMessage';
 import actionTypes from './store/actions/actionTypes';
 import { connect } from 'react-redux';
 import ContextMenu from './components/ContextMenu/ContextMenu';
+import externalConfig from './ExternalConfigurationHandler';
 
 class App extends Component {
 
     componentDidMount() {
         window.MapCore.SetStartCallbackFunction(this.props.setMapCoreSDKLoadedFlag);
+
+        const defaultGroup = externalConfig.getConfiguration().streamingLayers[0];
+        this.props.setMapToShow(defaultGroup);
     }
 
     closeErrorPopup = () => {
@@ -114,7 +118,8 @@ const mapStateToProps = state => {
 
 const mapDispachToProps = (dispatch) => {
     return {
-        setMapCoreSDKLoadedFlag: () => dispatch({type: actionTypes.SET_MAPCORE_SDK_LOADED_FLAG})
+        setMapCoreSDKLoadedFlag: () => dispatch({type: actionTypes.SET_MAPCORE_SDK_LOADED_FLAG}),
+        setMapToShow: groupNode => dispatch({type: actionTypes.SET_MAP_TO_SHOW, payload: groupNode})
     };
 };
 

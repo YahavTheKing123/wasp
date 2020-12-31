@@ -17,11 +17,23 @@ class ActionButtons extends Component {
     render() {
         const isHiddenClass = this.props.isRosWebsocketConncted ? '' : cn.Hidden;
         return (
-            <div className={`${cn.Wrapper} ${isHiddenClass}`}>
-                    <button className={cn.Button} onClick={this.props.locate}><span className={`${cn.Icon} ${cn.LocateIcon}`}></span></button>
-                    <button className={cn.Button} onClick={this.pauseOrResume}><span className={`${cn.Icon} ${this.getPauseIcon()}`}></span></button>
-                    <button className={cn.Button} onClick={this.props.reset}><span className={`${cn.Icon} ${cn.ResetIcon}`}></span></button>
-                    <button className={cn.Button} onClick={this.props.takeoff}><span className={`${cn.Icon} ${cn.TakeoffIcon}`}></span></button>
+            <div className={`${cn.Wrapper}`}>
+                    <button className={cn.Button} onClick={this.props.locate}>
+                        <span className={`${cn.Icon} ${cn.LocateIcon}`}></span>
+                        <span className={cn.ButtonLabel}>Locate</span>
+                    </button>
+                    <button className={cn.Button} onClick={this.pauseOrResume}>
+                        <span className={`${cn.Icon} ${this.getPauseIcon()}`}></span>
+                        <span className={cn.ButtonLabel}>{ this.props.isPaused ? 'Resume' : 'Pause'}</span>
+                    </button>
+                    <button className={cn.Button} onClick={this.props.reset}>
+                        <span className={`${cn.Icon} ${cn.ResetIcon}`}></span>
+                        <span className={cn.ButtonLabel}>Reset</span>
+                    </button>
+                    <button className={cn.Button} onClick={this.props.takeoff}>
+                        <span className={`${cn.Icon} ${cn.TakeoffIcon}`}></span>
+                        <span className={cn.ButtonLabel}>Takeoff</span>
+                    </button>
             </div>
         )
     }

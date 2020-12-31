@@ -35,14 +35,14 @@ class ContextMenu extends Component {
    updatePosition( left ,top, menuItems) {     
      this.setState({
        top: this.getNewTop(top) ,
-       left : (left > document.body.offsetWidth - this.CONTEXT_MENU_WIDTH ) ? left - this.CONTEXT_MENU_WIDTH : left ,
+       left : (left > document.body.offsetWidth - this.CONTEXT_MENU_WIDTH ) ? left - this.CONTEXT_MENU_WIDTH : left ,       
        menuItems
      })
    }
 
    
    closeContextMenu = (e) => {
-     if (this.contextRef && !this.contextRef.current.contains(e.target)) {
+     if (this.contextRef && this.contextRef.current && !this.contextRef.current.contains(e.target)) {
         this.props.closeContextMenu();
      }
    }
