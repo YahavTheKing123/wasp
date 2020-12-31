@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="Scroll_Butt" x="0px" y="0px" viewBox="0 0 32 128" style="enable-background:new 0 0 32 128;" xml:space="preserve">
+<view id="icon-scroll-arrow-up" viewBox="0 0 32 32"/>
+<view id="icon-scroll-arrow-down" viewBox="0 32 32 32"/>
+<view id="icon-scroll-arrow-left" viewBox="0 64 32 32"/>
+<view id="icon-scroll-arrow-right" viewBox="0 96 32 32"/>
+<style type="text/css">
+	.st0{fill:#313131;}
+</style>
+<path class="st0" d="M22,19H10v-1.5l6-6.5l6,6.5V19L22,19z M22,45v1.5L16,53l-6-6.5V45H22L22,45z M19,74v12h-1.5L11,80l6.5-6H19  L19,74z M13,106v12h1.5l6.5-6l-6.5-6H13z"/>
+</svg>
