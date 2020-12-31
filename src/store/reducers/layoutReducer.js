@@ -2,7 +2,8 @@ import actionTypes from '../actions/actionTypes';
 
 const initialState = {        
     appGlobalMessage: null,
-    isRosWebsocketConncted: false
+    isRosWebsocketConncted: false,
+    contextMenu: null,    //{x,y,menuItems}
 };
 
 const layoutReducer = (state = initialState, action ) => {
@@ -11,6 +12,11 @@ const layoutReducer = (state = initialState, action ) => {
             return {
                 ...state,
                 appGlobalMessage: {text: action.payload.text, type: action.payload.type}
+            }       
+        case actionTypes.REMOVE_GLOBAL_MESSAGE:
+            return {
+                ...state,
+                appGlobalMessage: null
             }       
         case actionTypes.ROSS_WEBSOCKET_CONNECTION_SUCCESS: {
             return {
@@ -30,6 +36,23 @@ const layoutReducer = (state = initialState, action ) => {
                 isRosWebsocketConncted: false
             }
         }
+        case actionTypes.SHOW_CONTEXT_MENU: {
+            const contextMenu = {   
+                x: action.payload.x, 
+                y: action.payload.y, 
+                items: action.payload.items
+            };
+            return {
+                ...state,
+                contextMenu
+            }   
+        }
+        case actionTypes.CLOSE_CONTEXT_MENU: {
+            return {
+                ...state,
+                contextMenu: null 
+            }   
+        }        
         default:
             return state;
     }

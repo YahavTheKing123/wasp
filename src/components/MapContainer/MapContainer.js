@@ -2,6 +2,9 @@ import React, { PureComponent, Component } from 'react';
 import cn from './MapContainer.module.css';
 import axios from 'axios';
 import config from '../../config'; 
+import { connect } from 'react-redux';
+import externalConfig from '../../ExternalConfigurationHandler';
+import actionTypes from '../../store/actions/actionTypes';
 
 class SLayerGroup
 {
@@ -11,7 +14,7 @@ class SLayerGroup
         this.coordSystemString = coordSystemString;
         this.bShowGeoInMetricProportion = bShowGeoInMetricProportion;
         this.bSetTerrainBoxByStaticLayerOnly = bSetTerrainBoxByStaticLayerOnly;
-        this.InitialScale2D = InitialScale2D;
+        this.InitialScale2D = InitialScale2D;        
     }
 }
 
@@ -30,7 +33,7 @@ class SViewportData {
     }
 }
 
-export default class MapContainer extends PureComponent {
+class MapContainer extends PureComponent {
 
     state = {
         mapLayerGroups: new Map(),
@@ -61,18 +64,80 @@ export default class MapContainer extends PureComponent {
     nMousePrevY = 0;
     mouseDownButtons = 0;
     bEdit = false;
+    layerCallback = null;
 
     componentDidMount() {
         window.addEventListener('resize', this.resizeCanvases);
         //this.callGetCapabilitiesApi();
-        if (this.props && this.props.mapToPreview) {
-            this.openMap(this.props.mapToPreview.title);
-        }
     }
 
     componentWillUnmount() {
         //Todo -> un-register events and all the map core object
         window.removeEventListener('resize', this.resizeCanvases)
+    }
+
+    componentDidUpdate(prevProps) {
+        if (!prevProps.isMapCoreSDKLoaded && this.props.isMapCoreSDKLoaded) {
+            this.openMap(externalConfig.getConfiguration().streamingLayers[0].groupName, false);
+        }
+    }
+
+    parseLayersConfiguration(jsonLayerGroups) {
+    try {
+        for (let jsonGroup of jsonLayerGroups)
+        {
+            // coordinate system creation string: MapCore.IMcGridCoordSystemGeographic.Create(MapCore.IMcGridCoordinateSystem.EDatumType.EDT_WGS84) etc.
+            let coordSystemString = "MapCore." + jsonGroup.coordSystemType + ".Create(" + jsonGroup.coordSystemParams + ")";
+            let layerGroup = new SLayerGroup(coordSystemString, jsonGroup.showGeoInMetricProportion, jsonGroup.centerByStaticObjectsLayerOnly, jsonGroup.InitialScale2D);
+
+            if (jsonGroup.layers) {
+                for (let layer of jsonGroup.layers) {
+                    let layerCreateString = null;
+                    switch (layer.type) {
+                        case "WMSRaster":
+                            // WMS raster layer creation string: CreateWMSRasterLayer('http://wmtsserver/wmts?request=GetCapabilities', 'layer', 'EPSG:4326', 'jpeg') etc.
+                            layerCreateString = "Create" + layer.type + "Layer('" + layer.path + "'" + (layer.params ? ", " + layer.params : "") + ")";
+                            break;
+                        case "IMcNativeRasterMapLayer":
+                            layerCreateString = "MapCore.IMcNativeRasterMapLayer.Create('" + layer.path + "', " + (layer.params ? layer.params : "MapCore.UINT_MAX, false, 0, false") + ", this.layerCallback)";
+                            break;
+                        case "IMcNativeDtmMapLayer":
+                            layerCreateString = "MapCore.IMcNativeDtmMapLayer.Create('" + layer.path + "', " + (layer.params ? layer.params : "0") + ", this.layerCallback)";
+                            break;
+                        case "IMcNativeVectorMapLayer":
+                            layerCreateString = "MapCore.IMcNativeVectorMapLayer.Create('" + layer.path + "', " + (layer.params ? layer.params : "") + "this.layerCallback)";
+                            break;
+                        case "IMcNativeStaticObjectsMapLayer":
+                            layerCreateString = "MapCore.IMcNativeStaticObjectsMapLayer.Create('" + layer.path +  "', " + (layer.params ? layer.params : "0, 0") + ", this.layerCallback)";
+                            break;
+                        default:
+                            alert("Invalid type of server layer");
+                            return;
+                    }
+                    layerGroup.aLayerCreateStrings.push(layerCreateString);
+                }
+            }
+            if (jsonGroup.groupName != undefined) {
+                
+                this.setState({mapLayerGroups: new Map(this.state.mapLayerGroups.set(jsonGroup.groupName, layerGroup))});                
+                                
+            } 
+            // we should not get here...
+            else if (jsonGroup.wmtsServerURL != undefined) {
+
+                // layerGroup.wmtsServerURL = jsonGroup.wmtsServerURL;
+                // if (jsonGroup.tileMatrixSetFilter != undefined) {
+
+                //     layerGroup.tileMatrixSetFilter = jsonGroup.tileMatrixSetFilter;
+                // }
+                // aWmtsAdditionalLayerGroups.push(layerGroup);
+            }
+        }
+    }
+    catch (e)
+    {
+        alert("Invalid configuration JSON file");
+    }
     }
 
     parseCapabilitiesXML(xmlDoc, capabilitiesURL, bMapCoreLayerServer = true, wmtsAdditionalLayerGroup) {
@@ -297,18 +362,39 @@ export default class MapContainer extends PureComponent {
     createCallbackClasses() {        
         this.CLayerReadCallback = window.MapCore.IMcMapLayer.IReadCallback.extend("IMcMapLayer.IReadCallback", {
             // mandatory
-            OnInitialized : function(eStatus, strAdditionalDataString) {
-                if (eStatus != window.MapCore.IMcErrors.ECode.SUCCESS && eStatus != window.MapCore.IMcErrors.ECode.NATIVE_SERVER_LAYER_NOT_VALID) {
-                    alert("Layer initialization: " + window.MapCore.IMcErrors.ErrorCodeToString(eStatus.value) + " (" + strAdditionalDataString + ")");
+            OnInitialized : function(pLayer, eStatus, strAdditionalDataString)
+            {
+                if (eStatus == window.MapCore.IMcErrors.ECode.SUCCESS)
+                {
+                    if (pLayer.GetLayerType() ==  window.MapCore.IMcNativeStaticObjectsMapLayer.LAYER_TYPE && !pLayer.IsBuiltOfContoursExtrusion())
+                    {
+                        pLayer.SetDisplayingItemsAttachedToTerrain(true);
+                        pLayer.SetDisplayingDtmVisualization(true);
+                    }
+                }
+                else if (eStatus !=  window.MapCore.IMcErrors.ECode.NATIVE_SERVER_LAYER_NOT_VALID)
+                {
+                    alert("Layer initialization: " +  window.MapCore.IMcErrors.ErrorCodeToString(eStatus) + " (" + strAdditionalDataString + ")");
                 }
             },
             // mandatory
-            OnReadError: function(eErrorCode, strAdditionalDataString) {
-                alert("Layer read error: " + window.MapCore.IMcErrors.ErrorCodeToString(eErrorCode.value) + " (" + strAdditionalDataString + ")");
+            OnReadError: function(pLayer, eErrorCode, strAdditionalDataString) {
+                alert("Layer read error: " + window.MapCore.IMcErrors.ErrorCodeToString(eErrorCode) + " (" + strAdditionalDataString + ")");
             },
             // mandatory
-            OnNativeServerLayerNotValid: function(bLayerVersionUpdated) {/*TBD*/},
+            OnNativeServerLayerNotValid: function(pLayer, bLayerVersionUpdated) {/*TBD*/},
             // optional, needed if to be deleted by MapCore when no longer used
+            // optional
+            OnRemoved(pLayer, eStatus, strAdditionalDataString)
+            {
+                alert("Map layer has been removed");
+            },
+
+            // optional
+            OnReplaced(pOldLayer, pNewLayer, eStatus, strAdditionalDataString)
+            {
+                alert("Map layer has been replaced");
+            },            
             Release: function() { this.delete(); },
         });
         
@@ -387,6 +473,7 @@ export default class MapContainer extends PureComponent {
                 return this;
             },
         });
+        this.layerCallback = new this.CLayerReadCallback();
     }
 
     doMoveObjects() {
@@ -929,17 +1016,22 @@ export default class MapContainer extends PureComponent {
     // }
     
     async openMap(title, is3d) {
-        try {
-            const response = await axios.get(config.urls.getCapabilities);
-            const capabilitiesXMLDoc =  new DOMParser().parseFromString(response.data, "text/xml");
-            this.parseCapabilitiesXML(capabilitiesXMLDoc, config.urls.getCapabilities);
-        } catch (e) {
-            console.log('error when trying to call getCapabilities: ', e);
-        }
+        const serverUrl = externalConfig.getConfiguration().MAPCORE_LAYER_SERVER_URL;        
+            if (serverUrl) {
+                try {
+                    const response = await axios.get(serverUrl + config.urls.getCapabilities);
+                    const capabilitiesXMLDoc =  new DOMParser().parseFromString(response.data, "text/xml");
+                    this.parseCapabilitiesXML(capabilitiesXMLDoc, config.urls.getCapabilities);
+                } catch (e) {
+                    console.log('error when trying to call getCapabilities: ', e);
+                }
+            } else {
+                this.parseLayersConfiguration(externalConfig.getConfiguration().streamingLayers)
+            }
 
 
             this.state.mapLayerGroups.forEach( (value, key) => {
-                if (key.includes(`${title} (`)) {
+                if (key === title) {
                     
                     this.setState({
                             lastTerrainConfiguration: key,
@@ -1068,14 +1160,37 @@ export default class MapContainer extends PureComponent {
         )
     }
 
-    renderMapToolbox() {
-        
+    onMoreActionsClick = (e) =>{
+        e.preventDefault();
+        e.stopPropagation();
+
+        const menuItemsList = [{
+            name: "Show DTM visualization",
+            //func: this.props.start.bind(this, [this.props.name]),
+            iconCss: "Run"
+        },
+        {
+            name: "Switch To 3D",
+            //func: this.props.restart.bind(this, [this.props.name]),
+            iconCss: "Restart"
+        },
+        {
+            name: "Select Other Map",
+            //func: this.props.stop.bind(this, [this.props.name]),
+            iconCss: "Stop"
+        }
+    ];
+                
+        this.props.showContextMenu(e.nativeEvent.x, e.nativeEvent.y, menuItemsList);        
+    }
+
+    renderMapToolbox() {        
         return (
-            <div className={`${cn.MapToolbox} ${this.context.activeMapPreview === "Description" ? cn.Active:''}`}>
-                {this.renderRow('Name',  this.context.mapToPreview.data.Title)}
-                {this.renderRow('Format', this.context.mapToPreview.data.LayerType)}
-                {this.context.mapToPreview.data.RawLayerInfo ? this.renderRow('Coordinate System', this.context.mapToPreview.data.RawLayerInfo.CoordinateSystem.SRIDType) : null}
-                {this.context.mapToPreview.data.RawLayerInfo ? this.renderRow('Extent', this.context.mapToPreview.data.RawLayerInfo.CoordinateSystem.Code) : null}
+            <div className={`${cn.MapToolbox}`}>
+                <div className={cn.Description}>
+                    {externalConfig.getConfiguration().streamingLayers[0].groupName}
+                </div>
+                <span className={cn.MoreActionsBtn} onClick={this.onMoreActionsClick}></span>
             </div>
         )
     }
@@ -1083,15 +1198,30 @@ export default class MapContainer extends PureComponent {
     getCanvas() {
         return (
             <div className={cn.CanvasContainer} id='canvasesContainer'>
-                {this.context.activeMapPreview === "Description" ? this.renderMapToolbox() : null}
-            </div>);
+                {this.renderMapToolbox()}
+            </div>
+        );
     }
 
     render() {    
         return (
             <div className={cn.Wrapper}>
-                {this.context.isMapCoreSDKLoaded ? this.getCanvas() : this.renderLoadingMessage()}
+                {this.props.isMapCoreSDKLoaded ? this.getCanvas() : this.renderLoadingMessage()}
             </div>
         );
     }
 }
+
+const mapStateToProps = (state) => {
+    return {
+        isMapCoreSDKLoaded: state.map.isMapCoreSDKLoaded
+    };
+};
+
+const mapDispachToProps = (dispatch) => {
+    return {
+        showContextMenu: (x, y, items) => dispatch({ type: actionTypes.SHOW_CONTEXT_MENU, payload: {x, y, items} }),
+    };
+};
+
+export default connect(mapStateToProps, mapDispachToProps)(MapContainer);

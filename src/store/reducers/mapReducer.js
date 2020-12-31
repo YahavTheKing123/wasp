@@ -1,19 +1,15 @@
 import actionTypes from '../actions/actionTypes';
 
 const initialState = {    
-    selectedSystem: null,
+    isMapCoreSDKLoaded: false,
 };
 
 const mapReducer = (state = initialState, action ) => {
     switch (action.type) {
-        case actionTypes.GET_SYSTEMS_START:
+        case actionTypes.SET_MAPCORE_SDK_LOADED_FLAG:
             return {
                 ...state,
-                error: null,
-                systems: null,
-                formations: null,
-                versions: null,
-                systemsLoading: true
+                isMapCoreSDKLoaded: true
             }
         default:
             return state;

@@ -3,5 +3,31 @@
     "ROS_BE_PROTOCOL": "ws",
     "BE_PORT": 8081,
     "BE_IP": "192.168.1.100",
-    "MAPCORE_LAYER_SERVER_URL": "/"
+    "MAPCORE_LAYER_SERVER_URL": false,
+	"streamingLayers":[
+		{
+			"groupName":"Maccabim (UTM)",
+			"coordSystemType":"IMcGridUTM",
+			"coordSystemParams":"36, MapCore.IMcGridCoordinateSystem.EDatumType.EDT_ED50_ISRAEL",
+			"InitialScale2D":8,
+			"layers":[
+				{
+					"type":"IMcNativeRasterMapLayer",
+					"path":"http:Maps/Raster/Maccabim-UTM-Streaming"
+				},
+				{
+					"type":"IMcNativeDtmMapLayer",
+					"path":"http:Maps/DTM/MaccabimDTM-UTM-Streaming"
+				},
+				{
+					"type":"IMcNativeStaticObjectsMapLayer",
+					"path":"http:Maps/StaticObjects/MaccabimStatic-UTM-Streaming"
+				},
+				{
+					"type":"IMcNativeVectorMapLayer",
+					"path":"http:Maps/Vector/MaccabimRoads-UTM"
+				}
+			]
+		}
+	]  
 }

@@ -10,8 +10,16 @@ import OutputTabs from './components/OutputTabs/OutputTabs';
 import Video from './components/Video/Video';
 import ActionButtons from './components/ActionButtons/ActionButtons';
 import GlobalMessage from './components/GlobalMessage/GlobalMessage';
+import actionTypes from './store/actions/actionTypes';
+import { connect } from 'react-redux';
+import ContextMenu from './components/ContextMenu/ContextMenu';
 
 class App extends Component {
+
+    componentDidMount() {
+        window.MapCore.SetStartCallbackFunction(this.props.setMapCoreSDKLoadedFlag);
+    }
+
     closeErrorPopup = () => {
         this.setState({
             generalErrorMessage: false,
@@ -88,6 +96,7 @@ class App extends Component {
         return (
             <div className={classNames.App}>
                 <GlobalMessage />
+                {this.props.contextMenu ? <ContextMenu contextMenu={this.props.contextMenu}/> : null}
                 {this.getActionButtons()}
                 {this.getGeneralErrorPopup()}
                 {this.getMainHeader()}
@@ -97,4 +106,16 @@ class App extends Component {
     }
 }
 
-export default App;
+const mapStateToProps = state => {
+    return {
+      contextMenu: state.layout.contextMenu
+    }
+  };
+
+const mapDispachToProps = (dispatch) => {
+    return {
+        setMapCoreSDKLoadedFlag: () => dispatch({type: actionTypes.SET_MAPCORE_SDK_LOADED_FLAG})
+    };
+};
+
+export default connect(mapStateToProps, mapDispachToProps)(App);

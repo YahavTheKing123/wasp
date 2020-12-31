@@ -1,0 +1,20 @@
+
+material GT_f0731a90-1a3a-42f3-9c9c-86d2e241fceb.material
+{
+	technique
+	{
+		pass
+		{
+			scene_blend alpha_blend
+
+			texture_unit
+			{
+				texture GT_f0731a90-1a3a-42f3-9c9c-86d2e241fceb.png
+				tex_address_mode clamp clamp
+				filtering anisotropic anisotropic linear
+			}
+		}
+
+	}
+
+}

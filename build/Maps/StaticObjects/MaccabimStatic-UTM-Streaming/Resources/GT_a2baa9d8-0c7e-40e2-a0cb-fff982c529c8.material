@@ -1,0 +1,19 @@
+
+material GT_a2baa9d8-0c7e-40e2-a0cb-fff982c529c8.material
+{
+	technique
+	{
+		pass
+		{
+			scene_blend alpha_blend
+
+			texture_unit
+			{
+				texture GT_a2baa9d8-0c7e-40e2-a0cb-fff982c529c8.png
+				filtering anisotropic anisotropic linear
+			}
+		}
+
+	}
+
+}
