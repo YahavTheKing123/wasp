@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import cn from './Video.module.css';
 import { connect } from 'react-redux';
 import actions from '../../store/actions';
+import actionTypes from '../../store/actions/actionTypes';
 import externalConfig from '../../ExternalConfigurationHandler';
 import config from '../../config';
 
@@ -33,6 +34,30 @@ class Video extends Component {
         })
     }
 
+    onPauseOrPlayClick = e => {
+        e.stopPropagation();
+        this.props.isPaused ? this.props.resume() : this.props.pause()
+    }
+
+    getPlayOrPauseButton() {
+        return this.props.isPaused ? cn.Play : cn.Pause
+    }
+
+    getPlayOrPauseTitle() {
+        return this.props.isPaused ? 'Play' : 'Pause'
+    }
+
+    renderVideoHeader() {        
+        return (
+            <div className={`${cn.VideoHeader}`}>
+                <div className={cn.Description}>
+                    {this.props.isPaused ? 'Video paused' : 'Streaming video'}
+                </div>
+                <span className={cn.MoreActionsBtn} onClick={this.onMoreActionsClick}></span>
+            </div>
+        )
+    }
+
     renderImgElement() {
 
         if (this.state.isImageLoadingError) {
@@ -42,13 +67,19 @@ class Video extends Component {
         }
 
         return (
-            <img
-                onError={this.onVideoError}
-                className={cn.VideoImage}
-                src={this.getVideoSrc()}
-                id='droneImage'
-                onClick={this.props.pointVideoImage}
-            />
+            <>
+                {this.renderVideoHeader()}
+                <img
+                    onError={this.onVideoError}
+                    className={cn.VideoImage}
+                    src={this.getVideoSrc()}
+                    id='droneImage'
+                    onClick={this.props.pointVideoImage}
+                />
+                <div className={cn.VideoFooter}>
+                    <button onClick={this.onPauseOrPlayClick} title={this.getPlayOrPauseTitle()} className={`${cn.ControlBtn} ${this.getPlayOrPauseButton()}`}></button>
+                </div>
+            </>
         )
     }
 
@@ -69,7 +100,9 @@ const mapStateToProps = (state) => {
 
 const mapDispachToProps = (dispatch) => {
     return {
-        pointVideoImage: e => dispatch(actions.pointVideoImage(e))
+        pointVideoImage: e => dispatch(actions.pointVideoImage(e)),
+        pause: () => dispatch({type:actionTypes.PAUSE_VIDEO}),
+        resume: () => dispatch({type:actionTypes.RESUME_VIDEO}),
     };
 };
 

@@ -26,23 +26,29 @@
     align-items: center;
     justify-content: center;
 }
+.Button:active {
+    background:#CABE4E;
+}
 
 .Button:first-child {
     border-top: 1px solid #5c5c5c;
 }
 .ButtonLabel {
     color: rgba(255,255,255,0.7);
-    position: absolute;
-    bottom: 0;
+    margin-top: 7px;
+    font-size: 12px;
+}
+.Button:active .ButtonLabel {
+    color: #000000;
 }
 .Icon {
-    height: 30px;
-    width: 30px;
+    height: 28px;
+    width: 28px;
     background-position: center;
     background-repeat: no-repeat;    
-    background-size: cover;    
-    position: absolute;    
+    background-size: cover;        
     opacity: 0.7;
+    margin-top: 5px;
 }
 
 .LocateIcon {

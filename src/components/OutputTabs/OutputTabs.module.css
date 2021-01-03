@@ -4,6 +4,32 @@
     border-right: 1px solid #676767;
     border: 1px solid var(--app-bg-color-alt);
   }
+  .NoOutput {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.2);
+  }
+  .ErrorIcon {
+    display: inline-block;    
+    width: 18px;
+    height: 18px;
+    background-position: center;
+    background-repeat: no-repeat;    
+    background-size: contain; 
+    margin-right: 10px;  
+    background-image: url(../../assets/images/warnIcon.svg);
+  }
+  
+  .ErrorMessage {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.2);
+  }
+  
   .Tabs {
     display: flex;
     align-items: center;

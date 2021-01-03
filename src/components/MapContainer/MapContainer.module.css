@@ -24,8 +24,9 @@
   position: absolute;
   width: 100%;
   top: 0;
-  height: 45px;
-  background: rgba(0,0,0,.7);
+  height: 40px;
+  background: rgba(0,0,0,.65);
+  background: linear-gradient(to bottom, black 0%, transparent 100%);
   display: flex;
   align-items: center;
   font-size: 14px;

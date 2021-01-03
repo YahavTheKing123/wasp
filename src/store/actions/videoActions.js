@@ -1,6 +1,7 @@
 import actionTypes from './actionTypes';
 import {getBase64Image} from '../../utils/imageUtils';
 import * as services from '../../services';
+import {logSeverities} from '../../config';
 
 export const locate = () => {
     return async (dispatch) => {        
@@ -90,6 +91,7 @@ export const reset = () => {
 export const takeoff = () => {
     return async (dispatch) => {        
         dispatch({ type: actionTypes.TAKE_OFF_START });
+        dispatch({type: actionTypes.SHOW_GLOBAL_MESSAGE, payload: {text: `Taking off...`, type: logSeverities.info}});
 
         const requestTakeoff = new window.ROSLIB.ServiceRequest({});
 
@@ -98,6 +100,7 @@ export const takeoff = () => {
                 dispatch({ type: actionTypes.TAKE_OFF_SUCCESS });
             } else {
                 dispatch({ type: actionTypes.TAKE_OFF_FAILED });
+                dispatch({type: actionTypes.SHOW_GLOBAL_MESSAGE, payload: {text: `Taking off failed...`, type: logSeverities.error}});
             }
             console.log(result)
         });

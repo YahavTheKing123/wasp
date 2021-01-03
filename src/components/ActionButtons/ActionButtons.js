@@ -6,10 +6,6 @@ import actionTypes from '../../store/actions/actionTypes';
 
 class ActionButtons extends Component {
 
-    pauseOrResume = () => {
-        this.props.isPaused ? this.props.resume() : this.props.pause()
-    }
-
     getPauseIcon() {
         return this.props.isPaused ? cn.PlayIcon : cn.PauseIcon
     }
@@ -17,22 +13,18 @@ class ActionButtons extends Component {
     render() {
         const isHiddenClass = this.props.isRosWebsocketConncted ? '' : cn.Hidden;
         return (
-            <div className={`${cn.Wrapper}`}>
+            <div className={`${cn.Wrapper} ${isHiddenClass}`}>
+                    <button className={cn.Button} onClick={this.props.takeoff}>
+                        <span className={`${cn.Icon} ${cn.TakeoffIcon}`}></span>
+                        <span className={cn.ButtonLabel}>Takeoff</span>
+                    </button>
                     <button className={cn.Button} onClick={this.props.locate}>
                         <span className={`${cn.Icon} ${cn.LocateIcon}`}></span>
                         <span className={cn.ButtonLabel}>Locate</span>
                     </button>
-                    <button className={cn.Button} onClick={this.pauseOrResume}>
-                        <span className={`${cn.Icon} ${this.getPauseIcon()}`}></span>
-                        <span className={cn.ButtonLabel}>{ this.props.isPaused ? 'Resume' : 'Pause'}</span>
-                    </button>
                     <button className={cn.Button} onClick={this.props.reset}>
                         <span className={`${cn.Icon} ${cn.ResetIcon}`}></span>
                         <span className={cn.ButtonLabel}>Reset</span>
-                    </button>
-                    <button className={cn.Button} onClick={this.props.takeoff}>
-                        <span className={`${cn.Icon} ${cn.TakeoffIcon}`}></span>
-                        <span className={cn.ButtonLabel}>Takeoff</span>
                     </button>
             </div>
         )
@@ -48,11 +40,9 @@ const mapStateToProps = (state) => {
 
 const mapDispachToProps = dispatch => {
     return {
-        locate: () => dispatch(actions.locate()),
-        pause: () => dispatch({type:actionTypes.PAUSE_VIDEO}),
-        resume: () => dispatch({type:actionTypes.RESUME_VIDEO}),
-        restart: () => dispatch(actions.restart()),
         takeoff: () => dispatch(actions.takeoff()),
+        locate: () => dispatch(actions.locate()),
+        restart: () => dispatch(actions.restart()),
     }
 }
 
