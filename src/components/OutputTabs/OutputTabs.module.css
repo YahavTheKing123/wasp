@@ -3,6 +3,7 @@
     background-color: var(--app-bg-color);
     border-right: 1px solid #676767;
     border: 1px solid var(--app-bg-color-alt);
+    font-size: 15px;
   }
   .NoOutput {
     display: flex;

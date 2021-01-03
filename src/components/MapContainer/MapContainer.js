@@ -747,6 +747,7 @@ class MapContainer extends PureComponent {
         if (e.stopPropagation) e.stopPropagation();
     }
     mouseUpHandler = e => {
+        this.props.closeContextMenu();
         if (this.viewport.GetWindowHandle() != e.target) {
             return;
         }
@@ -1253,6 +1254,7 @@ const mapStateToProps = (state) => {
 const mapDispachToProps = (dispatch) => {
     return {
         showContextMenu: (x, y, items) => dispatch({ type: actionTypes.SHOW_CONTEXT_MENU, payload: {x, y, items} }),
+        closeContextMenu: () => dispatch({ type: actionTypes.CLOSE_CONTEXT_MENU}),
     };
 };
 
