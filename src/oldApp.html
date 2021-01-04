@@ -109,13 +109,13 @@ window.onload = function()
     document.getElementById('droneImage').onclick = function (ev) 
     {
         var img = document.getElementById('droneImage')
+        console.log(ev.pageX - this.offsetLeft,ev.pageY - this.offsetTop)
         var dataX = getBase64Image(img)
 
         var imageMessage = new ROSLIB.Message({
             data : dataX,
             format : "jpeg",
         });
-        
         var pointMessage = new ROSLIB.Message({
             x : ev.pageX - this.offsetLeft,
             y : ev.pageY - this.offsetTop,

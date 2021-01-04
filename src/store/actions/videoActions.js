@@ -32,15 +32,20 @@ export const pointVideoImage = ev => {
     return async (dispatch) => {        
         dispatch({ type: actionTypes.POINT_ON_VIDEO_IMAGE_START });
 
-        const img = document.getElementById('droneImage');
+        const img = document.getElementById('droneImage');        
+        // Adjusting pixel to original img sizes
+        const adjustedX =  (ev.pageX - img.getBoundingClientRect().x) / img.width * img.naturalWidth;
+        const adjustedY =  (ev.pageY - img.getBoundingClientRect().y) / img.height * img.naturalHeight;
+        
+        console.log(adjustedX, adjustedY);
 
         if (img) {
             const dataX = getBase64Image(img);
             const imageMessage = new window.ROSLIB.Message({data : dataX, format : "jpeg"});
                         
             const pointMessage = new window.ROSLIB.Message({
-                x : ev.pageX - img.offsetLeft,
-                y : ev.pageY - img.offsetTop,
+                x : Math.round(adjustedX),
+                y : Math.round(adjustedY),
                 z : 0.0
             });
     

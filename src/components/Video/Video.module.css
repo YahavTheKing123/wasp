@@ -8,10 +8,10 @@
 }
 
 .VideoImage {
-    /*width: auto;*/
-    height: 100%;
-    width: 100%;
-    cursor: pointer;
+  cursor: pointer;
+  width: 100%;
+  height: auto;
+  object-fit: cover; 
 }
 
 .ErrorIcon {
