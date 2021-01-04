@@ -1,7 +1,8 @@
 import actionTypes from './actionTypes';
 import {getBase64Image} from '../../utils/imageUtils';
-import * as services from '../../services';
+import {getService} from '../../services';
 import {logSeverities} from '../../config';
+
 
 export const locate = () => {
     return async (dispatch) => {        
@@ -13,13 +14,13 @@ export const locate = () => {
             const imageMessage = new window.ROSLIB.Message({data : dataX, format : "jpeg"});
             const requestLocate = new window.ROSLIB.ServiceRequest({image : imageMessage});
                         
-            services.pointingFingerLocate.callService(requestLocate, result => {
+            getService('pointingFingerLocate').callService(requestLocate, result => {
                 if (result.isSuccess) {
                     dispatch({ type: actionTypes.LOACTE_SUCCESS });
                 } else {
                     dispatch({ type: actionTypes.LOACTE_FAILED });        
                 }
-                console.log(services.pointingFingerLocate.name, result)
+                console.log(getService('pointingFingerLocate').name, result)
             });
         } else {
             dispatch({ type: actionTypes.LOACTE_FAILED });
@@ -45,18 +46,18 @@ export const pointVideoImage = ev => {
     
             const requestEncode = new window.ROSLIB.ServiceRequest({image : imageMessage, point : pointMessage });
                 
-            services.pointingFingerEncode.callService(requestEncode, result => {
+            getService('pointingFingerEncode').callService(requestEncode, result => {
                 
-                console.log(services.pointingFingerEncode.name, result);
+                console.log(getService('pointingFingerEncode').name, result);
             });
     
             const requestLocate = new window.ROSLIB.ServiceRequest({image : imageMessage});
     
-            services.pointingFingerLocate.callService(requestLocate, result => {
+            getService('pointingFingerLocate').callService(requestLocate, result => {
                 if (result.isSuccess) {
                     dispatch({ type: actionTypes.POINT_ON_VIDEO_IMAGE_SUCCESS });
                 }
-                console.log(services.pointingFingerLocate.name, result);
+                console.log(getService('pointingFingerLocate').name, result);
             });
 
         } else {
@@ -71,18 +72,18 @@ export const reset = () => {
 
         const requestReset = new window.ROSLIB.ServiceRequest({});
 
-        services.pointingFingerReset.callService(requestReset, result => {
+        getService('pointingFingerReset').callService(requestReset, result => {
             if (result.isSuccess) {
                 dispatch({ type: actionTypes.RESET_SUCCESS });
             } else {
                 dispatch({ type: actionTypes.RESET_FAILED });
             }
-            console.log(services.pointingFingerReset.name, result)
+            console.log(getService('pointingFingerReset').name, result)
         });
 
-        services.seekerReset.callService(requestReset, function(result) { 
-            console.log('Result for service call on ' + services.seekerReset.name + ': ' + result.isSuccess);
-            console.log(services.seekerReset.name, result)
+        getService('seekerReset').callService(requestReset, function(result) { 
+            console.log('Result for service call on ' + getService('seekerReset').name + ': ' + result.isSuccess);
+            console.log(getService('seekerReset').name, result)
         });
 
     };
@@ -95,7 +96,7 @@ export const takeoff = () => {
 
         const requestTakeoff = new window.ROSLIB.ServiceRequest({});
 
-        services.seekerTakeoff.callService(requestTakeoff,  result => {
+        getService('seekerTakeoff').callService(requestTakeoff,  result => {
             if (result.isSuccess) {
                 dispatch({ type: actionTypes.TAKE_OFF_SUCCESS });
             } else {

@@ -14,6 +14,9 @@ import Loader from './components/LoaderAlt/LoaderAlt';
 import axios from 'axios';
 import config from './config';
 
+const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
+export const store = createStore(rootReducer, composeEnhancers(applyMiddleware(reduxThunk)));
+
 ReactDOM.render(
     <React.StrictMode>
         <Loader loadingMessage={'initializing...'} />
@@ -31,11 +34,7 @@ axios.get(config.urls.configuration)
       });
 
 function renderAplication() {
-
-    const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
-
-    const store = createStore(rootReducer, composeEnhancers(applyMiddleware(reduxThunk)));
-
+    
     initInterceptor(store);
     rosWebsocketInstance.register(store);
 
