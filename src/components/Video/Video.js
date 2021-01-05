@@ -9,7 +9,8 @@ import config from '../../config';
 class Video extends Component {
 
     state = {
-        isImageLoadingError: false
+        isImageLoadingError: false,
+        isImageLoading: true
     }
 
     getVideoSrc() {
@@ -19,8 +20,8 @@ class Video extends Component {
         const streamUrl = `//${BE_IP}:${BE_PORT}${config.urls.stream}`;
 
         if (this.props.isPaused) {
-            return snapshotUrl;
             //return `//camera.ehps.ncsu.edu:8100/c8`
+            return snapshotUrl;
         } else {
             return streamUrl;
             //return `//camera.ehps.ncsu.edu:8100/c8`
@@ -31,6 +32,12 @@ class Video extends Component {
         console.log('error when trying to load camera video', e);
         this.setState({
             isImageLoadingError: true
+        })
+    }
+
+    onVideoLoaded = e => {
+        this.setState({
+            isImageLoading: false
         })
     }
 
@@ -70,6 +77,7 @@ class Video extends Component {
             <>
                 {this.renderVideoHeader()}
                 <img
+                    onLoad={this.onVideoLoaded}
                     onError={this.onVideoError}
                     className={cn.VideoImage}
                     src={this.getVideoSrc()}
@@ -84,8 +92,9 @@ class Video extends Component {
     }
 
     render() {
+        const fullHeightClass = this.state.isImageLoadingError || this.state.isImageLoading ? cn.FullHeight : '';
         return (
-            <div className={cn.Wrapper}>
+            <div className={`${cn.Wrapper} ${fullHeightClass}`}>
                 {this.renderImgElement()}
             </div>
         );
