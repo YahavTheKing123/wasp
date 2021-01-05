@@ -20,11 +20,11 @@ class Video extends Component {
         const streamUrl = `//${BE_IP}:${BE_PORT}${config.urls.stream}`;
 
         if (this.props.isPaused) {
-            //return `//camera.ehps.ncsu.edu:8100/c8`
-            return snapshotUrl;
+            return `//camera.ehps.ncsu.edu:8100/c8`
+            //return snapshotUrl;
         } else {
-            return streamUrl;
-            //return `//camera.ehps.ncsu.edu:8100/c8`
+            //return streamUrl;
+            return `//camera.ehps.ncsu.edu:8100/c8`
         }
     }
     
@@ -65,6 +65,15 @@ class Video extends Component {
         )
     }
 
+    renderVideoFooter() {
+        return (
+            // <div className={cn.VideoFooter}>
+            //     <button onClick={this.onPauseOrPlayClick} title={this.getPlayOrPauseTitle()} className={`${cn.ControlBtn} ${this.getPlayOrPauseButton()}`}></button>
+            // </div>
+            <button onClick={this.onPauseOrPlayClick} title={this.getPlayOrPauseTitle()} className={`${cn.ControlBtn} ${this.getPlayOrPauseButton()}`}></button>
+        )
+    }
+
     renderImgElement() {
 
         if (this.state.isImageLoadingError) {
@@ -84,9 +93,7 @@ class Video extends Component {
                     id='droneImage'
                     onClick={this.props.pointVideoImage}
                 />
-                <div className={cn.VideoFooter}>
-                    <button onClick={this.onPauseOrPlayClick} title={this.getPlayOrPauseTitle()} className={`${cn.ControlBtn} ${this.getPlayOrPauseButton()}`}></button>
-                </div>
+                {this.renderVideoFooter()}
             </>
         )
     }
