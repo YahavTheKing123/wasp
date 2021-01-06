@@ -86,3 +86,24 @@
 .RightPaneWrapperItem {
   height: 48.5%;
 }
+.HeaderLeftWrapper {
+  display: flex;
+}
+.Icon {
+  height: 24px;
+  width: 24px;
+  background-position: center;
+  background-repeat: no-repeat;    
+  background-size: cover;          
+  margin-left: 30px;
+}
+
+.GpsIcon {
+  background-image: url(./assets/images/gpsFull.svg);
+}
+.WifiIcon {
+  background-image: url(./assets/images/wifi.svg);
+}
+.BatteryIcon {
+  background-image: url(./assets/images/battery/battertHalf.svg);
+}

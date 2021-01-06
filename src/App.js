@@ -53,7 +53,12 @@ class App extends Component {
         return (
             <header className={classNames.AppHeader}>
                 <img src={logo} alt='logo' />
-                <div className={classNames.RightHeader}>{this.getClock()}</div>
+                <div className={classNames.HeaderLeftWrapper}>
+                    <span className={`${classNames.Icon} ${classNames.GpsIcon}`}></span>
+                    <span className={`${classNames.Icon} ${classNames.WifiIcon}`}></span>
+                    <span className={`${classNames.Icon} ${classNames.BatteryIcon}`}></span>
+                    <div className={classNames.RightHeader}>{this.getClock()}</div>
+                </div>
             </header>
         );
     }

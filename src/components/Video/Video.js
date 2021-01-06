@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import actions from '../../store/actions';
 import actionTypes from '../../store/actions/actionTypes';
 import externalConfig from '../../ExternalConfigurationHandler';
-import config from '../../config';
+import config, {devVideoSnapshotUrl, devVideoStreamUrl} from '../../config';
 import liveFeed from '../../assets/images/live_feed.svg';
 
 class Video extends Component {
@@ -21,13 +21,9 @@ class Video extends Component {
         const streamUrl = `//${BE_IP}:${BE_PORT}${config.urls.stream}`;
 
         if (this.props.isPaused) {
-            return snapshotUrl;
-            //return `http://88.53.197.250/axis-cgi/mjpg/video.cgi?resolution=320x240`
-            //return `//camera.ehps.ncsu.edu:8100/c8`
+            return process.env.NODE_ENV === 'development' ? devVideoSnapshotUrl : snapshotUrl;
         } else {
-            return streamUrl;
-            //return `http://88.53.197.250/axis-cgi/mjpg/video.cgi?resolution=320x240`
-            return `//camera.ehps.ncsu.edu:8100/c8`
+            return process.env.NODE_ENV === 'development' ? devVideoStreamUrl : streamUrl;
         }
     }
     
@@ -73,7 +69,11 @@ class Video extends Component {
             // <div className={cn.VideoFooter}>
             //     <button onClick={this.onPauseOrPlayClick} title={this.getPlayOrPauseTitle()} className={`${cn.ControlBtn} ${this.getPlayOrPauseButton()}`}></button>
             // </div>
-            <button onClick={this.onPauseOrPlayClick} title={this.getPlayOrPauseTitle()} className={`${cn.ControlBtn} ${this.getPlayOrPauseButton()}`}></button>
+            <button 
+                onClick={this.onPauseOrPlayClick} 
+                title={this.getPlayOrPauseTitle()} 
+                className={`${cn.ControlBtn} ${this.getPlayOrPauseButton()}`}>
+            </button>
         )
     }
 
@@ -95,6 +95,7 @@ class Video extends Component {
                     src={this.getVideoSrc()}
                     id='droneImage'
                     onClick={this.props.pointVideoImage}
+                    //onTouchStart={this.props.pointVideoImage}
                 />
                 {this.renderVideoFooter()}
             </>
