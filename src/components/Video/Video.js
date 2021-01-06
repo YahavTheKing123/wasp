@@ -5,6 +5,7 @@ import actions from '../../store/actions';
 import actionTypes from '../../store/actions/actionTypes';
 import externalConfig from '../../ExternalConfigurationHandler';
 import config from '../../config';
+import liveFeed from '../../assets/images/live_feed.svg';
 
 class Video extends Component {
 
@@ -20,10 +21,12 @@ class Video extends Component {
         const streamUrl = `//${BE_IP}:${BE_PORT}${config.urls.stream}`;
 
         if (this.props.isPaused) {
-            return `//camera.ehps.ncsu.edu:8100/c8`
-            //return snapshotUrl;
+            return snapshotUrl;
+            //return `http://88.53.197.250/axis-cgi/mjpg/video.cgi?resolution=320x240`
+            //return `//camera.ehps.ncsu.edu:8100/c8`
         } else {
-            //return streamUrl;
+            return streamUrl;
+            //return `http://88.53.197.250/axis-cgi/mjpg/video.cgi?resolution=320x240`
             return `//camera.ehps.ncsu.edu:8100/c8`
         }
     }
@@ -58,7 +61,7 @@ class Video extends Component {
         return (
             <div className={`${cn.VideoHeader}`}>
                 <div className={cn.Description}>
-                    {this.props.isPaused ? 'Video paused' : 'Streaming video'}
+                    {this.props.isPaused ? 'Video paused' : <span className={cn.StreamingIconWrapper}>Video Feed<span className={cn.StreamingIcon}></span></span>}
                 </div>
                 <span className={cn.MoreActionsBtn} onClick={this.onMoreActionsClick}></span>
             </div>
