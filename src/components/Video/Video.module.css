@@ -1,10 +1,13 @@
 .Wrapper {
-    height: auto;
-    background-color: var(--app-bg-color);
-    border-right: 1px solid #676767;
-    border: 1px solid var(--app-bg-color-alt);
-    font-size: 15px;
-    position: relative;    
+  height: 100%;
+  background-color: var(--app-bg-color);
+  border-right: 1px solid #676767;
+  border: 1px solid var(--app-bg-color-alt);
+  font-size: 15px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 .Wrapper.FullHeight {
   height: 100%;
@@ -12,8 +15,7 @@
 .VideoImage {
     cursor: pointer;
     width: 100%;
-    height: auto;
-    object-fit: contain;  
+    height: auto;    
 }
 
 .ErrorIcon {
