@@ -88,22 +88,72 @@
 }
 .HeaderLeftWrapper {
   display: flex;
+  height: 100%;
+  align-items: center;
+  justify-content: center;
 }
+
+.HeaderItem {
+  display: flex;
+  height: 100%;
+  align-items: center;
+  justify-content: center;
+  border-right: 1px solid var(--app-bg-color);
+  min-width: 80px;
+}
+
+.HeaderItem:first-child{
+  border-left: 1px solid var(--app-bg-color);
+  padding-left: 10px;
+}
+
 .Icon {
   height: 24px;
   width: 24px;
   background-position: center;
   background-repeat: no-repeat;    
-  background-size: cover;          
-  margin-left: 30px;
+  background-size: cover;            
 }
 
 .GpsIcon {
   background-image: url(./assets/images/gpsFull.svg);
 }
+.PositionIcon {
+  background-image: url(./assets/images/position.svg);
+}
 .WifiIcon {
-  background-image: url(./assets/images/wifi.svg);
+  background-image: url(./assets/images/signal.svg);
+  width: 25px;
+  height: 20px;
 }
 .BatteryIcon {
   background-image: url(./assets/images/battery/battertHalf.svg);
+}
+.BatteryValue {
+    font-size: 12px;
+    margin-left: 5px;
+}
+.LongLatWrapper{
+  flex-direction: column;
+  margin-left: 5px;
+  font-size: 12px;
+  margin-right: 20px;
+  display: flex;
+} 
+.LongLatWrapper > span {
+  display: flex;
+  justify-content: space-between;  
+}
+.lonLatLabel {
+  opacity: 0.6;
+}
+.lonLatValue {
+  opacity: 1;
+}
+.LongLatWrapper > span:first-child {
+  margin-bottom: 4px;
+}
+
+.LongLatWrapper > span > span{
+  margin-left: 7px;
 }

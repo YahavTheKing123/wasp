@@ -28,8 +28,7 @@ export default class Clock extends PureComponent {
 
     render() {
         return (
-            <span className={classNames.DateTime}>
-                {this.getFormatedData()}{`  `}
+            <span className={classNames.DateTime}>                
                 <span className={classNames.Hour}>{this.state.date.toLocaleTimeString(navigator.language,{hour12: false})}</span>
             </span>
         )

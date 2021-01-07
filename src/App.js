@@ -53,10 +53,25 @@ class App extends Component {
         return (
             <header className={classNames.AppHeader}>
                 <img src={logo} alt='logo' />
-                <div className={classNames.HeaderLeftWrapper}>
-                    <span className={`${classNames.Icon} ${classNames.GpsIcon}`}></span>
-                    <span className={`${classNames.Icon} ${classNames.WifiIcon}`}></span>
-                    <span className={`${classNames.Icon} ${classNames.BatteryIcon}`}></span>
+                <div className={classNames.HeaderLeftWrapper}>                                        
+                    <span className={classNames.HeaderItem}>
+                        <span className={`${classNames.Icon} ${classNames.PositionIcon}`}></span>
+                        <span className={classNames.LongLatWrapper}>
+                            <span>
+                                <span className={classNames.lonLatLabel}>lat:</span>
+                                <span className={classNames.lonLatValue}>32.35249</span>
+                            </span>
+                            <span>
+                                <span className={classNames.lonLatLabel}>long:</span>
+                                <span className={classNames.lonLatValue}>34.87586</span>
+                            </span>
+                        </span>
+                    </span>
+                    <span className={classNames.HeaderItem}><span className={`${classNames.Icon} ${classNames.WifiIcon}`}></span></span>
+                    <span className={classNames.HeaderItem}>
+                        <span className={`${classNames.Icon} ${classNames.BatteryIcon}`}></span>
+                        <span className={classNames.BatteryValue}>59%</span>
+                    </span>
                     <div className={classNames.RightHeader}>{this.getClock()}</div>
                 </div>
             </header>
