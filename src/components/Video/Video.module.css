@@ -1,13 +1,12 @@
 .Wrapper {
   height: 100%;
   background-color: var(--app-bg-color);
-  border-right: 1px solid #676767;
   border: 1px solid var(--app-bg-color-alt);
   font-size: 15px;
   position: relative;
   display: flex;
-  flex-direction: column;
-  justify-content: center;
+  flex-direction: column;  
+  overflow: hidden;
 }
 .Wrapper.FullHeight {
   height: 100%;
@@ -15,7 +14,7 @@
 .VideoImage {
     cursor: pointer;
     width: 100%;
-    height: auto;    
+    height: auto;
 }
 
 .ErrorIcon {
@@ -38,27 +37,21 @@
 }
 
 .VideoHeader {
-  position: absolute;
-  width: auto;
-  top: 0;
-  height: 30px;
-  background: rgba(0,0,0,.65);
-  background: linear-gradient(to bottom, #2d2d2d 0%, transparent 100%);
+  width: 100%;  
+  min-height: 30px;
+  background: var(--app-bg-color-alt);
+  /*background: linear-gradient(to bottom, #2d2d2d 0%, transparent 100%);*/    
   display: flex;
-  align-items: center;
-  font-size: 14px;
-  padding: 0px 17px;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
+  flex-direction: column;    
   justify-content: center;
-  left: 50%;
-  transform: translate(-50%);
 }
 
   .Description {    
     font-weight: 400;
-    font-size: 14px;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
   
   .MoreActionsBtn {
@@ -119,11 +112,11 @@
 }
 .StreamingIcon {
   display: inline-block;
-  height: 14px;
-  width: 20px;
+  height: 12px;
+  width: 18px;
   background-position: center;
   background-repeat: no-repeat;    
   background-size: cover;
-  margin-left: 5px;
+  margin-left: 8px;
   background-image: url(../../assets/images/live_feed.svg);
 }

@@ -24,9 +24,10 @@
   position: absolute;
   width: 100%;
   top: 0;
-  height: 40px;
-  background: rgba(0,0,0,.65);
-  background: linear-gradient(to bottom, black 0%, transparent 100%);
+  height: 30px;
+  /*background: rgba(0,0,0,.65);
+  background: linear-gradient(to bottom, black 0%, transparent 100%);*/
+  background: var(--app-bg-color-alt);
   display: flex;
   align-items: center;
   font-size: 14px;
@@ -51,8 +52,8 @@
 }
 .Description {
   margin: auto;
-  font-weight: 500;
-  font-size: 15px;
+  font-weight: 400;
+  font-size: 13px;
 }
 
 .MoreActionsBtn {
@@ -60,9 +61,9 @@
   cursor: pointer;
   background-repeat: no-repeat;
   display: inline-block;
-  height: 18px;
-  width: 18px;
+  height: 15px;
+  width: 4px;
   position: absolute;
-  right: 15px;
+  right: 20px;
   background-position: center;
 }
