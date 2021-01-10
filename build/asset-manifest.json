@@ -1,0 +1,35 @@
+{
+  "files": {
+    "main.css": "./static/css/main.a32d71ca.chunk.css",
+    "main.js": "./static/js/main.964ebacb.chunk.js",
+    "main.js.map": "./static/js/main.964ebacb.chunk.js.map",
+    "runtime-main.js": "./static/js/runtime-main.698f5968.js",
+    "runtime-main.js.map": "./static/js/runtime-main.698f5968.js.map",
+    "static/css/2.65aa3b33.chunk.css": "./static/css/2.65aa3b33.chunk.css",
+    "static/js/2.359f99ed.chunk.js": "./static/js/2.359f99ed.chunk.js",
+    "static/js/2.359f99ed.chunk.js.map": "./static/js/2.359f99ed.chunk.js.map",
+    "index.html": "./index.html",
+    "static/css/2.65aa3b33.chunk.css.map": "./static/css/2.65aa3b33.chunk.css.map",
+    "static/css/main.a32d71ca.chunk.css.map": "./static/css/main.a32d71ca.chunk.css.map",
+    "static/js/2.359f99ed.chunk.js.LICENSE.txt": "./static/js/2.359f99ed.chunk.js.LICENSE.txt",
+    "static/media/App.module.css": "./static/media/signal.3ded7355.svg",
+    "static/media/close.cafa525b.svg": "./static/media/close.cafa525b.svg",
+    "static/media/MapContainer.module.css": "./static/media/context.06cc0957.svg",
+    "static/media/ContextMenu.module.css": "./static/media/mountain.8994cf4d.svg",
+    "static/media/ActionButtons.module.css": "./static/media/refresh1.85f1dc2b.svg",
+    "static/media/errorIcon.8ac257c2.svg": "./static/media/errorIcon.8ac257c2.svg",
+    "static/media/Video.module.css": "./static/media/live_feed.f749ea0c.svg",
+    "static/media/infoFull.77fd10dd.svg": "./static/media/infoFull.77fd10dd.svg",
+    "static/media/newLogo.990b2210.svg": "./static/media/newLogo.990b2210.svg",
+    "static/media/index.css": "./static/media/scroll-arrow.f90f6c25.svg",
+    "static/media/success.617ddc92.svg": "./static/media/success.617ddc92.svg",
+    "static/media/OutputTabs.module.css": "./static/media/warnIcon.a363b201.svg"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.698f5968.js",
+    "static/css/2.65aa3b33.chunk.css",
+    "static/js/2.359f99ed.chunk.js",
+    "static/css/main.a32d71ca.chunk.css",
+    "static/js/main.964ebacb.chunk.js"
+  ]
+}
