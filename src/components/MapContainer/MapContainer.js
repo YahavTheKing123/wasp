@@ -660,17 +660,33 @@ class MapContainer extends PureComponent {
     }
 
 
-    mouseMoveHandler = e => {
+    mouseMoveHandler = (e, isTouch = false) => {        
         if (this.viewport.GetWindowHandle() != e.target) {
             return;
         }
-    
-        let EventPixel = window.MapCore.SMcPoint(e.offsetX, e.offsetY);
+        
+        let EventPixel = null ; 
+        if (isTouch) {
+            const rect = e.target.getBoundingClientRect();
+            const offsetX = e.targetTouches[0].pageX - rect.left;
+            const offsetY = e.targetTouches[0].pageY - rect.top;
+            EventPixel = window.MapCore.SMcPoint(offsetX, offsetY);
+        } else {
+            EventPixel = window.MapCore.SMcPoint(e.offsetX, e.offsetY);
+        }
+
         if (e.buttons <= 1) {
             let bHandled = {};
             let eCursor = {};
-            this.editMode.OnMouseEvent(e.buttons == 1 ? window.MapCore.IMcEditMode.EMouseEvent.EME_MOUSE_MOVED_BUTTON_DOWN : window.MapCore.IMcEditMode.EMouseEvent.EME_MOUSE_MOVED_BUTTON_UP, 
-                EventPixel, e.ctrlKey, 0, bHandled, eCursor);
+            this.editMode.OnMouseEvent((e.buttons == 1 || isTouch) ? 
+                window.MapCore.IMcEditMode.EMouseEvent.EME_MOUSE_MOVED_BUTTON_DOWN : 
+                window.MapCore.IMcEditMode.EMouseEvent.EME_MOUSE_MOVED_BUTTON_UP, 
+                EventPixel, 
+                e.ctrlKey, 
+                0, 
+                bHandled, 
+                eCursor
+            );
             if (bHandled.Value) {
                 e.preventDefault();
                 e.cancelBubble = true;
@@ -679,7 +695,7 @@ class MapContainer extends PureComponent {
             }
         }
     
-        if (e.buttons == 1) {
+        if (e.buttons == 1 || isTouch) {
             if (this.nMousePrevX != 0) {
                 let factor = (e.shiftKey ? 10 : 1);
                 if (this.viewport.GetMapType() == window.MapCore.IMcMapCamera.EMapType.EMT_3D) {
@@ -803,6 +819,31 @@ class MapContainer extends PureComponent {
         }
     }
 
+    stopEvent = (e) => {
+        e.preventDefault();
+        e.cancelBubble = true;
+        e.stopPropagation && e.stopPropagation();
+    }
+
+    touchStartHandler = (e) => {            
+        const rect = e.target.getBoundingClientRect();
+        this.nMousePrevX = this._onMouseDownX = e.targetTouches[0].pageX - rect.left;
+        this.nMousePrevY = this._onMouseDownY = e.targetTouches[0].pageY - rect.top;        
+        //this.stopEvent(e);        
+    }
+    
+    touchMoveHandler = (e) => {        
+        const isTouch = true;
+        if (e.touches.length === 1) {
+            this.mouseMoveHandler(e, isTouch);
+          } else {            
+          }   
+          e.preventDefault(); 
+    }
+
+    touchEndHandler = (e) => {}
+    touchCancelHandler = (e) => {}
+
     createViewport(terrain, eMapTypeToOpen) {
         // create canvas if needed
         let currCanvas;
@@ -816,6 +857,11 @@ class MapContainer extends PureComponent {
             currCanvas.addEventListener("mousedown", this.mouseDownHandler, false);
             currCanvas.addEventListener("mouseup", this.mouseUpHandler, false);
             currCanvas.addEventListener("dblclick", this.mouseDblClickHandler, false);
+
+            currCanvas.addEventListener("touchstart", this.touchStartHandler, false);            
+            currCanvas.addEventListener("touchend", this.touchEndHandler, false);
+            currCanvas.addEventListener("touchmove", this.touchMoveHandler, false);
+            currCanvas.addEventListener("touchcancel", this.touchCancelHandler, false);
         }
         else {
             // use existing canvas
@@ -1016,7 +1062,7 @@ class MapContainer extends PureComponent {
     //         this.openMap(this.context.mapToPreview.title);
             
     //     } catch (e) {
-    //         console.log('error when trying to call getCapabilities: ', e);
+//         
     //     }
     // }
     
@@ -1027,8 +1073,7 @@ class MapContainer extends PureComponent {
                     const response = await axios.get(serverUrl + config.urls.getCapabilities);
                     const capabilitiesXMLDoc =  new DOMParser().parseFromString(response.data, "text/xml");
                     this.parseCapabilitiesXML(capabilitiesXMLDoc, config.urls.getCapabilities);
-                } catch (e) {
-                    console.log('error when trying to call getCapabilities: ', e);
+                } catch (e) {                    
                 }
             } else {
                 this.parseLayersConfiguration([this.props.mapToShow])
@@ -1094,6 +1139,11 @@ class MapContainer extends PureComponent {
             currCanvas.removeEventListener("mousedown", this.mouseDownHandler, false);
             currCanvas.removeEventListener("mouseup", this.mouseUpHandler, false);
             currCanvas.removeEventListener("dblclick", this.mouseDblClickHandler, false);
+            currCanvas.removeEventListener("touchstart", this.touchStartHandler, false);            
+            currCanvas.removeEventListener("touchend", this.touchEndHandler, false);
+            currCanvas.removeEventListener("touchmove", this.touchMoveHandler, false);
+            currCanvas.removeEventListener("touchcancel", this.touchCancelHandler, false);
+
             let canvasParent = document.getElementById('canvasesContainer');
             canvasParent.removeChild(this.aViewports[this.activeViewport].canvas);
         }
