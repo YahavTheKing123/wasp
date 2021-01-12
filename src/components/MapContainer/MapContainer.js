@@ -97,22 +97,23 @@ class MapContainer extends PureComponent {
             if (jsonGroup.layers) {
                 for (let layer of jsonGroup.layers) {
                     let layerCreateString = null;
-                    switch (layer.type) {
+                    const protocol = window.location.protocol;
+                    switch (layer.type) {                        
                         case "WMSRaster":
                             // WMS raster layer creation string: CreateWMSRasterLayer('http://wmtsserver/wmts?request=GetCapabilities', 'layer', 'EPSG:4326', 'jpeg') etc.
                             layerCreateString = "Create" + layer.type + "Layer('" + layer.path + "'" + (layer.params ? ", " + layer.params : "") + ")";
                             break;
                         case "IMcNativeRasterMapLayer":
-                            layerCreateString = "MapCore.IMcNativeRasterMapLayer.Create('" + layer.path + "', " + (layer.params ? layer.params : "MapCore.UINT_MAX, false, 0, false") + ", this.layerCallback)";
+                            layerCreateString = "MapCore.IMcNativeRasterMapLayer.Create('" + protocol + layer.path + "', " + (layer.params ? layer.params : "MapCore.UINT_MAX, false, 0, false") + ", this.layerCallback)";
                             break;
                         case "IMcNativeDtmMapLayer":
-                            layerCreateString = "MapCore.IMcNativeDtmMapLayer.Create('" + layer.path + "', " + (layer.params ? layer.params : "0") + ", this.layerCallback)";
+                            layerCreateString = "MapCore.IMcNativeDtmMapLayer.Create('" + protocol + layer.path + "', " + (layer.params ? layer.params : "0") + ", this.layerCallback)";
                             break;
                         case "IMcNativeVectorMapLayer":
-                            layerCreateString = "MapCore.IMcNativeVectorMapLayer.Create('" + layer.path + "', " + (layer.params ? layer.params : "") + "this.layerCallback)";
+                            layerCreateString = "MapCore.IMcNativeVectorMapLayer.Create('" + protocol + layer.path + "', " + (layer.params ? layer.params : "") + "this.layerCallback)";
                             break;
                         case "IMcNativeStaticObjectsMapLayer":
-                            layerCreateString = "MapCore.IMcNativeStaticObjectsMapLayer.Create('" + layer.path +  "', " + (layer.params ? layer.params : "0, 0") + ", this.layerCallback)";
+                            layerCreateString = "MapCore.IMcNativeStaticObjectsMapLayer.Create('" + protocol + layer.path +  "', " + (layer.params ? layer.params : "0, 0") + ", this.layerCallback)";
                             break;
                         default:
                             alert("Invalid type of server layer");

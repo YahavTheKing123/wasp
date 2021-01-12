@@ -13,19 +13,19 @@
 			"layers":[
 				{
 					"type":"IMcNativeRasterMapLayer",
-					"path":"http:Maps/Raster/Maccabim-UTM-Streaming"
+					"path":"Maps/Raster/Maccabim-UTM-Streaming"
 				},
 				{
 					"type":"IMcNativeDtmMapLayer",
-					"path":"http:Maps/DTM/MaccabimDTM-UTM-Streaming"
+					"path":"Maps/DTM/MaccabimDTM-UTM-Streaming"
 				},
 				{
 					"type":"IMcNativeStaticObjectsMapLayer",
-					"path":"http:Maps/StaticObjects/MaccabimStatic-UTM-Streaming"
+					"path":"Maps/StaticObjects/MaccabimStatic-UTM-Streaming"
 				},
 				{
 					"type":"IMcNativeVectorMapLayer",
-					"path":"http:Maps/Vector/MaccabimRoads-UTM"
+					"path":"Maps/Vector/MaccabimRoads-UTM"
 				}
 			]
 		}
