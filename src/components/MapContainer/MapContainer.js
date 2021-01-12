@@ -1025,6 +1025,108 @@ class MapContainer extends PureComponent {
         //this.mapMngr.notifyGeneralEvent('maporientationchanged', azimuthChange.Value, this.elementId);
     }
 
+    getCameraScale = (convertToMeters = false) => {
+        let ret;
+        if (!this.state.is3DClicked) {
+          ret = this.viewport.GetCameraScale();
+          if (convertToMeters) {
+            ret /= this.viewport.GetPixelPhysicalHeight();
+            ret = (ret * 10).toFixed(2);
+            ret = parseInt(ret);
+          }
+        } else {
+          ret = this.viewport.GetCameraPosition().z;
+        }
+    
+        return ret;
+    }
+    setCameraScale = (scale, factorFor3D = 1, notifyFpAndScale) => {
+        if (!this.state.is3DClicked) {
+          const mapScaleTopLimit = this.mapScaleTopLimit || 200000;
+          this.cameraScaleChanged = true;
+          const pixelPhysicalHeight = this.viewport.GetPixelPhysicalHeight();
+          const ratio = scale / pixelPhysicalHeight;
+          if (ratio < 25) {
+            scale = pixelPhysicalHeight * 25;
+          } else if (ratio > mapScaleTopLimit) {
+            scale = pixelPhysicalHeight * mapScaleTopLimit;
+          }
+          this.viewport.SetCameraScale(scale);
+        } else {
+          const camPosition = this.viewport.GetCameraPosition();
+          let zoomSign = 1;
+          if (scale > camPosition.z) {
+            zoomSign = -1;
+          }
+          const factor = factorFor3D * camPosition.z / 100;
+          this.viewport.MoveCameraRelativeToOrientation(window.MapCore.SMcVector3D(0, zoomSign * factor, 0), false);
+        }
+    
+        // if (notifyFpAndScale) {
+        //   let fpToUpdate;
+        //   let scaleToUpdate;
+        //   if (!this.state.is3DClicked) {
+        //     // Notify scale change if needed (only in 2d viewport)
+        //     let currentScale = this.viewport.GetCameraScale() / this.viewport.GetPixelPhysicalHeight();
+        //     currentScale = (currentScale * 10).toFixed(2);
+        //     currentScale = parseInt(currentScale);
+    
+        //     fpToUpdate = this.viewport.GetCameraFootprint();
+        //     scaleToUpdate = currentScale;
+        //   } else {
+        //     const footPrint = this.calculate3DFootPrint();
+        //     fpToUpdate = footPrint.fp;
+        //     scaleToUpdate = footPrint.scale;
+        //   }
+        //   if (fpToUpdate && fpToUpdate.bUpperLeftFound && fpToUpdate.bUpperRightFound &&
+        //     fpToUpdate.bLowerRightFound && fpToUpdate.bLowerLeftFound) {
+    
+        //     this.notifyCameraMove(fpToUpdate, scaleToUpdate, this.elementId);
+        //   }
+        // }
+    }
+
+    updatePositionText = (x, y, z, updateHeight = true) => {
+        let height;
+        try {
+          //when updating position height displayed, use default precision
+          const heightForQuery = {};
+          const lonNew = (Math.abs(x) > 100000) ? x : x * 100000;
+          const latNew = (Math.abs(y) > 100000) ? y : y * 100000;
+          const positionToCheck = new window.MapCore.SMcVector3D(lonNew, latNew, 0);
+          if (this.viewport.GetTerrainHeight(positionToCheck, heightForQuery)) {
+            height = heightForQuery.Value;
+          }
+        } catch (exp) {}
+    
+        // Update context with new height
+        if (updateHeight) {
+          this.lastUpdatedHeight = height;
+          console.log('mapheightchanged', height);
+        }
+    
+        // Update context with new position
+        // const point = new geo.coordinate(x, y, height);
+        // this.lastPositionChanged = point;
+        // this.mapMngr.notifyGeneralEvent('mappositionchanged', point, this.elementId);
+    }
+
+    zoomIn = (amount, duration) => {
+        const currentScale = this.getCameraScale();
+        this.setCameraScale(currentScale / (amount || 1.5));
+        if (this.lastClickPos) {
+          this.updatePositionText(this.lastClickPos.x, this.lastClickPos.y, this.lastClickPos.z);
+        }
+      }
+    
+    zoomOut = (amount, duration) => {
+        const currentScale = this.getCameraScale();
+        this.setCameraScale(currentScale * (amount || 1.5));
+        if (this.lastClickPos) {
+          this.updatePositionText(this.lastClickPos.x, this.lastClickPos.y, this.lastClickPos.z);
+        }
+    }
+      
     handleZoomOrRotate = e => {
 
             const xDistance = e.touches[0].screenX - e.touches[1].screenX;
@@ -1066,7 +1168,7 @@ class MapContainer extends PureComponent {
               }
 
               if (!this.state.is3DClicked) {
-                if (difDistance > 1000) {
+                if (difDistance > 10000) {
                   //The distance between the touches is big\small enough for zooming in\out.
                   if (zoomIn) {
                     this.zoomIn(1.05);
