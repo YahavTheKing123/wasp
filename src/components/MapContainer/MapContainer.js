@@ -1066,7 +1066,7 @@ class MapContainer extends PureComponent {
               }
 
               if (!this.state.is3DClicked) {
-                if (difDistance > 10000) {
+                if (difDistance > 1000) {
                   //The distance between the touches is big\small enough for zooming in\out.
                   if (zoomIn) {
                     this.zoomIn(1.05);
