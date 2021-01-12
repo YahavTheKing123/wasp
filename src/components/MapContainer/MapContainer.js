@@ -1159,7 +1159,43 @@ class MapContainer extends PureComponent {
         e.preventDefault(); 
     }
     
-    touchEndHandler = (e) => {}
+    touchEndHandler = (e) => {
+        this.isTouch = false;        
+        this.pinchStatus = undefined;
+        if (e.touches && e.touches.length) {
+            // Removing only one touch while there is more touches enabled
+            this.disableMoveAfterMultiTouches = true;
+            setTimeout(() => {
+                this.disableMoveAfterMultiTouches = false;
+            }, 200);
+        }
+        if (!e.touches.length) {
+            this.isMouseDown = false;
+            this.lastTouchDistance = 0;
+            this.lastTouchRotation = undefined;
+
+            // Cancel long click listening
+            //clearTimeout(longClick);
+            // Not in edit mode
+            this.dbclickHandled = true;
+
+            // canvas.clickCount++;
+            // if (canvas.clickCount === 1) {
+            //     singleClick = setTimeout(e => {
+            //     canvas.clickCount = 0;
+            //     this.onLeftClick(e) || this.stopEvent(e);
+            //     }, 200, e);
+            // } else if (canvas.clickCount === 2) {
+            //     clearTimeout(singleClick);
+            //     canvas.clickCount = 0;
+            //     this.onLeftDoubleClick(e);
+            // }
+        }
+    
+        e.preventDefault();
+        e.target.focus()
+    }
+
     touchCancelHandler = (e) => {}
 
     createViewport(terrain, eMapTypeToOpen) {

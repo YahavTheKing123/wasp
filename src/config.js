@@ -1,7 +1,7 @@
 const config = {   
     urls: {
       getCapabilities: '/map/opr?service=wmts&request=GetCapabilities',
-      configuration: '/configuration.json',
+      configuration: 'configuration.json',
       stream: '/stream?topic=/d415/color/image_raw',
       snapshot: '/snapshot?topic=/d415/color/image_raw',
     }
