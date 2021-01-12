@@ -17,11 +17,24 @@ import externalConfig from './ExternalConfigurationHandler';
 
 class App extends Component {
 
+    disableZoomInTouchScreen = e => {
+        if (e.touches.length > 1) {
+            e.preventDefault();
+        }
+    }
+
     componentDidMount() {
         window.MapCore.SetStartCallbackFunction(this.props.setMapCoreSDKLoadedFlag);
 
         const defaultGroup = externalConfig.getConfiguration().streamingLayers[0];
         this.props.setMapToShow(defaultGroup);
+
+          //Disable zoom in touch
+        window.addEventListener('touchstart', this.disableZoomInTouchScreen, {passive: false});
+    }
+
+    componentWillUnmount() {
+        window.removeEventListener('touchstart', this.disableZoomInTouchScreen);
     }
 
     closeErrorPopup = () => {
