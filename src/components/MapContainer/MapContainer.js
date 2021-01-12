@@ -831,16 +831,334 @@ class MapContainer extends PureComponent {
         this.nMousePrevY = this._onMouseDownY = e.targetTouches[0].pageY - rect.top;        
         //this.stopEvent(e);        
     }
+
+    screenToWorld = (x, y, options) => {
+        const screenPoint = new window.MapCore.SMcVector3D(x, y, 0);
+        const worldPoint = {};
+        if (!this.viewport.ScreenToWorldOnTerrain(screenPoint, worldPoint)) {
+          this.viewport.ScreenToWorldOnPlane(screenPoint, worldPoint);
+        }
+        let ret = worldPoint;
+        if (!options || !options.withoutConvert) {
+        //   const worldPointGeo = this.gridConverter.ConvertAtoB(worldPoint.Value);
+        //   const worldPointGeoConverted = ConvertGEOPartial.geoPartialCoordsToGeoPartial(new geo.coordinate(worldPointGeo.x / DEG_TO_MC, worldPointGeo.y / DEG_TO_MC, worldPointGeo.z));
+        //   const worldPointGrid = worldPoint.Value;
+        //   ret = {worldPointGeo, worldPointGeoConverted, worldPointGrid};
+        }
+        return ret;
+    }
+
+    worldToScreen = (coordinate, options) =>{
+        let srcCoords = coordinate;
+        if (!options || !options.native) {
+          //srcCoords = this._transformCoordinateToNative(coordinate);
+        }
+        const screenPoint = this.viewport.WorldToScreen(srcCoords);
+        let inScreen = true;
+        if (screenPoint.x < 0 || screenPoint.x > this._canvas.width ||
+          screenPoint.y < 0 || screenPoint.y > this._canvas.height) {
+          inScreen = false;
+        }
+        return {x: screenPoint.x, y: screenPoint.y, inScreen};
+    }
+
+    moveCameraRelativeToOrientation = (moveX, moveY, ignorePitch = true, useHeightFactor = false) => {
+        let factor = 1;
+        if (useHeightFactor) {
+          const currentPosition = this.viewport.GetCameraPosition();
+          let height = {};
+          let heightDiff = Math.abs(currentPosition.z);
+          if (this.viewport.GetTerrainHeight(currentPosition, height)) {
+            heightDiff = currentPosition.z - height.Value;
+          }
     
-    touchMoveHandler = (e) => {        
+        //   if (this.moveCameraRelativeToOrientationFactor) {
+        //     const heightFactorNameToUse = useHeightFactor ? useHeightFactor : 'other';
+        //     const heightFactorToUse = this.moveCameraRelativeToOrientationFactor[heightFactorNameToUse];
+        //     if (heightFactorToUse) {              
+        //       for (let i = 0; i < heightFactorToUse.length; i++) {
+        //         if (!heightFactorToUse[i].max) {
+        //           factor = heightFactorToUse[i].factor;
+        //         }
+        //         if (heightDiff < heightFactorToUse[i].max) {
+        //           factor = heightFactorToUse[i].factor;
+        //           break;
+        //         }
+        //       }
+        //     }
+        //   }
+        // }
+
+            if (useHeightFactor === 'mouse') {
+                factor = 600;
+                if (heightDiff < 10) {
+                factor = 1;
+                } else if (heightDiff < 30) {
+                factor = 3;
+                } else if (heightDiff < 100) {
+                factor = 6;
+                } else if (heightDiff < 200) {
+                factor = 12;
+                } else if (heightDiff < 300) {
+                factor = 20;
+                } else if (heightDiff < 500) {
+                factor = 35;
+                } else if (heightDiff < 1000) {
+                factor = 100;
+                } else if (heightDiff < 2000) {
+                factor = 200;
+                } else if (heightDiff < 5000) {
+                factor = 400;
+                }
+            } else if (useHeightFactor === 'touch') {
+                factor = 600;
+                if (heightDiff < 10) {
+                factor = 2;
+                } else if (heightDiff < 30) {
+                factor = 6;
+                } else if (heightDiff < 100) {
+                factor = 9;
+                } else if (heightDiff < 200) {
+                factor = 12;
+                } else if (heightDiff < 300) {
+                factor = 20;
+                } else if (heightDiff < 500) {
+                factor = 35;
+                } else if (heightDiff < 1000) {
+                factor = 100;
+                } else if (heightDiff < 2000) {
+                factor = 200;
+                } else if (heightDiff < 5000) {
+                factor = 400;
+                }
+                factor *= 2;
+            } else {
+                factor = 150;
+                if (heightDiff < 10) {
+                factor = 1;
+                } else if (heightDiff < 30) {
+                factor = 4;
+                } else if (heightDiff < 100) {
+                factor = 8;
+                } else if (heightDiff < 200) {
+                factor = 12;
+                } else if (heightDiff < 300) {
+                factor = 30;
+                } else if (heightDiff < 500) {
+                factor = 50;
+                } else if (heightDiff < 1000) {
+                factor = 100;
+                }
+            }        
+        }  
+        this.viewport.MoveCameraRelativeToOrientation(window.MapCore.SMcVector3D(moveX * factor, moveY * factor, 0), ignorePitch);
+    }
+
+    getCameraOrientation = () => {
+        let ret = {azimuth: 0, pitch: 0};
+        const azimuthOrientation = {};
+        const pitchOrientation = {};
+        this.viewport.GetCameraOrientation(azimuthOrientation, pitchOrientation, null);
+        if (azimuthOrientation) {
+          ret.azimuth = azimuthOrientation.Value;
+        }
+        if (pitchOrientation) {
+          ret.pitch = pitchOrientation.Value;
+        }
+        return ret;
+    }
+
+    setCameraOrientation = (cameraOrientationAzimuth, cameraOrientationPitch, stopDrag = true) => {
+        const azimuthOrientation = {};
+        const pitchOrientation = {};
+        const rollOrientation = {};
+        this.viewport.GetCameraOrientation(azimuthOrientation, pitchOrientation, rollOrientation);
+        const azimuthToSet = cameraOrientationAzimuth !== undefined ? cameraOrientationAzimuth : azimuthOrientation.Value;
+        const pitchToSet = cameraOrientationPitch !== undefined ? cameraOrientationPitch : pitchOrientation.Value;
+        this.viewport.SetCameraOrientation(azimuthToSet, pitchToSet, 0);        
+    }    
+
+    isGeoCoordValid = (coord, isNative = true) =>{
+        const DEG_TO_MC = 100000;
+
+        let isValid = true;
+        const coordFactor = isNative ? DEG_TO_MC : 1;
+        if (coord.x < -180 * coordFactor || coord.y < -89.5 * coordFactor || coord.y === 0) {
+          isValid = false;
+        } else if (coord.x > 180 * coordFactor || coord.y > 89.5 * coordFactor || coord.z > Number.MAX_VALUE) {
+          isValid = false;
+        }
+        return isValid;
+    }
+
+    rotateCameraAroundWorldPoint = (coord, azimuthDelta, azimuthPitch, watchRoll) => {
+        const currentAzimuth = {};
+        const currentPitch = {};
+        const currentRoll = {};
+        let currentPosition;
+        if (watchRoll) {
+          this.viewport.GetCameraOrientation(currentAzimuth, currentPitch, currentRoll);
+          currentPosition = this.viewport.GetCameraPosition();
+        }
+    
+        this.viewport.RotateCameraAroundWorldPoint(coord, azimuthDelta, azimuthPitch);
+    
+        if (watchRoll) {
+          const newAzimuth = {};
+          const newPitch = {};
+          const newRoll = {};
+          this.viewport.GetCameraOrientation(newAzimuth, newPitch, newRoll);
+          if (Math.abs(newRoll.Value) === 180) {
+            this.viewport.SetCameraOrientation(currentAzimuth.Value, currentPitch.Value, currentRoll.Value, false);
+            this.viewport.SetCameraPosition(currentPosition);
+          } else {
+            //this.mapMngr.notifyGeneralEvent('maporientationchanged', newAzimuth.Value, this.elementId);
+          }
+        }
+    }
+
+    rotateCameraRelativeToOrientation = (moveX, moveY, factor) => {
+        this.viewport.RotateCameraRelativeToOrientation(moveX * factor, moveY * factor, 0);
+        const azimuthChange = {};
+        this.viewport.GetCameraOrientation(azimuthChange, null, null);
+        //this.mapMngr.notifyGeneralEvent('maporientationchanged', azimuthChange.Value, this.elementId);
+    }
+
+    handleZoomOrRotate = e => {
+
+            const xDistance = e.touches[0].screenX - e.touches[1].screenX;
+            const yDistance = e.touches[0].screenY - e.touches[1].screenY;
+
+            const currentDistance = Math.abs((xDistance * xDistance) + (yDistance * yDistance));
+
+            if (!this.lastTouchDistance) {
+              this.lastTouchDistance = currentDistance;
+            } else {
+              const zoomIn = currentDistance - this.lastTouchDistance > 0;
+              const difDistance = Math.abs(currentDistance - this.lastTouchDistance);
+
+              // Calculate the average position(screen and geo) of the touches
+              const rect = e.target.getBoundingClientRect();
+
+              const firstTouchX = e.targetTouches[0].pageX - rect.left;
+              const firstTouchY = e.targetTouches[0].pageY - rect.top;
+
+              const secondTouchX = e.targetTouches[1].pageX - rect.left;
+              const secondTouchY = e.targetTouches[1].pageY - rect.top;
+
+              const averageX = (firstTouchX + secondTouchX) / 2;
+              const averageY = (firstTouchY + secondTouchY) / 2;
+
+              const averageWorldPosition = this.screenToWorld(averageX, averageY, {withoutConvert: true});
+
+              let prevAverageX;
+              let prevAverageY;
+
+              if (!this.pinchStatus) {
+                this.pinchStatus = {averageX, averageY, averageWorldPosition};
+              } else {
+                prevAverageX = this.pinchStatus.averageX;
+                prevAverageY = this.pinchStatus.averageY;
+
+                this.pinchStatus.averageX = averageX;
+                this.pinchStatus.averageY = averageY;
+              }
+
+              if (!this.state.is3DClicked) {
+                if (difDistance > 10000) {
+                  //The distance between the touches is big\small enough for zooming in\out.
+                  if (zoomIn) {
+                    this.zoomIn(1.05);
+                  } else {
+                    this.zoomOut(1.05);
+                  }
+                  this.lastTouchDistance = currentDistance;
+                }
+              } else if (!this.pinchStatus.coordToRotateAround3D) {
+                if (difDistance > 1000) {
+                  //The distance between the touches is big\small enough for zooming in\out.
+                  const zoomFactor = difDistance / 5000;
+                  if (zoomIn) {
+                    this.moveCameraRelativeToOrientation(0, zoomFactor, false, true);
+                  } else {
+                    this.moveCameraRelativeToOrientation(0, -zoomFactor, false, true);
+                  }
+                  this.lastTouchDistance = currentDistance;
+                  prevAverageX = undefined;
+                  prevAverageY = undefined;
+                  this.pinchStatus.zooming3D = true;
+                } else {
+                  this.pinchStatus.zooming3D = false;
+                }
+              }
+
+              if (!this.state.is3DClicked) {
+                // Calculating the angle between the touches for orientation setting
+                const currentRotation = Math.atan2(firstTouchY - secondTouchY, firstTouchX - secondTouchX) * 180 / Math.PI;
+                let difRotation = 0;
+                if (this.lastTouchRotation === undefined) {
+                  //first series of rotations
+                  this.lastTouchRotation = currentRotation;
+                } else {
+                  difRotation = Math.abs(currentRotation - this.lastTouchRotation);
+                  if (difRotation > 0.5) {
+                    const currentCameraOrientation = this.getCameraOrientation().azimuth;
+                    this.setCameraOrientation(currentCameraOrientation + this.lastTouchRotation - currentRotation);
+                    this.lastTouchRotation = currentRotation;
+                  }
+                }
+
+                if (this.pinchStatus) {
+                  // After zooming or changing orientation, set the map so the previous screen position with be placed on
+                  // the same geo position as it was before.
+                  const averageScreenAfterZoom = this.worldToScreen(this.pinchStatus.averageWorldPosition.Value, {native: true});
+                  const scrollX = averageScreenAfterZoom.x - this.pinchStatus.averageX;
+                  const scrollY = averageScreenAfterZoom.y - this.pinchStatus.averageY;
+                  try {
+                    this.viewport.ScrollCamera(scrollX, scrollY);
+                  } catch (exp) {
+                  }
+                }
+              } else {
+                //handle 3d rotating
+                if (prevAverageX || prevAverageY) {
+                  const currentRotation = Math.atan2(firstTouchY - secondTouchY, firstTouchX - secondTouchX) * 180 / Math.PI;
+                  let difRotation = 0;
+                  if (this.lastTouchRotation === undefined) {
+                    //first series of rotations
+                    this.lastTouchRotation = currentRotation;
+                  } else {
+                    difRotation = Math.abs(currentRotation - this.lastTouchRotation);
+                    if (!this.pinchStatus.zooming3D && (difRotation > 2.5 || this.pinchStatus.coordToRotateAround3D)) {
+                      this.pinchStatus.coordToRotateAround3D = this.pinchStatus.coordToRotateAround3D || averageWorldPosition.Value;
+                      const nativeCoord = this.pinchStatus.coordToRotateAround3D;
+                      if (this.isGeoCoordValid(nativeCoord)) {
+                        const rotateSign = Math.sign(this.lastTouchRotation - currentRotation);
+                        this.rotateCameraAroundWorldPoint(nativeCoord, rotateSign * 2, 0, true);
+                      }
+                    } else {
+                      this.cameraMoved = true;
+                      const offsetX = prevAverageX - this.pinchStatus.averageX;
+                      const offsetY = this.pinchStatus.averageY - prevAverageY;
+                      this.rotateCameraRelativeToOrientation(offsetX, offsetY, 0.1);
+                    }
+                    this.lastTouchRotation = currentRotation;
+                  }
+                }
+              }
+            }          
+    }
+    
+    touchMoveHandler = e => {   
         const isTouch = true;
         if (e.touches.length === 1) {
             this.mouseMoveHandler(e, isTouch);
-          } else {            
-          }   
-          e.preventDefault(); 
+        } else {    
+            this.handleZoomOrRotate(e);
+        }   
+        e.preventDefault(); 
     }
-
+    
     touchEndHandler = (e) => {}
     touchCancelHandler = (e) => {}
 
