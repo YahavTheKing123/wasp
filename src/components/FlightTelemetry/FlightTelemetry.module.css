@@ -13,12 +13,18 @@
 .TelemetryWrapper:first-child {
     margin-right: 10px;
 }
-.TelemetryWrapper span:first-child {
+.TelemetryWrapper > span:first-child {
     margin-right: 5px;
     font-size: 15px;
     font-weight: 400;
     opacity: 0.8;
 }
-.TelemetryWrapper span:last-child {    
+.TelemetryWrapper > span:last-child {    
     font-size: 17px;    
+}
+.Units {
+    font-size: 13px;
+    margin-left: 2px;
+    opacity: 0.8;
+    font-weight: 400;
 }
