@@ -39,15 +39,17 @@ export const pointVideoImage = ev => {
         
         console.log(adjustedX, adjustedY);
 
-        dispatch(showGlobalMessage({text: `Pixel selected ${adjustedX}, ${adjustedY}`, type: logSeverities.info, isRemoved: true}));
+        const roundedX =  Math.round(adjustedX);
+        const roundedY =  Math.round(adjustedY);
+        dispatch(showGlobalMessage({text: `selected pixel: (${roundedX}, ${roundedY})`, type: logSeverities.info, isRemoved: true}));
 
         if (img) {
             const dataX = getBase64Image(img);
             const imageMessage = new window.ROSLIB.Message({data : dataX, format : "jpeg"});
                         
             const pointMessage = new window.ROSLIB.Message({
-                x : Math.round(adjustedX),
-                y : Math.round(adjustedY),
+                x : roundedX,
+                y : roundedY,
                 z : 0.0
             });
     

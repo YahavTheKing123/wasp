@@ -4,6 +4,7 @@ import classNames from './App.module.css';
 import Loader from './components/LoaderAlt/LoaderAlt';
 import Clock from './components/Clock/Clock';
 import Popup from './components/Popup/Popup';
+import FlightTelemetry from './components/FlightTelemetry/FlightTelemetry';
 import Error from './components/Error/Error';
 import MapContainer from './components/MapContainer/MapContainer';
 import OutputTabs from './components/OutputTabs/OutputTabs';
@@ -14,6 +15,7 @@ import actionTypes from './store/actions/actionTypes';
 import { connect } from 'react-redux';
 import ContextMenu from './components/ContextMenu/ContextMenu';
 import externalConfig from './ExternalConfigurationHandler';
+
 
 class App extends Component {
 
@@ -134,6 +136,7 @@ class App extends Component {
             <div className={classNames.App}>
                 <GlobalMessage />
                 <Popup/>
+                <FlightTelemetry/>
                 {this.props.contextMenu ? <ContextMenu contextMenu={this.props.contextMenu}/> : null}
                 {this.getActionButtons()}
                 {this.getGeneralErrorPopup()}
