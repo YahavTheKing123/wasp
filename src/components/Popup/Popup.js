@@ -1,9 +1,11 @@
 import React, { PureComponent } from 'react';
 import cn from './Popup.module.css';
 import closeImg from '../../assets/images/close.svg';
+import PopupChildren from './PopupChildren';
+import { connect } from 'react-redux';
+import actionTypes from '../../store/actions/actionTypes';
 
-
-export default class Popup extends PureComponent {
+class Popup extends PureComponent {
     EscKey = 27;
     componentDidMount() {
         document.addEventListener('keydown', this.handleKeyDown);
@@ -26,75 +28,136 @@ export default class Popup extends PureComponent {
         }
     }
 
-    onCancelClicked = (e) => {
-        e.preventDefault();
-        if (this.props.onCancel) {
-            this.props.onCancel();    
+    closePopup = () => {        
+        if (this.props.popupDetails && this.props.popupDetails.onCloseButtonClick) {
+            this.props.popupDetails.onCloseButtonClick();
         }
+        this.props.hidePopup();
+    }
+
+    onCloseBtnClick = e => {
+        e.preventDefault();
+        this.closePopup()
     }
 
     getXBtn() {
         return (
             this.props.hideXButton ? null :
-                <a className={cn.Close} href="#" onClick={this.onCancelClicked}>
+                <a className={cn.Close} href="#" onClick={this.onCloseBtnClick}>
                     <img className={cn.closeBtn} src={closeImg}/>
                 </a> 
         );
     }
-    getFooter() {
-        let okButton = null;
-        let cancelButton = null;
-        if (this.props.buttonOk) {
-            okButton = <button onClick={this.onOkClicked} className={`${cn.FormButton} ${cn.Apply}`}>{this.props.buttonOk}</button>;            
+    closePopup() {
+        if (this.props.popupDetails && this.props.popupDetails.onCloseButtonClick) {
+            this.props.popupDetails.onCloseButtonClick();
         }
-        if (this.props.buttonCancel) {
-            cancelButton = <button onClick={this.onCancelClicked} className={`${cn.FormButton}`}>{this.props.buttonCancel}</button>;            
+        this.props.hidePopup();
+    }
+
+    onPrimaryBtnClick = e => {
+        e.preventDefault();
+        if (this.props.popupDetails.primayButton && this.props.popupDetails.primayButton.callback) {
+            this.props.popupDetails.primayButton.callback();
+        }
+        this.closePopup();
+    }
+
+    onSecondaryBtnClick = e => {
+        e.preventDefault();
+        if (this.props.popupDetails.secondaryButton && this.props.popupDetails.secondaryButton.callback) {
+            this.props.popupDetails.secondaryButton.callback();
+        }
+        this.closePopup();
+    }
+
+    renderButtons() {
+        //default primary button in case no other button was injected as props
+        let primaryButton = <button type="button" className={`${cn.Btn} ${cn.BtnPrimary}`} onClick={this.onPrimaryBtnClick}>Close</button>;
+        let secondaryButton = null;
+
+        if (this.props.popupDetails.primayButton) {
+            primaryButton = <button type="button" className={`${cn.FormButton} ${cn.Apply}`} onClick={this.onPrimaryBtnClick}>{this.props.popupDetails.primayButton.title}</button>;
         }
 
-        if (!okButton && !cancelButton) return null;
+        if (this.props.popupDetails.secondaryButton) {
+            secondaryButton = <button type="button" className={`${cn.FormButton}`} onClick={this.onSecondaryBtnClick}>{this.props.popupDetails.secondaryButton.title}</button>
+        }
+
+        return (
+            <>
+                {secondaryButton}
+                {primaryButton}
+            </>
+        )
+    }
+
+    getFooter() {
         return (
 
             <div className={cn.PopupFooter}>
                 <div>         
-                    {cancelButton}       
-                    {okButton}
+                    {this.renderButtons()}
                 </div>
             </div>
         );
     }
+
     getHeader() {
         return (
             <div className={cn.PopupHeader}>
                 <div className={cn.PopupHeaderWrapper}>
-                    <h2 className={cn.h2}>{this.props.header}</h2>                                            
+                    <h2 className={cn.h2}>{this.props.popupDetails.title}</h2>                                            
                     {this.getXBtn()}                    
                 </div>
             </div>
         );
     }
 
+    renderChild() {
+        const Child = PopupChildren[this.props.popupDetails.modalChild];
+        return <Child {...this.props.popupDetails.modalChildProps}/>;
+    }
+
     getBody() {
         const noBodyOverflowClass = this.props.noBodyOverflow ? cn.NoBodyOverFlow : '';
 
-        const body =  React.Children.count(this.props.children)  > 0 ?
-            (<div className={`${cn.PopupBody} ${noBodyOverflowClass}`}>
-                {this.props.children}
-            </div>) : null;
+        const body =
+            <div className={`${cn.PopupBody} ${noBodyOverflowClass}`}>
+                {this.props.popupDetails.modalChild ? this.renderChild() : null}
+            </div>;
         return body;
     }
 
     render() {
-        const size = this.props.size ? cn[this.props.size] : '';
-        return (this.props.children) ? 
-                (
-                   <div className={cn.Overlay}>
-                       <div className={`${cn.Popup} ${size}`}>
-                           {this.getHeader()}
-                           {this.getBody()}
-                           {this.getFooter()}
-                       </div>
-                   </div>
-               ) : null;
+        if (!this.props.popupDetails) return null;
         
+        const size = this.props.popupDetails.size ? cn[this.props.popupDetails.size] : '';
+        return (
+            <div className={cn.Overlay}>
+                <div className={`${cn.Popup} ${size}`}>
+                    {this.getHeader()}
+                    {this.getBody()}
+                    {this.getFooter()}
+                </div>
+            </div>
+        )           
     }
 }
+
+const mapStateToProps = state => {
+    return {        
+        popupDetails: state.layout.popupDetails,        
+    }
+};
+
+const mapDispachToProps = dispatch => {
+    return {
+      hidePopup: () => dispatch({type: actionTypes.HIDE_POPUP})
+    }
+}
+
+export default connect(
+    mapStateToProps,
+    mapDispachToProps
+)(Popup)

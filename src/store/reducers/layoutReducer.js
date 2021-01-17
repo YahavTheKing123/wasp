@@ -4,6 +4,7 @@ const initialState = {
     appGlobalMessage: null,
     isRosWebsocketConncted: false,
     contextMenu: null,    //{x,y,menuItems}
+    popupDetails: null,
 };
 
 const layoutReducer = (state = initialState, action ) => {
@@ -52,6 +53,18 @@ const layoutReducer = (state = initialState, action ) => {
                 ...state,
                 contextMenu: null 
             }   
+        }
+        case actionTypes.SHOW_POPUP: {
+            return {
+                ...state,
+                popupDetails: {...action.payload}
+            }
+        }
+        case actionTypes.HIDE_POPUP: {
+            return {
+                ...state,
+                popupDetails: null
+            }        
         }        
         default:
             return state;

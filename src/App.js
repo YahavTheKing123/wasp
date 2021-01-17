@@ -133,6 +133,7 @@ class App extends Component {
         return (
             <div className={classNames.App}>
                 <GlobalMessage />
+                <Popup/>
                 {this.props.contextMenu ? <ContextMenu contextMenu={this.props.contextMenu}/> : null}
                 {this.getActionButtons()}
                 {this.getGeneralErrorPopup()}

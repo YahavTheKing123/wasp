@@ -57,7 +57,12 @@ export function getService(serviceName) {
             ros : rosWebSocket.getRosWebsocketObject(),
             name : 'seeker/Takeoff',
             serviceType : 'seeker/Takeoff'
-        })    
+        }),
+        flyToTopic: new window.ROSLIB.Topic({
+            ros : rosWebSocket.getRosWebsocketObject(),
+            name : '/seeker/TranslatePosition',
+            messageType : 'geometry_msgs/Vector3'
+        }),        
     }    
 
     return services[serviceName];

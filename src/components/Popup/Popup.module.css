@@ -27,7 +27,8 @@
     width: 45%;    
     background-color: var(--app-bg-color);
     border: 1px solid var(--app-bg-color);
-    min-width: 650px;
+    /*min-width: 650px;*/
+    max-width: 435px;
     max-height: 600px; 
 }
 

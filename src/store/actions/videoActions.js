@@ -2,7 +2,7 @@ import actionTypes from './actionTypes';
 import {getBase64Image} from '../../utils/imageUtils';
 import {getService} from '../../services';
 import {logSeverities} from '../../config';
-
+import {showGlobalMessage} from './layoutActions';
 
 export const locate = () => {
     return async (dispatch) => {        
@@ -38,6 +38,8 @@ export const pointVideoImage = ev => {
         const adjustedY =  (ev.pageY - img.getBoundingClientRect().y) / img.height * img.naturalHeight;
         
         console.log(adjustedX, adjustedY);
+
+        dispatch(showGlobalMessage({text: `Pixel selected ${adjustedX}, ${adjustedY}`, type: logSeverities.info, isRemoved: true}));
 
         if (img) {
             const dataX = getBase64Image(img);
@@ -110,5 +112,21 @@ export const takeoff = () => {
             }
             console.log(result)
         });
+    };
+};
+
+export const goToLocation = (location) => {
+    return async (dispatch) => {        
+        dispatch({ type: actionTypes.GO_TO_LOCATION_START });
+        dispatch(showGlobalMessage({text: `Go To Location ${location}`, type: logSeverities.info, isRemoved: true}));
+        
+        const [x,y,z] = location.split(',');
+        const pointMessage = new window.ROSLIB.Message({
+            x : parseFloat(x),
+            y : parseFloat(y),
+            z : parseFloat(z)
+        });
+
+        getService('flyToTopic').publish(pointMessage);
     };
 };

@@ -7,7 +7,47 @@ import actionTypes from '../../store/actions/actionTypes';
 class ActionButtons extends Component {
 
     getPauseIcon() {
-        return this.props.isPaused ? cn.PlayIcon : cn.PauseIcon
+        return this.props.isPaused ? cn.PlayIcon : cn.PauseIcon        
+    }
+
+    goToLocation = () => {
+        const popupDetails = {
+            title: 'Go To Location',            
+            modalChild: 'GoToLocationForm',            
+            modalChildProps: {
+                size: 'small',
+                onValueChange: value => this.tempLocationValue = value
+            },
+            onCloseButtonClick: () => {
+                this.tempLocationValue = null
+            },
+            primayButton: {
+                title: 'Go',
+                callback: this.onGoToLocationPopupOkBtnClick
+            },
+            secondaryButton: {
+                title: 'Cancel',
+                callback: () => {
+                    this.tempLocationValue = null
+                }
+            }
+        };
+        this.props.showPopup(popupDetails);
+    }
+
+    onGoToLocationPopupOkBtnClick = () => {
+        if (this.tempLocationValue !== null) {
+            if (this.tempLocationValue === '') {
+                this.tempLocationValue = null;
+            } else {
+                try {                    
+                    this.props.goToLocation(this.tempLocationValue);
+                } catch (e) {
+                    console.error('wrong go to location value', e);
+                }
+            }
+            this.tempLocationValue = null;
+        }
     }
 
     render() {
@@ -21,6 +61,10 @@ class ActionButtons extends Component {
                     <button className={cn.Button} onClick={this.props.locate}>
                         <span className={`${cn.Icon} ${cn.LocateIcon}`}></span>
                         <span className={cn.ButtonLabel}>Locate</span>
+                    </button>
+                    <button className={cn.Button} onClick={this.goToLocation}>
+                        <span className={`${cn.Icon} ${cn.SetLocationIcon}`}></span>
+                        <span className={cn.ButtonLabel}>Go To</span>
                     </button>
                     <button className={cn.Button} onClick={this.props.reset}>
                         <span className={`${cn.Icon} ${cn.ResetIcon}`}></span>
@@ -43,6 +87,8 @@ const mapDispachToProps = dispatch => {
         takeoff: () => dispatch(actions.takeoff()),
         locate: () => dispatch(actions.locate()),
         restart: () => dispatch(actions.restart()),
+        showPopup: details => dispatch({ type: actionTypes.SHOW_POPUP, payload: details }),
+        goToLocation: location => dispatch(actions.goToLocation(location)),
     }
 }
 

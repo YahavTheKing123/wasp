@@ -11,7 +11,8 @@ class Video extends Component {
 
     state = {
         isImageLoadingError: false,
-        isImageLoading: true
+        isImageLoading: true,
+        isFullScreen: false
     }
 
     getVideoSrc() {
@@ -44,6 +45,30 @@ class Video extends Component {
         e.stopPropagation();
         this.props.isPaused ? this.props.resume() : this.props.pause()
     }
+    
+    onFullScreenClick = () => {
+        //const elem = document.querySelector('#droneImage');
+        const elem = document.querySelector('#videoWrapper');
+        if (elem.requestFullscreen) {
+            elem.requestFullscreen();
+        } else if (elem.webkitRequestFullscreen) { /* Safari */
+            elem.webkitRequestFullscreen();
+        } else if (elem.msRequestFullscreen) { /* IE11 */
+            elem.msRequestFullscreen();
+        }
+        this.setState({isFullScreen: true})
+    }
+
+    onExitFullScreenClick = () => {
+        if (document.exitFullscreen) {
+            document.exitFullscreen();
+        } else if (document.webkitExitFullscreen) { /* Safari */
+            document.webkitExitFullscreen();
+        } else if (document.msExitFullscreen) { /* IE11 */
+            document.msExitFullscreen();
+        }
+        this.setState({isFullScreen: false})
+    }
 
     getPlayOrPauseButton() {
         return this.props.isPaused ? cn.Play : cn.Pause
@@ -63,17 +88,24 @@ class Video extends Component {
             </div>
         )
     }
-
+    
     renderVideoFooter() {
         return (
             // <div className={cn.VideoFooter}>
             //     <button onClick={this.onPauseOrPlayClick} title={this.getPlayOrPauseTitle()} className={`${cn.ControlBtn} ${this.getPlayOrPauseButton()}`}></button>
             // </div>
-            <button 
-                onClick={this.onPauseOrPlayClick} 
-                title={this.getPlayOrPauseTitle()} 
-                className={`${cn.ControlBtn} ${this.getPlayOrPauseButton()}`}>
-            </button>
+            <div className={cn.Footer}>
+                <button 
+                    onClick={this.onPauseOrPlayClick} 
+                    title={this.getPlayOrPauseTitle()} 
+                    className={`${cn.ControlBtn} ${this.getPlayOrPauseButton()}`}>
+                </button>
+                <button 
+                    onClick={this.state.isFullScreen ?  this.onExitFullScreenClick : this.onFullScreenClick} 
+                    title={this.state.isFullScreen ? 'Exit Full Screen' : 'Full Screen'} 
+                    className={`${cn.ControlBtn} ${this.state.isFullScreen ? cn.ExitFullScreen : cn.FullScreen}`}>
+                </button>
+            </div>
         )
     }
 
@@ -105,7 +137,7 @@ class Video extends Component {
     render() {
         const fullHeightClass = this.state.isImageLoadingError || this.state.isImageLoading ? cn.FullHeight : '';
         return (
-            <div className={`${cn.Wrapper} ${fullHeightClass}`}>
+            <div className={`${cn.Wrapper} ${fullHeightClass}`} id='videoWrapper'>
                 {this.renderImgElement()}
             </div>
         );

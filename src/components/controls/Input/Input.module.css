@@ -1,0 +1,94 @@
+.Row {    
+    display: flex;
+    flex-direction: column;
+}
+
+.Label {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    position: relative;
+    font-size: 14px;
+    margin-bottom: 10px;
+}
+
+.Mandatory::after {
+    content: '*';
+    color: var(--app-validation-color);
+    margin-left: 3px;    
+}
+
+.InputWrapper {
+    width: 100%;
+    height: 50px;
+}
+
+.InnerInputWrapper {
+    position: relative;
+}
+
+.Input {
+    display: inline-block;
+    background-color: transparent;
+    border: none;
+    border: 1px solid var(--input-border-color);
+    border-radius: var(--button-border-radius);
+    outline: none;
+    color: var(--app-font-color);
+    font-weight: 400;
+    font-family: inherit;
+    font-size: 14px;
+    padding: 10px;
+    width: 100%;   
+}
+
+.Input.ShowError {
+    border: 1px solid var(--app-validation-color);
+}
+
+.Input::placeholder {
+    color:rgba(255, 255, 255,0.4);
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+}
+
+.ValidationMessage {
+    visibility: visible;
+    color: var(--app-validation-color);
+    font-size: 12px;
+    padding-left: 2px;
+    margin-top: 3px;
+    white-space: nowrap;
+}
+
+.ValidationMessage.ShowError {    
+    visibility: visible;
+}
+.ValidationImg {
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    transform: translateY(-50%);
+    top: 50%;
+    right: -28px;
+    visibility: hidden;
+}
+.ValidationImg.ShowError {    
+    visibility: visible;
+}
+.readOnly{
+    color: var(--app-font-readonly);
+}
+.InfoImage {
+    margin-left: 5px;
+    background-repeat: no-repeat;
+    background-position: center;
+    height: 14px;
+    width: 14px;
+    background-size: cover;    
+    /*background-image: url('../../assets/images/info.svg');*/
+    position: relative;
+  }

@@ -9,7 +9,7 @@
     transition: 0.3s ease;
 }
 .Wrapper.Hidden {
-    left: calc(var(--action-button-size) * -1);
+    /*left: calc(var(--action-button-size) * -1);*/
 }
 
 .Button {
@@ -25,6 +25,7 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    white-space: nowrap;
 }
 .Button:active {
     background:#CABE4E;
@@ -67,6 +68,12 @@
 
 .TakeoffIcon {
     background-image: url(../../assets/images/drone.svg);
+}
+
+.SetLocationIcon {
+    height: 27px;
+    width: 20px;
+    background-image: url(../../assets/images/add-location.svg);
 }
 
 .PlayIcon {
