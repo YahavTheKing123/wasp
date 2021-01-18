@@ -7,6 +7,8 @@ import actionTypes from '../../store/actions/actionTypes';
 
 class Popup extends PureComponent {
     EscKey = 27;
+    EnterKey = 13;
+
     componentDidMount() {
         document.addEventListener('keydown', this.handleKeyDown);
     }
@@ -15,16 +17,12 @@ class Popup extends PureComponent {
         document.removeEventListener('keydown', this.handleKeyDown);
     }
 
-    handleKeyDown = (e) =>{
-        if (e.keyCode === this.EscKey && this.props.onCancel){
-            this.onCancelClicked(e);    
-        }
-    }
-
-    onOkClicked = (e) => {
-        e.preventDefault();
-        if (this.props.onOk) {
-            this.props.onOk();    
+    handleKeyDown = (e) =>{             
+        if (e.keyCode === this.EscKey){
+            this.closePopup();   
+        } else if ((e.keyCode === this.EnterKey) && this.props.popupDetails.primayButton && this.props.popupDetails.primayButton.callback) {
+            this.props.popupDetails.primayButton.callback();
+            this.closePopup();
         }
     }
 
@@ -146,8 +144,7 @@ class Popup extends PureComponent {
 }
 
 const mapStateToProps = state => {
-    return {        
-        popupDetails: state.layout.popupDetails,        
+    return {                
     }
 };
 

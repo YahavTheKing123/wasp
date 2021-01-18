@@ -6,7 +6,7 @@ import Input from '../controls/Input/Input';
 class GoToLocationForm extends Component {
     inputRef = React.createRef()
     state = {
-        value: this.props.scaleValue
+        value: ''
     }
 
     componentDidMount() {

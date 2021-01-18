@@ -36,16 +36,9 @@ class ActionButtons extends Component {
     }
 
     onGoToLocationPopupOkBtnClick = () => {
-        if (this.tempLocationValue !== null) {
-            if (this.tempLocationValue === '') {
-                this.tempLocationValue = null;
-            } else {
-                try {                    
-                    this.props.goToLocation(this.tempLocationValue);
-                } catch (e) {
-                    console.error('wrong go to location value', e);
-                }
-            }
+        if (this.tempLocationValue) {
+            this.props.goToLocation(this.tempLocationValue);
+        } else {
             this.tempLocationValue = null;
         }
     }

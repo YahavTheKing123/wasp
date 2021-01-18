@@ -5,7 +5,9 @@ import { connect } from 'react-redux';
 class OutputTabs extends Component {
 
     renderTabs() {
-        return <div className={cn.Tabs}></div>
+        return <div className={cn.Tabs}>
+            
+        </div>
     }
 
     renderNoOutputReceived() {

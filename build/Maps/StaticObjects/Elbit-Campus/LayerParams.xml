@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<LayerParams>
+  <LayerType>NATIVE_3D_MODEL</LayerType>
+  <TilingScheme>
+    <Type>MAPCORE</Type>
+    <TilingOrigin>
+      <X>-33292288</X>
+      <Y>-33292288</Y>
+    </TilingOrigin>
+    <LargestTileSizeInMapUnits>66584576</LargestTileSizeInMapUnits>
+    <NumLargestTilesX>1</NumLargestTilesX>
+    <NumLargestTilesY>1</NumLargestTilesY>
+    <TileSizeInPixels>508</TileSizeInPixels>
+    <RasterTileMarginInPixels>2</RasterTileMarginInPixels>
+  </TilingScheme>
+</LayerParams>

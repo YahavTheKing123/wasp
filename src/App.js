@@ -135,7 +135,7 @@ class App extends Component {
         return (
             <div className={classNames.App}>
                 <GlobalMessage />
-                <Popup/>
+                {this.props.popupDetails ? <Popup popupDetails={this.props.popupDetails}/> : null}
                 <FlightTelemetry/>
                 {this.props.contextMenu ? <ContextMenu contextMenu={this.props.contextMenu}/> : null}
                 {this.getActionButtons()}
@@ -149,7 +149,8 @@ class App extends Component {
 
 const mapStateToProps = state => {
     return {
-      contextMenu: state.layout.contextMenu
+      contextMenu: state.layout.contextMenu,
+      popupDetails: state.layout.popupDetails,
     }
   };
 

@@ -91,10 +91,7 @@ class Video extends Component {
     
     renderVideoFooter() {
         return (
-            // <div className={cn.VideoFooter}>
-            //     <button onClick={this.onPauseOrPlayClick} title={this.getPlayOrPauseTitle()} className={`${cn.ControlBtn} ${this.getPlayOrPauseButton()}`}></button>
-            // </div>
-            <div className={cn.Footer}>
+            <>
                 <button 
                     onClick={this.onPauseOrPlayClick} 
                     title={this.getPlayOrPauseTitle()} 
@@ -105,7 +102,7 @@ class Video extends Component {
                     title={this.state.isFullScreen ? 'Exit Full Screen' : 'Full Screen'} 
                     className={`${cn.ControlBtn} ${this.state.isFullScreen ? cn.ExitFullScreen : cn.FullScreen}`}>
                 </button>
-            </div>
+            </>
         )
     }
 

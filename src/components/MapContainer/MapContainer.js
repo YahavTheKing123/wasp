@@ -83,6 +83,7 @@ class MapContainer extends PureComponent {
         if ((!prevProps.isMapCoreSDKLoaded && this.props.isMapCoreSDKLoaded) || 
                 (this.props.isMapCoreSDKLoaded && prevProps.mapToShow !== this.props.mapToShow)) {
             this.openMap(this.props.mapToShow.groupName, false);
+            console.log('mapCore version: ', window.MapCore.IMcMapDevice.GetVersion());
         }
     }
 
@@ -112,8 +113,11 @@ class MapContainer extends PureComponent {
                         case "IMcNativeVectorMapLayer":
                             layerCreateString = "MapCore.IMcNativeVectorMapLayer.Create('" + protocol + layer.path + "', " + (layer.params ? layer.params : "") + "this.layerCallback)";
                             break;
-                        case "IMcNativeStaticObjectsMapLayer":
-                            layerCreateString = "MapCore.IMcNativeStaticObjectsMapLayer.Create('" + protocol + layer.path +  "', " + (layer.params ? layer.params : "0, 0") + ", this.layerCallback)";
+                        case "IMcNative3DModelMapLayer":
+                            layerCreateString = "MapCore.IMcNative3DModelMapLayer.Create('" + protocol + layer.path +  "', " + (layer.params ? layer.params : "0") + ", this.layerCallback)";
+                            break;
+                        case "IMcNativeVector3DExtrusionMapLayer":
+                            layerCreateString = "MapCore.IMcNativeVector3DExtrusionMapLayer.Create('" + protocol + layer.path +  "', " + (layer.params ? layer.params : "0, 10") + ", this.layerCallback)";
                             break;
                         default:
                             alert("Invalid type of server layer");
@@ -371,11 +375,12 @@ class MapContainer extends PureComponent {
             {
                 if (eStatus == window.MapCore.IMcErrors.ECode.SUCCESS)
                 {
-                    if (pLayer.GetLayerType() ==  window.MapCore.IMcNativeStaticObjectsMapLayer.LAYER_TYPE && !pLayer.IsBuiltOfContoursExtrusion())
-                    {
-                        pLayer.SetDisplayingItemsAttachedToTerrain(true);
-                        pLayer.SetDisplayingDtmVisualization(true);
-                    }
+                    //this.trySetTerainBox();
+                    // if (pLayer.GetLayerType() ==  window.MapCore.IMcNativeStaticObjectsMapLayer.LAYER_TYPE && !pLayer.IsBuiltOfContoursExtrusion())
+                    // {
+                    //     pLayer.SetDisplayingItemsAttachedToTerrain(true);
+                    //     pLayer.SetDisplayingDtmVisualization(true);
+                    // }
                 }
                 else if (eStatus !=  window.MapCore.IMcErrors.ECode.NATIVE_SERVER_LAYER_NOT_VALID)
                 {
@@ -510,7 +515,7 @@ class MapContainer extends PureComponent {
         requestAnimationFrame(this.renderMapContinuously);
     }
 
-    trySetTerainBox() {
+    trySetTerainBox = () => {
         for (let j = 0; j < this.aViewports.length; j++) {
             if (this.aViewports[j].terrainBox == null) {
                 let aViewportLayers = this.aViewports[j].aLayers;
@@ -559,7 +564,7 @@ class MapContainer extends PureComponent {
                 else // 3D
                 {
                     let height = {};
-                    this.aViewports[j].terrainCenter.z = 1000;
+                    this.aViewports[j].terrainCenter.z = 100;
                     this.aViewports[j].viewport.SetCameraPosition(this.aViewports[j].terrainCenter);
                     let params = new window.MapCore.IMcSpatialQueries.SQueryParams();
                     params.eTerrainPrecision = window.MapCore.IMcSpatialQueries.EQueryPrecision.EQP_HIGH;
@@ -1504,6 +1509,11 @@ class MapContainer extends PureComponent {
                 // e.g. MapCore.IMcNativeRasterMapLayer.Create('http:Maps/Raster/SwissOrtho-GW') or CreateWMTSRasterLayer(...) or CreateWMSRasterLayer(...)
                 const layer = eval(group.aLayerCreateStrings[i]);
                 this.aLastTerrainLayers.push(layer);
+                if (layer instanceof window.MapCore.IMc3DModelMapLayer)
+                {
+                    layer.SetDisplayingItemsAttachedToTerrain(true);
+                    layer.SetDisplayingDtmVisualization(true);
+                }
             }
             this.lastCoordSys.AddRef();
         }
@@ -1701,7 +1711,7 @@ class MapContainer extends PureComponent {
 
         const dtmLayer = this.props.mapToShow.layers.find(layer => layer.type.toLowerCase().includes('dtm'));
 
-        if (dtmLayer) {
+        if (true) {
             const showHideDtmAction = {
                 name: (this.state.isDTMClicked ? 'Hide' : 'Show') + " DTM visualization",
                 func: this.showHideDtmActionClicked,
@@ -1742,7 +1752,7 @@ class MapContainer extends PureComponent {
         );
     }
 
-    render() {    
+    render() {            
         return (
             <div className={cn.Wrapper}>
                 {this.props.isMapCoreSDKLoaded ? this.getCanvas() : this.renderLoadingMessage()}
