@@ -5,6 +5,7 @@ const initialState = {
     isRosWebsocketConncted: false,
     contextMenu: null,    //{x,y,menuItems}
     popupDetails: null,
+    imageSentToDroneData: null
 };
 
 const layoutReducer = (state = initialState, action ) => {
@@ -65,7 +66,13 @@ const layoutReducer = (state = initialState, action ) => {
                 ...state,
                 popupDetails: null
             }        
-        }        
+        }  
+        case actionTypes.IMAGE_SENT_TO_DRONE: {
+            return {
+                ...state,
+                imageSentToDroneData: action.payload
+            }
+        }      
         default:
             return state;
     }

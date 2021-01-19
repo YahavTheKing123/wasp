@@ -5,14 +5,23 @@ import { connect } from 'react-redux';
 class OutputTabs extends Component {
 
     renderTabs() {
-        return <div className={cn.Tabs}>
-            
-        </div>
+
+        let imageElement = null;
+        const imageSrc = this.props.imageSentToDroneData && this.props.imageSentToDroneData.image;
+        if (imageSrc) {
+            imageElement = <img src={imageSrc}/>
+        }
+        return (
+            <div className={cn.Tabs}>
+                {imageElement}
+            </div>
+        );
     }
 
     renderNoOutputReceived() {
         return <div className={cn.ErrorMessage}><span className={cn.ErrorIcon}></span> No output has been received yet</div>
     }
+
     render() {
         return (
             <div className={cn.Wrapper}>
@@ -21,9 +30,11 @@ class OutputTabs extends Component {
         )
     }
 }
+
 const mapStateToProps = (state) => {
     return {
-        tabs: state.video.tabs
+        tabs: state.video.tabs,
+        imageSentToDroneData: state.layout.imageSentToDroneData
     };
 };
 

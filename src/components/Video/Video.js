@@ -118,6 +118,7 @@ class Video extends Component {
             <>
                 {this.renderVideoHeader()}
                 <img
+                    crossorigin="anonymous"
                     onLoad={this.onVideoLoaded}
                     onError={this.onVideoError}
                     className={cn.VideoImage}

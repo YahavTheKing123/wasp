@@ -10,7 +10,16 @@ export const locate = () => {
 
         const img = document.getElementById('droneImage');
         if (img) {
-            const dataX = getBase64Image(img);
+            const imgURL = getBase64Image(img);
+            //dispach img to send and pixel
+            dispatch({ type: actionTypes.IMAGE_SENT_TO_DRONE, payload: {image: imgURL} });
+
+            const dataX = imgURL && imgURL.replace("data:image/jpeg;base64,", "");
+            if (!dataX) {
+                dispatch({ type: actionTypes.LOACTE_FAILED });
+                return;
+            }
+
             const imageMessage = new window.ROSLIB.Message({data : dataX, format : "jpeg"});
             const requestLocate = new window.ROSLIB.ServiceRequest({image : imageMessage});
                         
@@ -29,7 +38,7 @@ export const locate = () => {
 };
 
 export const pointVideoImage = ev => {
-    return async (dispatch) => {        
+    return async (dispatch) => {
         dispatch({ type: actionTypes.POINT_ON_VIDEO_IMAGE_START });
 
         const img = document.getElementById('droneImage');        
@@ -44,7 +53,15 @@ export const pointVideoImage = ev => {
         dispatch(showGlobalMessage({text: `selected pixel: (${roundedX}, ${roundedY})`, type: logSeverities.info, isRemoved: true}));
 
         if (img) {
-            const dataX = getBase64Image(img);
+            const imgURL = getBase64Image(img);
+            //dispach img to send and pixel
+            dispatch({ type: actionTypes.IMAGE_SENT_TO_DRONE, payload: {image: imgURL, point: {roundedX, roundedY}} });
+            
+            const dataX = imgURL && imgURL.replace("data:image/jpeg;base64,", "");
+            if (!dataX) {
+                dispatch({ type: actionTypes.POINT_ON_VIDEO_IMAGE_FAILED });
+                return;
+            }
             const imageMessage = new window.ROSLIB.Message({data : dataX, format : "jpeg"});
                         
             const pointMessage = new window.ROSLIB.Message({

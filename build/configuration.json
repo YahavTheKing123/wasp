@@ -4,7 +4,7 @@
     "BE_PORT": 8081,
     "BE_IP": "192.168.1.100",
     "MAPCORE_LAYER_SERVER_URL": false,
-	"streamingLayers":[	
+	"streamingLayers":[		
 		{
 			"groupName":"Elbit Campus",
 			"coordSystemType":"IMcGridUTM",
@@ -16,7 +16,7 @@
 					"path":"Maps/StaticObjects/Elbit-Campus"
 				}
 			]
-		},		
+		},			
 		{
 			"groupName":"Maccabim (UTM)",
 			"coordSystemType":"IMcGridUTM",
@@ -30,12 +30,12 @@
 				{
 					"type":"IMcNativeDtmMapLayer",
 					"path":"Maps/DTM/MaccabimDTM-UTM-Streaming"
-				},
+				},			
 				{
 					"type":"IMcNativeVectorMapLayer",
 					"path":"Maps/Vector/MaccabimRoads-UTM"
 				}
 			]
-		}
+		}	
 	]  
 }
