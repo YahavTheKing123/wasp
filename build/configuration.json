@@ -6,6 +6,18 @@
     "MAPCORE_LAYER_SERVER_URL": false,
 	"streamingLayers":[		
 		{
+			"groupName":"Adam",
+			"coordSystemType":"IMcGridUTM",
+			"coordSystemParams":"36, MapCore.IMcGridCoordinateSystem.EDatumType.EDT_ED50_ISRAEL",
+			"InitialScale2D": 5,
+			"layers":[
+				{
+					"type":"IMcNativeRasterMapLayer",
+					"path":"Maps/Raster/Adam"
+				}
+			]
+		},			
+		{
 			"groupName":"Elbit Campus",
 			"coordSystemType":"IMcGridUTM",
 			"coordSystemParams":"36, MapCore.IMcGridCoordinateSystem.EDatumType.EDT_ED50_ISRAEL",
