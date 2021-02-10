@@ -35,4 +35,22 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    height: 100%;
+    position: relative;
+  }
+
+  .OutputImage {
+    height: 100%;
+    width: 100%;
+  }
+
+  .Point {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    background-image: url(../../assets/images/target2.svg);
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: contain;
+    transform: translate(-50%, -50%);
   }

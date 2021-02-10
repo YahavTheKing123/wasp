@@ -4,16 +4,53 @@ import { connect } from 'react-redux';
 
 class OutputTabs extends Component {
 
+    state = {
+        pointPosition: null
+    }
+
+    getCorrectPosition() {
+
+    }
+
+    onImageLoaded = (e) => {
+        const tabsWrapper = document.getElementById('tabs-wrapper');
+
+        const img = e.target;
+        const xFactor = img.naturalWidth / tabsWrapper.getBoundingClientRect().width;
+        const yFactor = img.naturalHeight / tabsWrapper.getBoundingClientRect().height;
+        const {roundedX, roundedY} = this.props.imageSentToDroneData.point;
+        this.setState({
+            pointPosition: {
+                top: roundedY / yFactor,
+                left: roundedX / xFactor,                
+            }
+        })
+        
+    }
+
+    componentDidUpdate(prevProps) {
+        if (prevProps.imageSentToDroneData !==  this.props.imageSentToDroneData) {
+            const img = document.createElement('img');
+            img.onload = this.onImageLoaded;
+            img.src = this.props.imageSentToDroneData.image;
+        }
+    }
+
     renderTabs() {
 
         let imageElement = null;
-        const imageSrc = this.props.imageSentToDroneData && this.props.imageSentToDroneData.image;
-        if (imageSrc) {
-            imageElement = <img src={imageSrc}/>
+        let pointElement = null;
+
+        const imageDataUrl = this.props.imageSentToDroneData && this.props.imageSentToDroneData.image;
+        const point = this.props.imageSentToDroneData && this.props.imageSentToDroneData.point;
+        if (imageDataUrl && point) {
+            imageElement = <img className={cn.OutputImage} src={imageDataUrl}/>
+            pointElement = <div className={cn.Point} style={this.state.pointPosition}></div>
         }
         return (
-            <div className={cn.Tabs}>
+            <div className={cn.Tabs} id='tabs-wrapper'>
                 {imageElement}
+                {pointElement}
             </div>
         );
     }
@@ -25,7 +62,7 @@ class OutputTabs extends Component {
     render() {
         return (
             <div className={cn.Wrapper}>
-                {this.props.tabs ? this.renderTabs() : this.renderNoOutputReceived()}                
+                {this.props.imageSentToDroneData ? this.renderTabs() : this.renderNoOutputReceived()}                
             </div>
         )
     }
