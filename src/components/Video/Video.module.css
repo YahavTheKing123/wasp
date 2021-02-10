@@ -15,6 +15,7 @@
   cursor: pointer;
   width: 100%;
   height: auto;
+  margin: auto;
 }
 
 .VideoImage:-webkit-full-screen,  .VideoImage:fullscreen{
@@ -147,4 +148,17 @@
   padding: 10px;
   position: absolute;
   bottom: 0;
+}
+.TargetIcon {
+  opacity: 0.8;
+  width: 45px;
+  pointer-events: none;
+  /*position: fixed;*/
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+.TargetIcon.TargetLarge {
+  width: 60px;
 }

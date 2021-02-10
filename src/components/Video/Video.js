@@ -5,14 +5,19 @@ import actions from '../../store/actions';
 import actionTypes from '../../store/actions/actionTypes';
 import externalConfig from '../../ExternalConfigurationHandler';
 import config, {devVideoSnapshotUrl, devVideoStreamUrl} from '../../config';
-import liveFeed from '../../assets/images/live_feed.svg';
+import targetIcon from '../../assets/images/target.svg';
 
 class Video extends Component {
 
     state = {
         isImageLoadingError: false,
         isImageLoading: true,
-        isFullScreen: false
+        isFullScreen: false,
+        targetPosition: null
+    }
+
+    componentDidMount() {        
+        //window.addEventListener('resize', this.setTargetPosition)
     }
 
     getVideoSrc() {
@@ -35,7 +40,22 @@ class Video extends Component {
         })
     }
 
-    onVideoLoaded = e => {
+    setTargetPosition = () => {
+        const img = document.getElementById('droneImage');
+        if (!img) return;                    
+        const rect = img.getBoundingClientRect();
+        if (!rect) return;
+                    
+        this.setState({
+            targetPosition: {                
+                top: rect.top + (rect.height / 2),
+                left: rect.left + (rect.width /2)
+            }
+        })                
+    }
+
+    onVideoLoaded = e => {                
+        //this.setTargetPosition();
         this.setState({
             isImageLoading: false
         })
@@ -113,12 +133,13 @@ class Video extends Component {
                 <div className={cn.ErrorMessage}><span className={cn.ErrorIcon}></span> Error loading video stream</div>
             )
         }
-
+        const largeTarget = this.state.isFullScreen ? ` ${cn.TargetLarge}` : '';
         return (
             <>
                 {this.renderVideoHeader()}
+                <img className={`${cn.TargetIcon}${largeTarget}`} style={this.state.targetPosition} src={targetIcon} />
                 <img
-                    crossorigin="anonymous"
+                    crossOrigin="anonymous"
                     onLoad={this.onVideoLoaded}
                     onError={this.onVideoError}
                     className={cn.VideoImage}
