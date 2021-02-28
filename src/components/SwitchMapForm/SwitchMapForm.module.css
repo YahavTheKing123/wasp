@@ -1,0 +1,48 @@
+.Wrapper {
+    height: 100%;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    opacity: 0;
+    transition: 0.5s ease;
+}
+.Wrapper.Shown {
+    opacity: 1;
+}
+.Header {    
+    font-size: 18px;
+    display: flex;
+    justify-content: center;
+    align-items: center;    
+}
+
+.Button {
+    background-color: transparent;
+    font-size: 14px;
+    height: 30px;
+    min-width: 80px;
+    color: inherit;
+    border: 1px solid var(--button-border-color);
+    font-family: inherit;
+    cursor: pointer;
+    outline: none;
+    padding: 0 10px;
+    border-radius: var(--button-border-radius);
+    font-weight: 400;    
+}
+
+.Body {
+    margin: 20px 0;
+}
+
+.Button.Apply {
+    background: var(--button-border-color);
+}
+.Button:first-child {
+    margin-right: 10px;
+}
+.Button:last-child {
+    margin-left: 10px;
+}

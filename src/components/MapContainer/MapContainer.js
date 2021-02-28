@@ -5,6 +5,7 @@ import config from '../../config';
 import { connect } from 'react-redux';
 import externalConfig from '../../ExternalConfigurationHandler';
 import actionTypes from '../../store/actions/actionTypes';
+import SwitchMapForm from '../SwitchMapForm/SwitchMapForm';
 
 class SLayerGroup
 {
@@ -42,6 +43,7 @@ class MapContainer extends PureComponent {
         bSameCanvas: true,
         isDTMClicked: false,
         is3DClicked: false,
+        isSwitchMapFormOpen: false
     }
 
     mapTerrains = new Map;
@@ -67,6 +69,7 @@ class MapContainer extends PureComponent {
     mouseDownButtons = 0;
     bEdit = false;
     layerCallback = null;
+    requestAnimationFrameId = -1;
 
     componentDidMount() {
         window.addEventListener('resize', this.resizeCanvases);
@@ -75,7 +78,9 @@ class MapContainer extends PureComponent {
 
     componentWillUnmount() {
         //Todo -> un-register events and all the map core object
-        window.removeEventListener('resize', this.resizeCanvases)
+        window.removeEventListener('resize', this.resizeCanvases);
+	cancelAnimationFrame(this.requestAnimationFrameId);
+	this.requestAnimationFrameId = null;
     }
 
     componentDidUpdate(prevProps) {
@@ -490,6 +495,7 @@ class MapContainer extends PureComponent {
     }
 
     renderMapContinuously = () => {
+        if (!this.requestAnimationFrameId) return;
         this.trySetTerainBox();
         let currtRenderTime = (new Date).getTime();
         
@@ -512,7 +518,7 @@ class MapContainer extends PureComponent {
         }
     
         // ask the browser to render again
-        requestAnimationFrame(this.renderMapContinuously);
+        this.requestAnimationFrameId = requestAnimationFrame(this.renderMapContinuously);
     }
 
     trySetTerainBox = () => {
@@ -1683,7 +1689,7 @@ class MapContainer extends PureComponent {
     }
 
     onSelectOtherMapClicked = () => {
-
+        this.setState({isSwitchMapFormOpen: true});
     }
 
     showHideDtmActionClicked = () => {
@@ -1743,11 +1749,21 @@ class MapContainer extends PureComponent {
         )
     }
 
+    renderSwitchMapForm() {
+        const isOpenClass = this.state.isSwitchMapFormOpen ? cn.Open : '';
+        return (
+            <div className={`${cn.SwitchMapForm} ${isOpenClass}`}>
+                {isOpenClass ?  <SwitchMapForm onCancel={() => this.setState({isSwitchMapFormOpen: false})}/> : null}
+            </div>
+        )
+    }
+
     getCanvas() {
         return (
             <div className={cn.MapWrapper}>
                 <div className={cn.CanvasContainer} id='canvasesContainer'></div>
                 {this.renderMapToolbox()}
+                {this.renderSwitchMapForm()}
             </div>
         );
     }

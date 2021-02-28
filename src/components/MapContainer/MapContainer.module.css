@@ -64,6 +64,22 @@
   height: 15px;
   width: 4px;
   position: absolute;
-  right: 20px;
+  right: 10px;
   background-position: center;
+  padding: 0 10px;
+}
+
+.SwitchMapForm {
+  position: absolute;
+  height: 0%;
+  top: 0;
+  right: 0;
+  width: 100%;
+  background: rgba(0,0,0,.8);
+  z-index: 1;
+  transition: 0.5s ease;
+}
+
+.SwitchMapForm.Open {
+  height: 100%;
 }

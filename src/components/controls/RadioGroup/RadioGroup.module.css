@@ -1,0 +1,18 @@
+.Wrapper {    
+    font-size: 16px;
+}
+.Label {
+    margin-bottom: 20px;
+    font-weight: 500;
+}
+
+.RadioGroupValuesWrapper {
+    display: flex;
+    flex-direction: column;
+}
+
+@media screen and (max-width: 500px) {
+    .Wrapper {  
+        font-size: 15px;  
+    }
+}
