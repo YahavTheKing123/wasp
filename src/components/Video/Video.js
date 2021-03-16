@@ -4,8 +4,10 @@ import { connect } from 'react-redux';
 import actions from '../../store/actions';
 import actionTypes from '../../store/actions/actionTypes';
 import externalConfig from '../../ExternalConfigurationHandler';
-import config, {devVideoSnapshotUrl, devVideoStreamUrl} from '../../config';
+import config, { devVideoSnapshotUrl, devVideoStreamUrl } from '../../config';
 import targetIcon from '../../assets/images/target.svg';
+import Slider from '../controls/Slider/Slider';
+
 
 class Video extends Component {
 
@@ -13,18 +15,22 @@ class Video extends Component {
         isImageLoadingError: false,
         isImageLoading: true,
         isFullScreen: false,
-        targetPosition: null
+        targetPosition: null,
+        showTarget: true,
+        showExposure: false,
+        isRecording: false
+
     }
 
-    componentDidMount() {        
+    componentDidMount() {
         //window.addEventListener('resize', this.setTargetPosition)
     }
 
     getVideoSrc() {
-        const {BE_PORT, BE_IP} = externalConfig.getConfiguration();
+        const { BE_PORT, BE_IP } = externalConfig.getConfiguration();
 
-        const snapshotUrl = `//${BE_IP}:${BE_PORT}${config.urls.snapshot}`;
-        const streamUrl = `//${BE_IP}:${BE_PORT}${config.urls.stream}`;
+        const snapshotUrl = `//${BE_IP}:${BE_PORT}${config.urls.videoSnapshot}`;
+        const streamUrl = `//${BE_IP}:${BE_PORT}${config.urls.videoStream}`;
 
         if (this.props.isPaused) {
             return process.env.NODE_ENV === 'development' ? devVideoSnapshotUrl : snapshotUrl;
@@ -32,8 +38,8 @@ class Video extends Component {
             return process.env.NODE_ENV === 'development' ? devVideoStreamUrl : streamUrl;
         }
     }
-    
-    onVideoError = (e) => {        
+
+    onVideoError = (e) => {
         console.log('error when trying to load camera video', e);
         this.setState({
             isImageLoadingError: true
@@ -42,19 +48,19 @@ class Video extends Component {
 
     setTargetPosition = () => {
         const img = document.getElementById('droneImage');
-        if (!img) return;                    
+        if (!img) return;
         const rect = img.getBoundingClientRect();
         if (!rect) return;
-                    
+
         this.setState({
-            targetPosition: {                
+            targetPosition: {
                 top: rect.top + (rect.height / 2),
-                left: rect.left + (rect.width /2)
+                left: rect.left + (rect.width / 2)
             }
-        })                
+        })
     }
 
-    onVideoLoaded = e => {                
+    onVideoLoaded = e => {
         //this.setTargetPosition();
         this.setState({
             isImageLoading: false
@@ -65,7 +71,7 @@ class Video extends Component {
         e.stopPropagation();
         this.props.isPaused ? this.props.resume() : this.props.pause()
     }
-    
+
     onFullScreenClick = () => {
         //const elem = document.querySelector('#droneImage');
         const elem = document.querySelector('#videoWrapper');
@@ -76,7 +82,7 @@ class Video extends Component {
         } else if (elem.msRequestFullscreen) { /* IE11 */
             elem.msRequestFullscreen();
         }
-        this.setState({isFullScreen: true})
+        this.setState({ isFullScreen: true })
     }
 
     onExitFullScreenClick = () => {
@@ -87,7 +93,7 @@ class Video extends Component {
         } else if (document.msExitFullscreen) { /* IE11 */
             document.msExitFullscreen();
         }
-        this.setState({isFullScreen: false})
+        this.setState({ isFullScreen: false })
     }
 
     getPlayOrPauseButton() {
@@ -98,32 +104,60 @@ class Video extends Component {
         return this.props.isPaused ? 'Play' : 'Pause'
     }
 
-    renderVideoHeader() {        
+    getRecordButton = () => {
+        return this.state.isRecording ? cn.RecordindIcon : cn.RecordIcon
+    }
+
+    getRecordTitle = () => {
+        return this.state.isRecording ? 'Recording' : 'Start Recording'
+    }
+
+    renderVideoHeader() {
+        const hideTargetClass = this.state.showTarget ? '' : cn.HideTarget;
         return (
             <div className={`${cn.VideoHeader}`}>
                 <div className={cn.Description}>
-                    {this.props.isPaused ? 'Video paused' : <span className={cn.StreamingIconWrapper}>Video Feed<span className={cn.StreamingIcon}></span></span>}
+                    {this.props.isPaused ? 'Video paused' :
+                        <span className={cn.StreamingIconWrapper}>Video Feed<span className={cn.StreamingIcon}/></span>
+                    }
                 </div>
-                <span className={cn.MoreActionsBtn} onClick={this.onMoreActionsClick}></span>
+                <span className={`${cn.Exposure}`}
+                    onClick={() => this.setState({ showExposure: !this.state.showExposure })}>
+                </span>
+                <span className={`${cn.ToggleTarget} ${hideTargetClass}`}
+                    onClick={() => this.setState({ showTarget: !this.state.showTarget })}>
+                </span>
             </div>
         )
     }
-    
+
     renderVideoFooter() {
         return (
             <>
-                <button 
-                    onClick={this.onPauseOrPlayClick} 
-                    title={this.getPlayOrPauseTitle()} 
+                <button
+                    onClick={this.onPauseOrPlayClick}
+                    title={this.getPlayOrPauseTitle()}
                     className={`${cn.ControlBtn} ${this.getPlayOrPauseButton()}`}>
                 </button>
-                <button 
-                    onClick={this.state.isFullScreen ?  this.onExitFullScreenClick : this.onFullScreenClick} 
-                    title={this.state.isFullScreen ? 'Exit Full Screen' : 'Full Screen'} 
+                <button
+                    onClick={() => this.setState({ isRecording: !this.state.isRecording })}
+                    title={this.getRecordTitle()}
+                    className={`${cn.ControlBtn} ${cn.RecordButton}`}>
+                    <span className={`${this.getRecordButton()}`}/>
+                </button>
+                <button
+                    onClick={this.state.isFullScreen ? this.onExitFullScreenClick : this.onFullScreenClick}
+                    title={this.state.isFullScreen ? 'Exit Full Screen' : 'Full Screen'}
                     className={`${cn.ControlBtn} ${this.state.isFullScreen ? cn.ExitFullScreen : cn.FullScreen}`}>
                 </button>
             </>
         )
+    }
+
+    updateExposure(sliderOffset) {
+        const exposureValue = 5000 * (100 - sliderOffset) / 100;
+        console.log("new exposureValue is ", exposureValue);
+        this.props.setExposure(exposureValue)
     }
 
     renderImgElement() {
@@ -137,7 +171,15 @@ class Video extends Component {
         return (
             <>
                 {this.renderVideoHeader()}
-                <img className={`${cn.TargetIcon}${largeTarget}`} style={this.state.targetPosition} src={targetIcon} />
+
+                {this.state.showTarget &&
+                    <img className={`${cn.TargetIcon}${largeTarget}`} style={this.state.targetPosition} src={targetIcon} />
+                }
+
+                {this.state.showExposure &&
+                    <Slider updatePosition={(offset) => this.updateExposure(offset)} />
+                }
+
                 <img
                     crossOrigin="anonymous"
                     onLoad={this.onVideoLoaded}
@@ -146,7 +188,7 @@ class Video extends Component {
                     src={this.getVideoSrc()}
                     id='droneImage'
                     onClick={this.props.pointVideoImage}
-                    //onTouchStart={this.props.pointVideoImage}
+                //onTouchStart={this.props.pointVideoImage}
                 />
                 {this.renderVideoFooter()}
             </>
@@ -172,8 +214,9 @@ const mapStateToProps = (state) => {
 const mapDispachToProps = (dispatch) => {
     return {
         pointVideoImage: e => dispatch(actions.pointVideoImage(e)),
-        pause: () => dispatch({type:actionTypes.PAUSE_VIDEO}),
-        resume: () => dispatch({type:actionTypes.RESUME_VIDEO}),
+        setExposure: exposureValue => dispatch(actions.setExposure(exposureValue)),
+        pause: () => dispatch({ type: actionTypes.PAUSE_VIDEO }),
+        resume: () => dispatch({ type: actionTypes.RESUME_VIDEO }),
     };
 };
 

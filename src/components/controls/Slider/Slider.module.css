@@ -1,0 +1,53 @@
+
+.sliderWrapper{
+    width:37px;
+   user-select: none; 
+   position: absolute;
+   right: 0;
+   margin-top: 30px;
+  }
+  
+  .mapslider {
+    height:140px;
+    background: var(--app-bg-color);
+    border-radius:3px;
+    text-align:center;
+    box-shadow: 0 0 3px 1px rgba(0,0,0,0.2);
+    position:relative;
+    color:#866a62;
+    opacity: 0.7;
+   padding: 5px 0;
+  
+  }
+  
+      .dragline {
+      width:8px;
+      border-radius:8px;
+      margin:0 auto;
+      position:relative;
+     
+    }
+    .line {
+      width:8px;
+      height:128px;
+      background:#adccce;
+      border-radius:8px;
+      margin:25px auto;
+      position:absolute;
+      margin-top:0px;
+      margin-bottom:0px;
+      padding-top:10px;
+      clip: rect(0px, 8px, 183px, 0px);
+     
+    }
+    
+    .draggablebutton {
+      width:28px; 
+      height:28px;
+      background:#f7f7f7;
+      border-radius:50%;
+      position:absolute;
+      box-shadow: 0px 4px 10px 1px rgba(0,0,0,0.2);
+      margin-left:-9px;
+      cursor:pointer;
+    }

@@ -131,7 +131,6 @@ class App extends Component {
         if (this.props.isLoading) {
             return <Loader loadingMessage={'initializing...'} />;
         }
-
         return (
             <div className={classNames.App}>
                 <GlobalMessage />

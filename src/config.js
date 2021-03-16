@@ -2,8 +2,14 @@ const config = {
     urls: {
       getCapabilities: '/map/opr?service=wmts&request=GetCapabilities',
       configuration: 'configuration.json',
-      stream: '/stream?topic=/d415/color/image_raw',
-      snapshot: '/snapshot?topic=/d415/color/image_raw',
+      vidoeStream: '/stream?topic=/d415/color/image_raw',
+      videoSnapshot: '/snapshot?topic=/d415/color/image_raw',
+
+      skeletonStream: '/stream?topic=/d415/color/image_raw',
+      skeletonSnapshot: '/snapshot?topic=/d415/color/image_raw',
+
+      windowDetectionStream: '/stream?topic=/d415/color/image_raw',
+      windowDetectionSnapshot: '/snapshot?topic=/d415/color/image_raw',
     }
 };
 

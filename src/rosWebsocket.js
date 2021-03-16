@@ -4,9 +4,12 @@ import actions from './store/actions';
 import externalConfig from './ExternalConfigurationHandler';
 import {store} from './index';
 
+
 class RosWebSocket {
 
     rosWebSocket = null;
+    RECONNECT_TIMEOUT = 2000;
+
 
     register() {
         try {
@@ -14,7 +17,7 @@ class RosWebSocket {
             const url =  `${ROS_BE_PROTOCOL}://${BE_IP}:${ROS_BE_PORT}`;
             store.dispatch({type: actionTypes.SHOW_GLOBAL_MESSAGE, payload: {text: `Trying to connect ros websocket on: ${url}`, type:logSeverities.info}})
             store.dispatch(actions.showGlobalMessage({text: `Trying to connect ros websocket on: ${url}`, type:logSeverities.info}))
-
+            console.log("Trying to connect ros websocket");
             this.rosWebSocket = new window.ROSLIB.Ros({url});
     
             this.rosWebSocket.on('connection', () => {
@@ -31,10 +34,15 @@ class RosWebSocket {
             this.rosWebSocket.on('close', () => {
                 store.dispatch(actions.showGlobalMessage({text: `Connection to ros websocket on: ${url} closed`, type:logSeverities.error}))
                 store.dispatch({type: actionTypes.ROSS_WEBSOCKET_CONNECTION_CLOSED});
+                this.reRegister();
             });
         } catch (e) {
-            console.log(e);
+            console.log("RosWebSocket.register() Exception:" + e);
         }
+    }
+
+    reRegister = () => {
+        setTimeout( () => this.register() , this.RECONNECT_TIMEOUT);
     }
 
     getRosWebsocketObject() {
