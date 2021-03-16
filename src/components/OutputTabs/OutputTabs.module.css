@@ -54,3 +54,96 @@
     background-size: contain;
     transform: translate(-50%, -50%);
   }
+
+.tabslidernav{
+	width: 100%;
+  z-index: 10;
+  position: relative;
+  opacity: 0.8;
+}
+.tabslidertabs{
+	display: flex;
+	list-style: none;
+	position: relative;
+	border-radius: 35px;
+	overflow: hidden;
+	background: var(--button-clear-color);
+	height: 20px;
+	user-select: none; 
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  margin-top: 5px;
+
+}
+.TabSelected{
+  background:  var(--app-bg-color);
+  transition: all 250ms ease-in-out;
+  border-radius: 35px;
+  color: white !important;
+}
+
+.tabslidertrigger {
+	color: var(--app-bg-color);
+  font-weight: 500;
+  font-size: 13px;
+	text-align: center;
+	padding: 3px 10px;
+	position: relative;
+	z-index: 2;
+	cursor: pointer;
+	display: inline-block;
+	transition: color 250ms ease-in-out;
+	user-select: none; 
+
+}
+
+.SkeletonTab{
+ box-shadow: 0px 0px 0px 5px rgb(242, 88, 88);
+ animation: borderAnimation 2s infinite;
+ height: 100%;
+}
+
+.VideoImage {
+  cursor: pointer;
+  width: 100%;
+  height: 100%;
+  margin: auto;
+}
+
+.AlertIcon{
+  mask-image: url(../../assets/images/alert.svg);  
+  cursor: pointer;
+  background-repeat: no-repeat;
+  height: 36px;
+  width: 40px;
+  position: absolute;
+  background-color: #f25858;
+  right: 0;
+  bottom: 0;
+  transform: translate(-50%, -50%);
+  animation: alertAnimation 2s infinite;
+ }
+
+ @keyframes alertAnimation {
+  0%   { opacity:1; }
+  50%  { opacity:0.1; }
+  100% { opacity:1; }
+}
+
+@keyframes borderAnimation {
+  0%    {box-shadow: 0px 0px 5px 3px rgba(242, 88, 88,1); }
+  50%   {box-shadow: 0px 0px 5px 5px rgba(242, 88, 88,0.1); }
+  100%  {box-shadow: 0px 0px 5px 5px rgba(242, 88, 88,1); }
+}
+
+.SkeletonRange{
+  position: absolute;
+    bottom: 5%;
+    color: white;
+    font-size: 19px;
+    font-weight: 500;
+    font-family: monospace;
+    left: 50%;
+    transform: translateX(-50%);
+}

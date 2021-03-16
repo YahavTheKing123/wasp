@@ -17,6 +17,8 @@ import config from './config';
 const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
 export const store = createStore(rootReducer, composeEnhancers(applyMiddleware(reduxThunk)));
 
+
+
 ReactDOM.render(
     <React.StrictMode>
         <Loader loadingMessage={'initializing...'} />
@@ -46,4 +48,6 @@ function renderAplication() {
         </React.StrictMode>,
         document.getElementById('root')
     );
+  
+
 }

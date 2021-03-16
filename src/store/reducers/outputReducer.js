@@ -1,7 +1,7 @@
 import actionTypes from '../actions/actionTypes';
 
 const initialState = {
-    
+    skeletonRange: 200
 };
 
 const outputReducer = (state = initialState, action ) => {
@@ -12,6 +12,11 @@ const outputReducer = (state = initialState, action ) => {
                 toasts: state.toasts.filter(t => !t.alwaysOnTop)
             }
         }
+        case actionTypes.UPDATE_SKELETON_RANGE:
+            return {
+                ...state,
+                skeletonRange: action.payload.skeletonRange
+            }
         default:
             return state;
     }

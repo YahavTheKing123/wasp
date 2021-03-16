@@ -64,19 +64,36 @@
     justify-content: center;
   }
   
-  .MoreActionsBtn {
-    background-image: url(../../assets/images/context.svg);  
+  .ToggleTarget {
+    mask-image: url(../../assets/images/target.svg);  
     cursor: pointer;
     background-repeat: no-repeat;
     display: inline-block;
-    height: 18px;
-    width: 18px;
+    height: 15px;
+    width: 15px;
     position: absolute;
-    right: 15px;
+    right: 40px;
     background-position: center;
-    display: none;
+    background-color: white;
+  }
+  .HideTarget{
+    background-color: gray;
+    opacity: 0.5;
   }
 
+    
+  .Exposure{
+    mask-image: url(../../assets/images/exposure.svg);  
+    cursor: pointer;
+    background-repeat: no-repeat;
+    display: inline-block;
+    height: 15px;
+    width: 15px;
+    position: absolute;
+    right: 11px;
+    background-position: center;
+    background-color: white;
+  }
 
 .VideoFooter {
     opacity: 1;
@@ -117,6 +134,43 @@
     left: 10px;
     background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg%20version%3D%221.1%22%20id%3D%22Layer_1%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20xmlns%3Axlink%3D%22http%3A%2F%2Fwww.w3.org%2F1999%2Fxlink%22%20x%3D%220px%22%20y%3D%220px%22%20viewBox%3D%220%200%2032%2032%22%20style%3D%22%22%20xml%3Aspace%3D%22preserve%22%20height%3D%22100%25%22%20width%3D%22100%25%22%3E%0A%3Cstyle%20type%3D%22text%2Fcss%22%3E%0A%09.st0%7Bfill%3A%23FFFFFF%3B%7D%0A%3C%2Fstyle%3E%0A%3Cg%20id%3D%22Rectangle_2_copy%22%3E%0A%09%3Cg%3E%0A%09%09%3Cpath%20class%3D%22st0%22%20d%3D%22M11.3%2C5.4H8.9c-1.3%2C0-2.4%2C1.1-2.4%2C2.4v16.5c0%2C1.3%2C1.1%2C2.4%2C2.4%2C2.4h2.4c1.3%2C0%2C2.4-1.1%2C2.4-2.4V7.7%0A%09%09%09C13.6%2C6.4%2C12.6%2C5.4%2C11.3%2C5.4z%20M11.3%2C24.3H8.9V7.7h2.4V24.3z%22%2F%3E%0A%09%3C%2Fg%3E%0A%3C%2Fg%3E%0A%3Cg%20id%3D%22Rectangle_2_copy_2%22%3E%0A%09%3Cg%3E%0A%09%09%3Cpath%20class%3D%22st0%22%20d%3D%22M23.1%2C5.4h-2.4c-1.3%2C0-2.4%2C1.1-2.4%2C2.4v16.5c0%2C1.3%2C1.1%2C2.4%2C2.4%2C2.4h2.4c1.3%2C0%2C2.4-1.1%2C2.4-2.4V7.7%0A%09%09%09C25.4%2C6.4%2C24.4%2C5.4%2C23.1%2C5.4z%20M23.1%2C24.3h-2.4V7.7h2.4V24.3z%22%2F%3E%0A%09%3C%2Fg%3E%0A%3C%2Fg%3E%0A%3C%2Fsvg%3E");
 }
+.ControlBtn.RecordButton {
+  left: 40px;
+}
+
+ .RecordIcon{
+  mask-image: url(../../assets/images/record.svg);  
+  cursor: pointer;
+  background-repeat: no-repeat;
+  height: 14px;
+  width: 15px;
+  position: absolute;
+  background-color: white;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+
+ }
+ .RecordindIcon{
+  mask-image: url(../../assets/images/recording.svg);  
+  cursor: pointer;
+  background-repeat: no-repeat;
+  height: 15px;
+  width: 15px;
+  position: absolute;
+  background-color: #f25858;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  animation: recordAnimation 2s infinite;
+ }
+
+ @keyframes recordAnimation {
+  0%   { opacity:1; }
+  50%  { opacity:0.1; }
+  100% { opacity:1; }
+}
+
 .ControlBtn.FullScreen {
     right: 10px;
     background-image: url('../../assets/images/full-screen.svg');
@@ -162,3 +216,5 @@
 .TargetIcon.TargetLarge {
   width: 60px;
 }
+
+

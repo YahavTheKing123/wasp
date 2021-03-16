@@ -1,21 +1,20 @@
 import React, { PureComponent, Component } from 'react';
 import cn from './MapContainer.module.css';
 import axios from 'axios';
-import config from '../../config'; 
+import config from '../../config';
 import { connect } from 'react-redux';
 import externalConfig from '../../ExternalConfigurationHandler';
 import actionTypes from '../../store/actions/actionTypes';
+import actions from '../../store/actions';
 import SwitchMapForm from '../SwitchMapForm/SwitchMapForm';
 
-class SLayerGroup
-{
-    constructor(coordSystemString, bShowGeoInMetricProportion, bSetTerrainBoxByStaticLayerOnly, InitialScale2D)
-    {
+class SLayerGroup {
+    constructor(coordSystemString, bShowGeoInMetricProportion, bSetTerrainBoxByStaticLayerOnly, InitialScale2D) {
         this.aLayerCreateStrings = [];
         this.coordSystemString = coordSystemString;
         this.bShowGeoInMetricProportion = bShowGeoInMetricProportion;
         this.bSetTerrainBoxByStaticLayerOnly = bSetTerrainBoxByStaticLayerOnly;
-        this.InitialScale2D = InitialScale2D;        
+        this.InitialScale2D = InitialScale2D;
     }
 }
 
@@ -43,7 +42,8 @@ class MapContainer extends PureComponent {
         bSameCanvas: true,
         isDTMClicked: false,
         is3DClicked: false,
-        isSwitchMapFormOpen: false
+        isSwitchMapFormOpen: false,
+        workingOriginSelected: false
     }
 
     mapTerrains = new Map;
@@ -51,7 +51,7 @@ class MapContainer extends PureComponent {
     //callbacks classes from mapCore
     CLayerReadCallback;
     CCameraUpdateCallback;
-    CAsyncQueryCallback;    
+    CAsyncQueryCallback;
     viewportData = null;
     uCameraUpdateCounter = 0;
     aLastTerrainLayers = [];
@@ -70,6 +70,16 @@ class MapContainer extends PureComponent {
     bEdit = false;
     layerCallback = null;
     requestAnimationFrameId = -1;
+    aPositions = [];
+    aObjects = [];
+    testObjectsScheme = null;
+    lineScheme = null;
+    textScheme = null;
+
+    WorkingOrigin = null;
+    DroneRouteCoordinates = [];
+    DroneObject = null;
+    DroneRouteObject = null;
 
     componentDidMount() {
         window.addEventListener('resize', this.resizeCanvases);
@@ -79,282 +89,404 @@ class MapContainer extends PureComponent {
     componentWillUnmount() {
         //Todo -> un-register events and all the map core object
         window.removeEventListener('resize', this.resizeCanvases);
-	cancelAnimationFrame(this.requestAnimationFrameId);
-	this.requestAnimationFrameId = null;
+        cancelAnimationFrame(this.requestAnimationFrameId);
+        this.requestAnimationFrameId = null;
     }
 
-    componentDidUpdate(prevProps) {
+    componentDidUpdate(prevProps, prevState) {
         // first time map load or channing from map a to map b
-        if ((!prevProps.isMapCoreSDKLoaded && this.props.isMapCoreSDKLoaded) || 
-                (this.props.isMapCoreSDKLoaded && prevProps.mapToShow !== this.props.mapToShow)) {
+        if ((!prevProps.isMapCoreSDKLoaded && this.props.isMapCoreSDKLoaded) ||
+            (this.props.isMapCoreSDKLoaded && prevProps.mapToShow !== this.props.mapToShow)) {
             this.openMap(this.props.mapToShow.groupName, false);
             console.log('mapCore version: ', window.MapCore.IMcMapDevice.GetVersion());
+            this.RemoveDroneData();
         }
+        if (this.state.workingOriginSelected != prevState.workingOriginSelected) {
+            this.props.subscribeToDronePosition();
+        }
+        if (this.props.dronePositionOffset && prevProps.dronePositionOffset != this.props.dronePositionOffset) {
+            this.MoveDrone();
+        }
+
+        if (this.editMode) {
+            console.log(this.editMode.IsEditingActive(), "jghjhjh");
+        }
+    }
+
+    RemoveDroneData = () => {
+        if (this.WorkingOrigin) {
+            this.WorkingOrigin.Remove();
+            this.WorkingOrigin = null;
+        }
+        if (this.DroneObject) {
+            this.DroneObject.Remove();
+            this.DroneObject = null;
+        }
+        if (this.roneRouteObject) {
+            this.DroneRouteObject.Remove();
+            this.DroneRouteObject = null;
+        }
+        this.DroneRouteCoordinates = [];
+    }
+
+    // function starting line drawing by EditMode
+    DoLine = () => {
+        if (this.lineScheme == null) {
+            this.FetchFileToByteArray("http:ObjectWorld/Schemes/LineScheme.m").then(
+                bytes => {
+                    if (bytes != null) {
+                        this.lineScheme = this.overlayManager.LoadObjectSchemes(bytes)[0];
+                        this.lineScheme.AddRef();
+                        //   DoStartInitObject(lineScheme); 
+                    }
+                }
+            );
+        }
+        else {
+            //  DoStartInitObject(lineScheme);
+        }
+    }
+
+
+    // function creating randomly distributed objects after ensuring testObjectsScheme has been loaded
+    DoCreateObjects = () => {
+        this.DoLine();
+        if (this.testObjectsScheme == null) {
+            this.FetchFileToByteArray("http:ObjectWorld/Schemes/ScreenPicture-Scheme.m").then(
+                bytes => {
+                    if (bytes != null) {
+                        this.testObjectsScheme = this.overlayManager.LoadObjectSchemes(bytes)[0];
+                        this.testObjectsScheme.AddRef();
+
+                        this.DoCreateObjectsFromLoadedScheme();
+                    }
+                }
+            );
+        }
+        else {
+            this.DoCreateObjectsFromLoadedScheme();
+        }
+    }
+
+    // function starting text drawing by EditMode
+    createOriginText = () => {
+        if (this.textScheme == null) {
+            this.FetchFileToByteArray("http:ObjectWorld/Schemes/TextScheme.m").then(
+                bytes => {
+                    if (bytes != null) {
+                        this.textScheme = this.overlayManager.LoadObjectSchemes(bytes)[0];
+                        this.textScheme.AddRef();
+                        this.DoStartInitObject(this.textScheme);
+                    }
+                }
+            );
+        }
+        else {
+            this.DoStartInitObject(this.textScheme);
+        }
+    }
+
+    // function starting object drawing by EditMode (called by DoLine(), DoText(), etc.)
+    DoStartInitObject = (pScheme) => {
+        if (pScheme != null) {
+            // find item marked for editing (e.g. by setting ID = 1000)
+            let pItem = pScheme.GetNodeByID(1000);
+            if (pItem == null) {
+                alert("There is no item marked for editing (with ID = 1000)");
+                return;
+            }
+
+            let text = window.MapCore.SMcVariantString("Origin", true);
+            pItem.SetText(text);
+            //  let color = window.MapCore.SMcBColor(255,174,201,255);
+            // pItem.SetBackgroundColor(color); 
+
+            this.RemoveDroneData();
+
+            // create object
+            let pObject = window.MapCore.IMcObject.Create(this.overlay, pScheme);
+            this.WorkingOrigin = pObject;
+
+            // start EditMode action
+            this.editMode.StartInitObject(pObject, pItem);
+
+        }
+    }
+
+    DoCreateObjectsFromLoadedScheme() {
+
+        let coordinate = {
+            x: this.WorkingOrigin.GetLocationPoints()[0].x,
+            y: this.WorkingOrigin.GetLocationPoints()[0].y,
+            z: this.WorkingOrigin.GetLocationPoints()[0].z
+        }
+        this.DroneRouteCoordinates.push(coordinate);
+
+        this.DroneObject = window.MapCore.IMcObject.Create(this.overlay, this.testObjectsScheme, [coordinate]);
+        this.DroneRouteObject = window.MapCore.IMcObject.Create(this.overlay, this.lineScheme, [coordinate]);
+    }
+
+    MoveDrone = () => {
+
+        if (!this.WorkingOrigin || !this.state.workingOriginSelected) {
+            console.log("No Working Origin Selected!!");
+            return;
+        }
+        if (!this.DroneObject || !this.DroneRouteObject) {
+            this.DoCreateObjects();
+        }
+        const offset = this.props.droneMoveOffset;
+        const origin = this.WorkingOrigin.GetLocationPoints()[0];
+        let newCoordinate = {
+            x: origin.x + offset.x,
+            y: origin.y + offset.y,
+            z: origin.z + offset.z
+        }
+        this.DroneRouteCoordinates.push(newCoordinate);
+
+        this.DroneObject.UpdateLocationPoints([newCoordinate]);
+        this.DroneRouteObject = window.MapCore.IMcObject.Create(this.overlay, this.lineScheme, this.DroneRouteCoordinates);
+        this.DroneRouteObject.SetState([2])
+    }
+    // function fetching a file from server to byte-array
+    FetchFileToByteArray(uri) {
+        return fetch(uri)
+            .then(response => (response.ok ? response.arrayBuffer() : null))
+            .then(
+                arrayBuffer => {
+                    if (arrayBuffer != null) {
+                        return new Uint8Array(arrayBuffer);
+                    }
+                    else {
+                        alert("Cannot fetch " + uri);
+                        return null;
+                    }
+                },
+                error => {
+                    alert("Network error in fetching " + uri);
+                    return null;
+                }
+            );
     }
 
     parseLayersConfiguration(jsonLayerGroups) {
-    try {
-        for (let jsonGroup of jsonLayerGroups)
-        {
-            // coordinate system creation string: MapCore.IMcGridCoordSystemGeographic.Create(MapCore.IMcGridCoordinateSystem.EDatumType.EDT_WGS84) etc.
-            let coordSystemString = "MapCore." + jsonGroup.coordSystemType + ".Create(" + jsonGroup.coordSystemParams + ")";
-            let layerGroup = new SLayerGroup(coordSystemString, jsonGroup.showGeoInMetricProportion, jsonGroup.centerByStaticObjectsLayerOnly, jsonGroup.InitialScale2D);
+        try {
+            for (let jsonGroup of jsonLayerGroups) {
+                // coordinate system creation string: MapCore.IMcGridCoordSystemGeographic.Create(MapCore.IMcGridCoordinateSystem.EDatumType.EDT_WGS84) etc.
+                let coordSystemString = "MapCore." + jsonGroup.coordSystemType + ".Create(" + jsonGroup.coordSystemParams + ")";
+                let layerGroup = new SLayerGroup(coordSystemString, jsonGroup.showGeoInMetricProportion, jsonGroup.centerByStaticObjectsLayerOnly, jsonGroup.InitialScale2D);
 
-            if (jsonGroup.layers) {
-                for (let layer of jsonGroup.layers) {
-                    let layerCreateString = null;
-                    const protocol = window.location.protocol;
-                    switch (layer.type) {                        
-                        case "WMSRaster":
-                            // WMS raster layer creation string: CreateWMSRasterLayer('http://wmtsserver/wmts?request=GetCapabilities', 'layer', 'EPSG:4326', 'jpeg') etc.
-                            layerCreateString = "Create" + layer.type + "Layer('" + layer.path + "'" + (layer.params ? ", " + layer.params : "") + ")";
-                            break;
-                        case "IMcNativeRasterMapLayer":
-                            layerCreateString = "MapCore.IMcNativeRasterMapLayer.Create('" + protocol + layer.path + "', " + (layer.params ? layer.params : "MapCore.UINT_MAX, false, 0, false") + ", this.layerCallback)";
-                            break;
-                        case "IMcNativeDtmMapLayer":
-                            layerCreateString = "MapCore.IMcNativeDtmMapLayer.Create('" + protocol + layer.path + "', " + (layer.params ? layer.params : "0") + ", this.layerCallback)";
-                            break;
-                        case "IMcNativeVectorMapLayer":
-                            layerCreateString = "MapCore.IMcNativeVectorMapLayer.Create('" + protocol + layer.path + "', " + (layer.params ? layer.params : "") + "this.layerCallback)";
-                            break;
-                        case "IMcNative3DModelMapLayer":
-                            layerCreateString = "MapCore.IMcNative3DModelMapLayer.Create('" + protocol + layer.path +  "', " + (layer.params ? layer.params : "0") + ", this.layerCallback)";
-                            break;
-                        case "IMcNativeVector3DExtrusionMapLayer":
-                            layerCreateString = "MapCore.IMcNativeVector3DExtrusionMapLayer.Create('" + protocol + layer.path +  "', " + (layer.params ? layer.params : "0, 10") + ", this.layerCallback)";
-                            break;
-                        default:
-                            alert("Invalid type of server layer");
-                            return;
+                if (jsonGroup.layers) {
+                    for (let layer of jsonGroup.layers) {
+                        let layerCreateString = null;
+                        const protocol = window.location.protocol;
+                        switch (layer.type) {
+                            case "WMSRaster":
+                                // WMS raster layer creation string: CreateWMSRasterLayer('http://wmtsserver/wmts?request=GetCapabilities', 'layer', 'EPSG:4326', 'jpeg') etc.
+                                layerCreateString = "Create" + layer.type + "Layer('" + layer.path + "'" + (layer.params ? ", " + layer.params : "") + ")";
+                                break;
+                            case "IMcNativeRasterMapLayer":
+                                layerCreateString = "MapCore.IMcNativeRasterMapLayer.Create('" + protocol + layer.path + "', " + (layer.params ? layer.params : "MapCore.UINT_MAX, false, 0, false") + ", this.layerCallback)";
+                                break;
+                            case "IMcNativeDtmMapLayer":
+                                layerCreateString = "MapCore.IMcNativeDtmMapLayer.Create('" + protocol + layer.path + "', " + (layer.params ? layer.params : "0") + ", this.layerCallback)";
+                                break;
+                            case "IMcNativeVectorMapLayer":
+                                layerCreateString = "MapCore.IMcNativeVectorMapLayer.Create('" + protocol + layer.path + "', " + (layer.params ? layer.params : "") + "this.layerCallback)";
+                                break;
+                            case "IMcNative3DModelMapLayer":
+                                layerCreateString = "MapCore.IMcNative3DModelMapLayer.Create('" + protocol + layer.path + "', " + (layer.params ? layer.params : "0") + ", this.layerCallback)";
+                                break;
+                            case "IMcNativeVector3DExtrusionMapLayer":
+                                layerCreateString = "MapCore.IMcNativeVector3DExtrusionMapLayer.Create('" + protocol + layer.path + "', " + (layer.params ? layer.params : "0, 10") + ", this.layerCallback)";
+                                break;
+                            default:
+                                alert("Invalid type of server layer");
+                                return;
+                        }
+                        layerGroup.aLayerCreateStrings.push(layerCreateString);
                     }
-                    layerGroup.aLayerCreateStrings.push(layerCreateString);
+                }
+                if (jsonGroup.groupName != undefined) {
+
+                    this.setState({ mapLayerGroups: new Map(this.state.mapLayerGroups.set(jsonGroup.groupName, layerGroup)) });
+
+                }
+                // we should not get here...
+                else if (jsonGroup.wmtsServerURL != undefined) {
+
+                    // layerGroup.wmtsServerURL = jsonGroup.wmtsServerURL;
+                    // if (jsonGroup.tileMatrixSetFilter != undefined) {
+
+                    //     layerGroup.tileMatrixSetFilter = jsonGroup.tileMatrixSetFilter;
+                    // }
+                    // aWmtsAdditionalLayerGroups.push(layerGroup);
                 }
             }
-            if (jsonGroup.groupName != undefined) {
-                
-                this.setState({mapLayerGroups: new Map(this.state.mapLayerGroups.set(jsonGroup.groupName, layerGroup))});                
-                                
-            } 
-            // we should not get here...
-            else if (jsonGroup.wmtsServerURL != undefined) {
-
-                // layerGroup.wmtsServerURL = jsonGroup.wmtsServerURL;
-                // if (jsonGroup.tileMatrixSetFilter != undefined) {
-
-                //     layerGroup.tileMatrixSetFilter = jsonGroup.tileMatrixSetFilter;
-                // }
-                // aWmtsAdditionalLayerGroups.push(layerGroup);
-            }
         }
-    }
-    catch (e)
-    {
-        alert("Invalid configuration JSON file");
-    }
+        catch (e) {
+            alert("Invalid configuration JSON file");
+        }
     }
 
     parseCapabilitiesXML(xmlDoc, capabilitiesURL, bMapCoreLayerServer = true, wmtsAdditionalLayerGroup) {
-        class CXmlNode
-        {
-            constructor(node)
-            {
+        class CXmlNode {
+            constructor(node) {
                 this.node = node;
             }
-            GetFirstChild(tagName)
-            {
+            GetFirstChild(tagName) {
                 let children = this.node.getElementsByTagName(tagName);
-                for (let child of children)
-                {
-                    if (child.parentNode == this.node)
-                    {
+                for (let child of children) {
+                    if (child.parentNode == this.node) {
                         return new CXmlNode(child);
                     }
                 }
                 return null;
             }
-            GetFirstChildText(tagName)
-            {
+            GetFirstChildText(tagName) {
                 let children = this.node.getElementsByTagName(tagName);
-                for (let child of children)
-                {
-                    if (child.parentNode == this.node)
-                    {
+                for (let child of children) {
+                    if (child.parentNode == this.node) {
                         return child.textContent;
                     }
                 }
                 return null;
             }
-            GetFirstChildAttribute(tagName, attributeName)
-            {
+            GetFirstChildAttribute(tagName, attributeName) {
                 let children = this.node.getElementsByTagName(tagName);
-                for (let child of children)
-                {
-                    if (child.parentNode == this.node)
-                    {
+                for (let child of children) {
+                    if (child.parentNode == this.node) {
                         return child.attributes.getNamedItem(attributeName).value;
                     }
                 }
                 return null;
             }
-            GetChildren(tagName)
-            {
+            GetChildren(tagName) {
                 let children = this.node.getElementsByTagName(tagName);
                 let aNodes = [];
-                for (let child of children)
-                {
-                    if (child.parentNode == this.node)
-                    {
+                for (let child of children) {
+                    if (child.parentNode == this.node) {
                         aNodes.push(new CXmlNode(child));
                     }
                 }
                 return aNodes;
             }
-            GetChildrenTexts(tagName)
-            {
+            GetChildrenTexts(tagName) {
                 let children = this.node.getElementsByTagName(tagName);
                 let aTexts = [];
-                for (let child of children)
-                {
-                    if (child.parentNode == this.node)
-                    {
+                for (let child of children) {
+                    if (child.parentNode == this.node) {
                         aTexts.push(child.textContent);
                     }
                 }
                 return aTexts;
             }
         }
-        
-        if (xmlDoc != null)
-        {
-            try
-            {
+
+        if (xmlDoc != null) {
+            try {
                 let capabilities = new CXmlNode(xmlDoc).GetFirstChild("Capabilities");
                 let MapLayerServerURL = capabilities.GetFirstChildAttribute("ServiceMetadataURL", "xlink:href");
-                if (MapLayerServerURL == null || MapLayerServerURL == "")
-                {
+                if (MapLayerServerURL == null || MapLayerServerURL == "") {
                     MapLayerServerURL = capabilitiesURL;
                 }
                 let lastSlashIndex = MapLayerServerURL.lastIndexOf("?");
-                if (lastSlashIndex < 0)
-                {
+                if (lastSlashIndex < 0) {
                     lastSlashIndex = MapLayerServerURL.lastIndexOf("/");
                 }
-                if (lastSlashIndex < 0)
-                {
+                if (lastSlashIndex < 0) {
                     alert("Invalid Capabilities file");
                     return;
                 }
                 let TrimmedMapLayerServerURL = MapLayerServerURL.substring(0, lastSlashIndex);
-    
+
                 let contents = capabilities.GetFirstChild("Contents");
                 let aTileMatrixSets = contents.GetChildren("TileMatrixSet");
                 let mapTileMatrixSets = new Map();
-                for (let matrixSet of aTileMatrixSets)
-                {
+                for (let matrixSet of aTileMatrixSets) {
                     let id = matrixSet.GetFirstChildText("ows:Identifier");
                     let crs = matrixSet.GetFirstChildText("ows:SupportedCRS");
-                    if (id != null &&  crs != null)
-                    {
-                        mapTileMatrixSets.set(matrixSet.GetFirstChildText("ows:Identifier"), { coordSystem : crs, tileMatrixSet : id});
+                    if (id != null && crs != null) {
+                        mapTileMatrixSets.set(matrixSet.GetFirstChildText("ows:Identifier"), { coordSystem: crs, tileMatrixSet: id });
                     }
                 }
-    
+
                 let aLayers = contents.GetChildren("Layer");
-                for (let layer of aLayers)
-                {
+                for (let layer of aLayers) {
                     // check here if its single layer preview. if yes put only this layer in the hashMap                    
-                    let layerID = layer.GetFirstChildText("ows:Identifier");                    
-                    if (this.context.mapToPreview.type === config.nodesLevel.layer && 
-                            (this.context.mapToPreview.data.LayerId !== layerID && this.context.mapToPreview.dtmLayerId !== layerID)) 
-                            continue;
+                    let layerID = layer.GetFirstChildText("ows:Identifier");
+                    if (this.context.mapToPreview.type === config.nodesLevel.layer &&
+                        (this.context.mapToPreview.data.LayerId !== layerID && this.context.mapToPreview.dtmLayerId !== layerID))
+                        continue;
 
                     let aFormats = layer.GetChildrenTexts("Format");
                     let aTileMatrixSetLinks = layer.GetChildren("TileMatrixSetLink");
-                    if (aTileMatrixSetLinks.length == 0)
-                    {
+                    if (aTileMatrixSetLinks.length == 0) {
                         aTileMatrixSetLinks.push(null);
                     }
-                    
-                    for (let tileMatrixSetLink of aTileMatrixSetLinks)
-                    {
+
+                    for (let tileMatrixSetLink of aTileMatrixSetLinks) {
                         let coordSystem = null;
                         let tileMatrixSet = null;
-                        if (tileMatrixSetLink != null)
-                        {
+                        if (tileMatrixSetLink != null) {
                             let tileMatrixSetParams = mapTileMatrixSets.get(tileMatrixSetLink.GetFirstChildText("TileMatrixSet"));
                             coordSystem = tileMatrixSetParams.coordSystem;
                             tileMatrixSet = tileMatrixSetParams.tileMatrixSet;
-                            if (wmtsAdditionalLayerGroup && wmtsAdditionalLayerGroup.tileMatrixSetFilter && tileMatrixSet != wmtsAdditionalLayerGroup.tileMatrixSetFilter)
-                            {
+                            if (wmtsAdditionalLayerGroup && wmtsAdditionalLayerGroup.tileMatrixSetFilter && tileMatrixSet != wmtsAdditionalLayerGroup.tileMatrixSetFilter) {
                                 continue;
                             }
                         }
-                        if (coordSystem == null)
-                        {
+                        if (coordSystem == null) {
                             let boundingBox = layer.GetFirstChild("ows:BoundingBox");
-                            if (boundingBox)
-                            {
+                            if (boundingBox) {
                                 coordSystem = boundingBox.GetFirstChildText("ows:crs");
                             }
                         }
                         let prefix = "urn:ogc:def:crs:";
-                        if (coordSystem.indexOf(prefix) == 0)
-                        {
+                        if (coordSystem.indexOf(prefix) == 0) {
                             coordSystem = coordSystem.substring(prefix.length).replace("::", ":");
                             let aGroups = [];
-                            if (bMapCoreLayerServer)
-                            {
+                            if (bMapCoreLayerServer) {
                                 aGroups = layer.GetFirstChildText("Group").split(",");
-                                for (let i = 0; i < aGroups.length; ++i)
-                                {
+                                for (let i = 0; i < aGroups.length; ++i) {
                                     aGroups[i] = aGroups[i] + " (server " + coordSystem + ")";
                                 }
                             }
-                            else
-                            {
+                            else {
                                 let groupName = layer.GetFirstChildText("ows:Title");
-                                if (groupName == null)
-                                {
+                                if (groupName == null) {
                                     groupName = layerID;
                                 }
-    
-                                for (let i = 0; i < aFormats.length; ++i)
-                                {
+
+                                for (let i = 0; i < aFormats.length; ++i) {
                                     aFormats[i] = aFormats[i].replace("image/", "");
-                                    aGroups[i] = groupName  + " (WMTS " + aFormats[i] + " " + tileMatrixSet + ")";
+                                    aGroups[i] = groupName + " (WMTS " + aFormats[i] + " " + tileMatrixSet + ")";
                                 }
                             }
-                            for (let i = 0; i < aGroups.length; ++i)
-                            {
+                            for (let i = 0; i < aGroups.length; ++i) {
                                 let group = aGroups[i];
-    
+
                                 // coordinate system creation string: MapCore.IMcGridGeneric.Create('EPSG:4326') etc.
                                 let coordSystemString = "MapCore.IMcGridGeneric.Create('" + coordSystem + "')";
                                 let layerGroup = this.state.mapLayerGroups.get(group);
-                                if (layerGroup == undefined)
-                                {
+                                if (layerGroup == undefined) {
                                     layerGroup = new SLayerGroup(coordSystemString, true); // for MapCoreLayerServer only: bShowGeoInMetricProportion is true
-                                    this.setState({mapLayerGroups: new Map(this.state.mapLayerGroups.set(group, layerGroup))});
+                                    this.setState({ mapLayerGroups: new Map(this.state.mapLayerGroups.set(group, layerGroup)) });
                                 }
-                                else if (coordSystemString != layerGroup.coordSystemString)
-                                {
+                                else if (coordSystemString != layerGroup.coordSystemString) {
                                     alert("Layers' coordinate systems do not match");
                                     return;
                                 }
                                 let layerCreateString;
-                                if (bMapCoreLayerServer)
-                                {
+                                if (bMapCoreLayerServer) {
                                     layerCreateString = aFormats[0].replace("MapCore", "MapCore.IMcNative").replace("DTM", "Dtm") + "MapLayer" + ".Create('" + TrimmedMapLayerServerURL + "/" + layerID + "')";
                                     layerGroup.aLayerCreateStrings.push(layerCreateString);
                                 }
-                                else
-                                {
+                                else {
                                     // WMTS raster layer creation string: CreateWMTSRasterLayer('http://wmtsserver/wmts?request=GetCapabilities', 'layer', 'EPSG:4326', 'jpeg') etc.
                                     layerCreateString = "CreateWMTSRasterLayer('" + capabilitiesURL + "', '" + layerID + "', '" + tileMatrixSet + "', '" + aFormats[i] + "')";
                                     layerGroup.aLayerCreateStrings.push(layerCreateString);
-                                    if (wmtsAdditionalLayerGroup)
-                                    {
+                                    if (wmtsAdditionalLayerGroup) {
                                         layerGroup.aLayerCreateStrings = layerGroup.aLayerCreateStrings.concat(wmtsAdditionalLayerGroup.aLayerCreateStrings);
                                         layerGroup.bSetTerrainBoxByStaticLayerOnly = wmtsAdditionalLayerGroup.bSetTerrainBoxByStaticLayerOnly;
                                         layerGroup.bShowGeoInMetricProportion = wmtsAdditionalLayerGroup.bShowGeoInMetricProportion;
@@ -366,20 +498,17 @@ class MapContainer extends PureComponent {
                     }
                 }
             }
-            catch (e)
-            {
+            catch (e) {
                 alert("Invalid Capabilities file");
             }
         }
     }
 
-    createCallbackClasses() {        
+    createCallbackClasses() {
         this.CLayerReadCallback = window.MapCore.IMcMapLayer.IReadCallback.extend("IMcMapLayer.IReadCallback", {
             // mandatory
-            OnInitialized : function(pLayer, eStatus, strAdditionalDataString)
-            {
-                if (eStatus == window.MapCore.IMcErrors.ECode.SUCCESS)
-                {
+            OnInitialized: function (pLayer, eStatus, strAdditionalDataString) {
+                if (eStatus == window.MapCore.IMcErrors.ECode.SUCCESS) {
                     //this.trySetTerainBox();
                     // if (pLayer.GetLayerType() ==  window.MapCore.IMcNativeStaticObjectsMapLayer.LAYER_TYPE && !pLayer.IsBuiltOfContoursExtrusion())
                     // {
@@ -387,46 +516,43 @@ class MapContainer extends PureComponent {
                     //     pLayer.SetDisplayingDtmVisualization(true);
                     // }
                 }
-                else if (eStatus !=  window.MapCore.IMcErrors.ECode.NATIVE_SERVER_LAYER_NOT_VALID)
-                {
-                    alert("Layer initialization: " +  window.MapCore.IMcErrors.ErrorCodeToString(eStatus) + " (" + strAdditionalDataString + ")");
+                else if (eStatus != window.MapCore.IMcErrors.ECode.NATIVE_SERVER_LAYER_NOT_VALID) {
+                    alert("Layer initialization: " + window.MapCore.IMcErrors.ErrorCodeToString(eStatus) + " (" + strAdditionalDataString + ")");
                 }
             },
             // mandatory
-            OnReadError: function(pLayer, eErrorCode, strAdditionalDataString) {
+            OnReadError: function (pLayer, eErrorCode, strAdditionalDataString) {
                 alert("Layer read error: " + window.MapCore.IMcErrors.ErrorCodeToString(eErrorCode) + " (" + strAdditionalDataString + ")");
             },
             // mandatory
-            OnNativeServerLayerNotValid: function(pLayer, bLayerVersionUpdated) {/*TBD*/},
+            OnNativeServerLayerNotValid: function (pLayer, bLayerVersionUpdated) {/*TBD*/ },
             // optional, needed if to be deleted by MapCore when no longer used
             // optional
-            OnRemoved(pLayer, eStatus, strAdditionalDataString)
-            {
+            OnRemoved(pLayer, eStatus, strAdditionalDataString) {
                 alert("Map layer has been removed");
             },
 
             // optional
-            OnReplaced(pOldLayer, pNewLayer, eStatus, strAdditionalDataString)
-            {
+            OnReplaced(pOldLayer, pNewLayer, eStatus, strAdditionalDataString) {
                 alert("Map layer has been replaced");
-            },            
-            Release: function() { this.delete(); },
+            },
+            Release: function () { this.delete(); },
         });
-        
+
         this.CCameraUpdateCallback = window.MapCore.IMcMapViewport.ICameraUpdateCallback.extend("IMcMapViewport.ICameraUpdateCallback", {
             // mandatory
-            OnActiveCameraUpdated: function(pViewport) {
+            OnActiveCameraUpdated: function (pViewport) {
                 ++this.uCameraUpdateCounter
             },
             // optional
-            Release: function() {
+            Release: function () {
                 this.delete()
             }
         });
-        
+
         this.CAsyncQueryCallback = window.MapCore.IMcSpatialQueries.IAsyncQueryCallback.extend("IMcSpatialQueries.IAsyncQueryCallback", {
             // optional
-            __construct: function(viewportData) {
+            __construct: function (viewportData) {
                 this.__parent.__construct.call(this);
                 this.viewportData = viewportData;
             },
@@ -440,48 +566,47 @@ class MapContainer extends PureComponent {
                 }
                 this.delete();
             },
-            OnTerrainHeightMatrixResults: function(uNumHorizontalPoints, uNumVerticalPoints, adHeightMatrix) {},
-            OnTerrainHeightsAlongLineResults: function(aPointsWithHeights, aSlopes, pSlopesData) {},
-            OnExtremeHeightPointsInPolygonResults: function(bPointsFound, pHighestPoint, pLowestPoint) {},
-            OnTerrainAnglesResults: function(dPitch, dRoll) {},
+            OnTerrainHeightMatrixResults: function (uNumHorizontalPoints, uNumVerticalPoints, adHeightMatrix) { },
+            OnTerrainHeightsAlongLineResults: function (aPointsWithHeights, aSlopes, pSlopesData) { },
+            OnExtremeHeightPointsInPolygonResults: function (bPointsFound, pHighestPoint, pLowestPoint) { },
+            OnTerrainAnglesResults: function (dPitch, dRoll) { },
 
             // OnRayIntersectionResults
-            OnLineOfSightResults: function(aPoints, dCrestClearanceAngle, dCrestClearanceDistance){},
-            OnPointVisibilityResults: function(bIsTargetVisible, pdMinimalTargetHeightForVisibility, pdMinimalScouterHeightForVisibility) {},
-            OnAreaOfSightResults: function(pAreaOfSight, aLinesOfSight, pSeenPolygons, pUnseenPolygons, aSeenStaticObjects) {},
-            OnLocationFromTwoDistancesAndAzimuthResults: function(Target){},
+            OnLineOfSightResults: function (aPoints, dCrestClearanceAngle, dCrestClearanceDistance) { },
+            OnPointVisibilityResults: function (bIsTargetVisible, pdMinimalTargetHeightForVisibility, pdMinimalScouterHeightForVisibility) { },
+            OnAreaOfSightResults: function (pAreaOfSight, aLinesOfSight, pSeenPolygons, pUnseenPolygons, aSeenStaticObjects) { },
+            OnLocationFromTwoDistancesAndAzimuthResults: function (Target) { },
 
             // mandatory
-            OnError: function(eErrorCode) {
-                alert('error '+ eErrorCode);
+            OnError: function (eErrorCode) {
+                alert('error ' + eErrorCode);
                 this.delete();
             },
         });
 
         let CUserData = window.MapCore.IMcUserData.extend("IMcUserData", {
             // optional
-            __construct: function(bToBeDeleted) {
+            __construct: function (bToBeDeleted) {
                 this.__parent.__construct.call(this);
                 this.bToBeDeleted = bToBeDeleted;
                 // ...
             },
 
             // optional
-            __destruct: function() {
+            __destruct: function () {
                 this.__parent.__destruct.call(this);
                 // ...
             },
 
             // mandatory
-            Release: function() {
-                if (this.bToBeDeleted)
-                {
+            Release: function () {
+                if (this.bToBeDeleted) {
                     this.delete();
                 }
             },
 
             // optional
-            Clone: function() {
+            Clone: function () {
                 if (this.bToBeDeleted) {
                     return new CUserData(this.bToBeDeleted);
                 }
@@ -491,32 +616,28 @@ class MapContainer extends PureComponent {
         this.layerCallback = new this.CLayerReadCallback();
     }
 
-    doMoveObjects() {
-    }
-
     renderMapContinuously = () => {
         if (!this.requestAnimationFrameId) return;
         this.trySetTerainBox();
         let currtRenderTime = (new Date).getTime();
-        
+
         // render viewport(s)
         if (!this.state.bSameCanvas) {
-            window.MapCore.IMcMapViewport.RenderAll(); 
+            window.MapCore.IMcMapViewport.RenderAll();
         } else if (this.viewport != null) {
             this.viewport.Render();
         }
-    
+
         // move objects if they exist
-        this.doMoveObjects();
         this.lastRenderTime = currtRenderTime;
-    
+
         // log memory usage and heap size
         if (this.uMemUsageLoggingFrequency != 0 && currtRenderTime >= this.lastMemUsageLogTime + this.uMemUsageLoggingFrequency * 1000) {
             let usage = window.MapCore.IMcMapDevice.GetMaxMemoryUsage();
             console.log("Max mem = " + window.MapCore.IMcMapDevice.GetMaxMemoryUsage().toLocaleString() + ", heap = " + window.MapCore.IMcMapDevice.GetHeapSize().toLocaleString() + " B");
             this.lastMemUsageLogTime = currtRenderTime;
         }
-    
+
         // ask the browser to render again
         this.requestAnimationFrameId = requestAnimationFrame(this.renderMapContinuously);
     }
@@ -531,12 +652,12 @@ class MapContainer extends PureComponent {
                         if (this.aViewports[j].bSetTerrainBoxByStaticLayerOnly && aViewportLayers[i].GetLayerType() != window.MapCore.IMcNativeStaticObjectsMapLayer.LAYER_TYPE) {
                             continue;
                         }
-    
+
                         if (!aViewportLayers[i].IsInitialized()) {
                             this.aViewports[j].terrainBox = null;
                             return;
                         }
-    
+
                         let layerBox = aViewportLayers[i].GetBoundingBox();
                         if (layerBox.MinVertex.x > this.aViewports[j].terrainBox.MinVertex.x) {
                             this.aViewports[j].terrainBox.MinVertex.x = layerBox.MinVertex.x;
@@ -555,15 +676,13 @@ class MapContainer extends PureComponent {
                 else {
                     this.aViewports[j].terrainBox = new window.MapCore.SMcBox(0, 0, 0, 0, 0, 0);
                 }
-    
+
                 this.aViewports[j].terrainCenter = window.MapCore.SMcVector3D((this.aViewports[j].terrainBox.MinVertex.x + this.aViewports[j].terrainBox.MaxVertex.x) / 2, (this.aViewports[j].terrainBox.MinVertex.y + this.aViewports[j].terrainBox.MaxVertex.y) / 2, 0);
                 this.aViewports[j].terrainCenter.z = 10000;
             }
-    
-            if (!this.aViewports[j].bCameraPositionSet)
-            {
-                if (this.aViewports[j].viewport.GetMapType() == window.MapCore.IMcMapCamera.EMapType.EMT_2D)
-                {
+
+            if (!this.aViewports[j].bCameraPositionSet) {
+                if (this.aViewports[j].viewport.GetMapType() == window.MapCore.IMcMapCamera.EMapType.EMT_2D) {
                     this.aViewports[j].viewport.SetCameraPosition(this.aViewports[j].terrainCenter);
                     this.aViewports[j].bCameraPositionSet = true;
                 }
@@ -586,27 +705,27 @@ class MapContainer extends PureComponent {
         if (this.aViewports.length == 0) {
             return;
         }
-   
-       let CanvasesInRow, CanvasesInColumn;
-       if (!this.state.bSameCanvas) {
-           CanvasesInRow = Math.ceil(Math.sqrt(this.aViewports.length));
-           CanvasesInColumn = Math.ceil(this.aViewports.length / CanvasesInRow);
-       }
-       else {
-           CanvasesInRow = 1;
-           CanvasesInColumn = 1;
-       }
-       //todo: use this instead: document.getElementById('id').getBoundingClientRect()
-    //    let width =  (window.innerWidth - 40) / CanvasesInRow - 10;
-    //    let height = (window.innerHeight - 80) / CanvasesInColumn - 15;
-       let width =  document.getElementById('canvasesContainer').getBoundingClientRect().width;
-       let height = document.getElementById('canvasesContainer').getBoundingClientRect().height;
-       
-       for (let i = 0; i < this.aViewports.length ; i++) {
-           this.aViewports[i].canvas.width = width;
-           this.aViewports[i].canvas.height = height;
-           this.aViewports[i].viewport.ViewportResized();
-       }
+
+        let CanvasesInRow, CanvasesInColumn;
+        if (!this.state.bSameCanvas) {
+            CanvasesInRow = Math.ceil(Math.sqrt(this.aViewports.length));
+            CanvasesInColumn = Math.ceil(this.aViewports.length / CanvasesInRow);
+        }
+        else {
+            CanvasesInRow = 1;
+            CanvasesInColumn = 1;
+        }
+        //todo: use this instead: document.getElementById('id').getBoundingClientRect()
+        //    let width =  (window.innerWidth - 40) / CanvasesInRow - 10;
+        //    let height = (window.innerHeight - 80) / CanvasesInColumn - 15;
+        let width = document.getElementById('canvasesContainer').getBoundingClientRect().width;
+        let height = document.getElementById('canvasesContainer').getBoundingClientRect().height;
+
+        for (let i = 0; i < this.aViewports.length; i++) {
+            this.aViewports[i].canvas.width = width;
+            this.aViewports[i].canvas.height = height;
+            this.aViewports[i].viewport.ViewportResized();
+        }
     }
 
     calcMinMaxHeights() {
@@ -647,9 +766,9 @@ class MapContainer extends PureComponent {
         if (bHandled.Value) {
             return;
         }
-    
+
         let factor = (e.shiftKey ? 10 : 1);
-    
+
         if (this.viewport.GetMapType() == window.MapCore.IMcMapCamera.EMapType.EMT_3D) {
             this.viewport.MoveCameraRelativeToOrientation(window.MapCore.SMcVector3D(0, 0, wheelDelta / 8.0 * factor), true);
         } else {
@@ -659,25 +778,25 @@ class MapContainer extends PureComponent {
             } else {
                 this.viewport.SetCameraScale(fScale * 1.25);
             }
-    
+
             if (this.viewport.GetDtmVisualization()) {
                 this.doDtmVisualization();
                 this.doDtmVisualization();
             }
         }
-    
+
         e.preventDefault();
         e.cancelBubble = true;
         if (e.stopPropagation) e.stopPropagation();
     }
 
 
-    mouseMoveHandler = (e, isTouch = false) => {        
+    mouseMoveHandler = (e, isTouch = false) => {
         if (this.viewport.GetWindowHandle() != e.target) {
             return;
         }
-        
-        let EventPixel = null ; 
+
+        let EventPixel = null;
         if (isTouch) {
             const rect = e.target.getBoundingClientRect();
             const offsetX = e.targetTouches[0].pageX - rect.left;
@@ -690,13 +809,13 @@ class MapContainer extends PureComponent {
         if (e.buttons <= 1) {
             let bHandled = {};
             let eCursor = {};
-            this.editMode.OnMouseEvent((e.buttons == 1 || isTouch) ? 
-                window.MapCore.IMcEditMode.EMouseEvent.EME_MOUSE_MOVED_BUTTON_DOWN : 
-                window.MapCore.IMcEditMode.EMouseEvent.EME_MOUSE_MOVED_BUTTON_UP, 
-                EventPixel, 
-                e.ctrlKey, 
-                0, 
-                bHandled, 
+            this.editMode.OnMouseEvent((e.buttons == 1 || isTouch) ?
+                window.MapCore.IMcEditMode.EMouseEvent.EME_MOUSE_MOVED_BUTTON_DOWN :
+                window.MapCore.IMcEditMode.EMouseEvent.EME_MOUSE_MOVED_BUTTON_UP,
+                EventPixel,
+                e.ctrlKey,
+                0,
+                bHandled,
                 eCursor
             );
             if (bHandled.Value) {
@@ -706,7 +825,7 @@ class MapContainer extends PureComponent {
                 return;
             }
         }
-    
+
         if (e.buttons == 1 || isTouch) {
             if (this.nMousePrevX != 0) {
                 let factor = (e.shiftKey ? 10 : 1);
@@ -725,51 +844,56 @@ class MapContainer extends PureComponent {
                         this.viewport.ScrollCamera((this.nMousePrevX - EventPixel.x) * factor, (this.nMousePrevY - EventPixel.y) * factor);
                     }
                 }
-    
+
                 e.preventDefault();
                 e.cancelBubble = true;
                 if (e.stopPropagation) e.stopPropagation();
             }
         }
-    
+
         this.nMousePrevX = EventPixel.x;
         this.nMousePrevY = EventPixel.y;
     }
 
     mouseDownHandler = e => {
+
         if (this.editMode.IsEditingActive()) {
             // EditMode is active: don't change active viewport, but ignore click on non-active one
-            if (this.viewport.GetWindowHandle() != e.target)
-            {
-               return;
+            if (this.viewport.GetWindowHandle() != e.target) {
+                return;
             }
         } else if (!this.state.bSameCanvas) {
             for (let i = 0; i < this.aViewports.length; i++) {
-                if (e.target ==  this.aViewports[i].viewport.GetWindowHandle()) {
+                if (e.target == this.aViewports[i].viewport.GetWindowHandle()) {
                     this.activeViewport = i;
                     this.updateActiveViewport();
                     break;
-                }                
+                }
             }
         }
-    
+
         let EventPixel = window.MapCore.SMcPoint(e.offsetX, e.offsetY);
         this.mouseDownButtons = e.buttons;
         if (e.buttons == 1) {
             let bHandled = {};
             let eCursor = {};
             this.editMode.OnMouseEvent(window.MapCore.IMcEditMode.EMouseEvent.EME_BUTTON_PRESSED, EventPixel, e.ctrlKey, 0, bHandled, eCursor);
+            if (!this.state.workingOriginSelected && this.WorkingOrigin.GetLocationPoints().length > 0) {
+                this.setState({ workingOriginSelected: true });
+            }
+
             if (bHandled.Value) {
                 e.preventDefault();
                 e.cancelBubble = true;
                 if (e.stopPropagation) e.stopPropagation();
                 return;
             }
-    
+
             this.nMousePrevX = EventPixel.x;
             this.nMousePrevY = EventPixel.y;
         }
-    
+
+
         e.preventDefault();
         e.cancelBubble = true;
         if (e.stopPropagation) e.stopPropagation();
@@ -779,7 +903,7 @@ class MapContainer extends PureComponent {
         if (this.viewport.GetWindowHandle() != e.target) {
             return;
         }
-        
+
         let EventPixel = window.MapCore.SMcPoint(e.offsetX, e.offsetY);
         let buttons = this.mouseDownButtons & ~e.buttons;
         if (buttons == 1) {
@@ -793,12 +917,15 @@ class MapContainer extends PureComponent {
                 return;
             }
         }
+
+
+
     }
     mouseDblClickHandler = e => {
         if (this.viewport.GetWindowHandle() != e.target) {
             return;
         }
-        
+
         let EventPixel = window.MapCore.SMcPoint(e.offsetX, e.offsetY);
         let buttons = this.mouseDownButtons & ~e.buttons;
         if (this.bEdit) {
@@ -817,7 +944,7 @@ class MapContainer extends PureComponent {
             if (e.stopPropagation) e.stopPropagation();
             return;
         }
-    
+
         if (buttons == 1) {
             let bHandled = {};
             let eCursor = {};
@@ -837,10 +964,10 @@ class MapContainer extends PureComponent {
         e.stopPropagation && e.stopPropagation();
     }
 
-    touchStartHandler = (e) => {            
+    touchStartHandler = (e) => {
         const rect = e.target.getBoundingClientRect();
         this.nMousePrevX = this._onMouseDownX = e.targetTouches[0].pageX - rect.left;
-        this.nMousePrevY = this._onMouseDownY = e.targetTouches[0].pageY - rect.top;        
+        this.nMousePrevY = this._onMouseDownY = e.targetTouches[0].pageY - rect.top;
         //this.stopEvent(e);        
     }
 
@@ -848,134 +975,134 @@ class MapContainer extends PureComponent {
         const screenPoint = new window.MapCore.SMcVector3D(x, y, 0);
         const worldPoint = {};
         if (!this.viewport.ScreenToWorldOnTerrain(screenPoint, worldPoint)) {
-          this.viewport.ScreenToWorldOnPlane(screenPoint, worldPoint);
+            this.viewport.ScreenToWorldOnPlane(screenPoint, worldPoint);
         }
         let ret = worldPoint;
         if (!options || !options.withoutConvert) {
-        //   const worldPointGeo = this.gridConverter.ConvertAtoB(worldPoint.Value);
-        //   const worldPointGeoConverted = ConvertGEOPartial.geoPartialCoordsToGeoPartial(new geo.coordinate(worldPointGeo.x / DEG_TO_MC, worldPointGeo.y / DEG_TO_MC, worldPointGeo.z));
-        //   const worldPointGrid = worldPoint.Value;
-        //   ret = {worldPointGeo, worldPointGeoConverted, worldPointGrid};
+            //   const worldPointGeo = this.gridConverter.ConvertAtoB(worldPoint.Value);
+            //   const worldPointGeoConverted = ConvertGEOPartial.geoPartialCoordsToGeoPartial(new geo.coordinate(worldPointGeo.x / DEG_TO_MC, worldPointGeo.y / DEG_TO_MC, worldPointGeo.z));
+            //   const worldPointGrid = worldPoint.Value;
+            //   ret = {worldPointGeo, worldPointGeoConverted, worldPointGrid};
         }
         return ret;
     }
 
-    worldToScreen = (coordinate, options) =>{
+    worldToScreen = (coordinate, options) => {
         let srcCoords = coordinate;
         if (!options || !options.native) {
-          //srcCoords = this._transformCoordinateToNative(coordinate);
+            //srcCoords = this._transformCoordinateToNative(coordinate);
         }
         const screenPoint = this.viewport.WorldToScreen(srcCoords);
         let inScreen = true;
         if (screenPoint.x < 0 || screenPoint.x > this._canvas.width ||
-          screenPoint.y < 0 || screenPoint.y > this._canvas.height) {
-          inScreen = false;
+            screenPoint.y < 0 || screenPoint.y > this._canvas.height) {
+            inScreen = false;
         }
-        return {x: screenPoint.x, y: screenPoint.y, inScreen};
+        return { x: screenPoint.x, y: screenPoint.y, inScreen };
     }
 
     moveCameraRelativeToOrientation = (moveX, moveY, ignorePitch = true, useHeightFactor = false) => {
         let factor = 1;
         if (useHeightFactor) {
-          const currentPosition = this.viewport.GetCameraPosition();
-          let height = {};
-          let heightDiff = Math.abs(currentPosition.z);
-          if (this.viewport.GetTerrainHeight(currentPosition, height)) {
-            heightDiff = currentPosition.z - height.Value;
-          }
-    
-        //   if (this.moveCameraRelativeToOrientationFactor) {
-        //     const heightFactorNameToUse = useHeightFactor ? useHeightFactor : 'other';
-        //     const heightFactorToUse = this.moveCameraRelativeToOrientationFactor[heightFactorNameToUse];
-        //     if (heightFactorToUse) {              
-        //       for (let i = 0; i < heightFactorToUse.length; i++) {
-        //         if (!heightFactorToUse[i].max) {
-        //           factor = heightFactorToUse[i].factor;
-        //         }
-        //         if (heightDiff < heightFactorToUse[i].max) {
-        //           factor = heightFactorToUse[i].factor;
-        //           break;
-        //         }
-        //       }
-        //     }
-        //   }
-        // }
+            const currentPosition = this.viewport.GetCameraPosition();
+            let height = {};
+            let heightDiff = Math.abs(currentPosition.z);
+            if (this.viewport.GetTerrainHeight(currentPosition, height)) {
+                heightDiff = currentPosition.z - height.Value;
+            }
+
+            //   if (this.moveCameraRelativeToOrientationFactor) {
+            //     const heightFactorNameToUse = useHeightFactor ? useHeightFactor : 'other';
+            //     const heightFactorToUse = this.moveCameraRelativeToOrientationFactor[heightFactorNameToUse];
+            //     if (heightFactorToUse) {              
+            //       for (let i = 0; i < heightFactorToUse.length; i++) {
+            //         if (!heightFactorToUse[i].max) {
+            //           factor = heightFactorToUse[i].factor;
+            //         }
+            //         if (heightDiff < heightFactorToUse[i].max) {
+            //           factor = heightFactorToUse[i].factor;
+            //           break;
+            //         }
+            //       }
+            //     }
+            //   }
+            // }
 
             if (useHeightFactor === 'mouse') {
                 factor = 600;
                 if (heightDiff < 10) {
-                factor = 1;
+                    factor = 1;
                 } else if (heightDiff < 30) {
-                factor = 3;
+                    factor = 3;
                 } else if (heightDiff < 100) {
-                factor = 6;
+                    factor = 6;
                 } else if (heightDiff < 200) {
-                factor = 12;
+                    factor = 12;
                 } else if (heightDiff < 300) {
-                factor = 20;
+                    factor = 20;
                 } else if (heightDiff < 500) {
-                factor = 35;
+                    factor = 35;
                 } else if (heightDiff < 1000) {
-                factor = 100;
+                    factor = 100;
                 } else if (heightDiff < 2000) {
-                factor = 200;
+                    factor = 200;
                 } else if (heightDiff < 5000) {
-                factor = 400;
+                    factor = 400;
                 }
             } else if (useHeightFactor === 'touch') {
                 factor = 600;
                 if (heightDiff < 10) {
-                factor = 2;
+                    factor = 2;
                 } else if (heightDiff < 30) {
-                factor = 6;
+                    factor = 6;
                 } else if (heightDiff < 100) {
-                factor = 9;
+                    factor = 9;
                 } else if (heightDiff < 200) {
-                factor = 12;
+                    factor = 12;
                 } else if (heightDiff < 300) {
-                factor = 20;
+                    factor = 20;
                 } else if (heightDiff < 500) {
-                factor = 35;
+                    factor = 35;
                 } else if (heightDiff < 1000) {
-                factor = 100;
+                    factor = 100;
                 } else if (heightDiff < 2000) {
-                factor = 200;
+                    factor = 200;
                 } else if (heightDiff < 5000) {
-                factor = 400;
+                    factor = 400;
                 }
                 factor *= 2;
             } else {
                 factor = 150;
                 if (heightDiff < 10) {
-                factor = 1;
+                    factor = 1;
                 } else if (heightDiff < 30) {
-                factor = 4;
+                    factor = 4;
                 } else if (heightDiff < 100) {
-                factor = 8;
+                    factor = 8;
                 } else if (heightDiff < 200) {
-                factor = 12;
+                    factor = 12;
                 } else if (heightDiff < 300) {
-                factor = 30;
+                    factor = 30;
                 } else if (heightDiff < 500) {
-                factor = 50;
+                    factor = 50;
                 } else if (heightDiff < 1000) {
-                factor = 100;
+                    factor = 100;
                 }
-            }        
-        }  
+            }
+        }
         this.viewport.MoveCameraRelativeToOrientation(window.MapCore.SMcVector3D(moveX * factor, moveY * factor, 0), ignorePitch);
     }
 
     getCameraOrientation = () => {
-        let ret = {azimuth: 0, pitch: 0};
+        let ret = { azimuth: 0, pitch: 0 };
         const azimuthOrientation = {};
         const pitchOrientation = {};
         this.viewport.GetCameraOrientation(azimuthOrientation, pitchOrientation, null);
         if (azimuthOrientation) {
-          ret.azimuth = azimuthOrientation.Value;
+            ret.azimuth = azimuthOrientation.Value;
         }
         if (pitchOrientation) {
-          ret.pitch = pitchOrientation.Value;
+            ret.pitch = pitchOrientation.Value;
         }
         return ret;
     }
@@ -987,18 +1114,18 @@ class MapContainer extends PureComponent {
         this.viewport.GetCameraOrientation(azimuthOrientation, pitchOrientation, rollOrientation);
         const azimuthToSet = cameraOrientationAzimuth !== undefined ? cameraOrientationAzimuth : azimuthOrientation.Value;
         const pitchToSet = cameraOrientationPitch !== undefined ? cameraOrientationPitch : pitchOrientation.Value;
-        this.viewport.SetCameraOrientation(azimuthToSet, pitchToSet, 0);        
-    }    
+        this.viewport.SetCameraOrientation(azimuthToSet, pitchToSet, 0);
+    }
 
-    isGeoCoordValid = (coord, isNative = true) =>{
+    isGeoCoordValid = (coord, isNative = true) => {
         const DEG_TO_MC = 100000;
 
         let isValid = true;
         const coordFactor = isNative ? DEG_TO_MC : 1;
         if (coord.x < -180 * coordFactor || coord.y < -89.5 * coordFactor || coord.y === 0) {
-          isValid = false;
+            isValid = false;
         } else if (coord.x > 180 * coordFactor || coord.y > 89.5 * coordFactor || coord.z > Number.MAX_VALUE) {
-          isValid = false;
+            isValid = false;
         }
         return isValid;
     }
@@ -1009,23 +1136,23 @@ class MapContainer extends PureComponent {
         const currentRoll = {};
         let currentPosition;
         if (watchRoll) {
-          this.viewport.GetCameraOrientation(currentAzimuth, currentPitch, currentRoll);
-          currentPosition = this.viewport.GetCameraPosition();
+            this.viewport.GetCameraOrientation(currentAzimuth, currentPitch, currentRoll);
+            currentPosition = this.viewport.GetCameraPosition();
         }
-    
+
         this.viewport.RotateCameraAroundWorldPoint(coord, azimuthDelta, azimuthPitch);
-    
+
         if (watchRoll) {
-          const newAzimuth = {};
-          const newPitch = {};
-          const newRoll = {};
-          this.viewport.GetCameraOrientation(newAzimuth, newPitch, newRoll);
-          if (Math.abs(newRoll.Value) === 180) {
-            this.viewport.SetCameraOrientation(currentAzimuth.Value, currentPitch.Value, currentRoll.Value, false);
-            this.viewport.SetCameraPosition(currentPosition);
-          } else {
-            //this.mapMngr.notifyGeneralEvent('maporientationchanged', newAzimuth.Value, this.elementId);
-          }
+            const newAzimuth = {};
+            const newPitch = {};
+            const newRoll = {};
+            this.viewport.GetCameraOrientation(newAzimuth, newPitch, newRoll);
+            if (Math.abs(newRoll.Value) === 180) {
+                this.viewport.SetCameraOrientation(currentAzimuth.Value, currentPitch.Value, currentRoll.Value, false);
+                this.viewport.SetCameraPosition(currentPosition);
+            } else {
+                //this.mapMngr.notifyGeneralEvent('maporientationchanged', newAzimuth.Value, this.elementId);
+            }
         }
     }
 
@@ -1039,40 +1166,40 @@ class MapContainer extends PureComponent {
     getCameraScale = (convertToMeters = false) => {
         let ret;
         if (!this.state.is3DClicked) {
-          ret = this.viewport.GetCameraScale();
-          if (convertToMeters) {
-            ret /= this.viewport.GetPixelPhysicalHeight();
-            ret = (ret * 10).toFixed(2);
-            ret = parseInt(ret);
-          }
+            ret = this.viewport.GetCameraScale();
+            if (convertToMeters) {
+                ret /= this.viewport.GetPixelPhysicalHeight();
+                ret = (ret * 10).toFixed(2);
+                ret = parseInt(ret);
+            }
         } else {
-          ret = this.viewport.GetCameraPosition().z;
+            ret = this.viewport.GetCameraPosition().z;
         }
-    
+
         return ret;
     }
     setCameraScale = (scale, factorFor3D = 1, notifyFpAndScale) => {
         if (!this.state.is3DClicked) {
-          const mapScaleTopLimit = this.mapScaleTopLimit || 200000;
-          this.cameraScaleChanged = true;
-          const pixelPhysicalHeight = this.viewport.GetPixelPhysicalHeight();
-          const ratio = scale / pixelPhysicalHeight;
-          if (ratio < 25) {
-            scale = pixelPhysicalHeight * 25;
-          } else if (ratio > mapScaleTopLimit) {
-            scale = pixelPhysicalHeight * mapScaleTopLimit;
-          }
-          this.viewport.SetCameraScale(scale);
+            const mapScaleTopLimit = this.mapScaleTopLimit || 200000;
+            this.cameraScaleChanged = true;
+            const pixelPhysicalHeight = this.viewport.GetPixelPhysicalHeight();
+            const ratio = scale / pixelPhysicalHeight;
+            if (ratio < 25) {
+                scale = pixelPhysicalHeight * 25;
+            } else if (ratio > mapScaleTopLimit) {
+                scale = pixelPhysicalHeight * mapScaleTopLimit;
+            }
+            this.viewport.SetCameraScale(scale);
         } else {
-          const camPosition = this.viewport.GetCameraPosition();
-          let zoomSign = 1;
-          if (scale > camPosition.z) {
-            zoomSign = -1;
-          }
-          const factor = factorFor3D * camPosition.z / 100;
-          this.viewport.MoveCameraRelativeToOrientation(window.MapCore.SMcVector3D(0, zoomSign * factor, 0), false);
+            const camPosition = this.viewport.GetCameraPosition();
+            let zoomSign = 1;
+            if (scale > camPosition.z) {
+                zoomSign = -1;
+            }
+            const factor = factorFor3D * camPosition.z / 100;
+            this.viewport.MoveCameraRelativeToOrientation(window.MapCore.SMcVector3D(0, zoomSign * factor, 0), false);
         }
-    
+
         // if (notifyFpAndScale) {
         //   let fpToUpdate;
         //   let scaleToUpdate;
@@ -1081,7 +1208,7 @@ class MapContainer extends PureComponent {
         //     let currentScale = this.viewport.GetCameraScale() / this.viewport.GetPixelPhysicalHeight();
         //     currentScale = (currentScale * 10).toFixed(2);
         //     currentScale = parseInt(currentScale);
-    
+
         //     fpToUpdate = this.viewport.GetCameraFootprint();
         //     scaleToUpdate = currentScale;
         //   } else {
@@ -1091,7 +1218,7 @@ class MapContainer extends PureComponent {
         //   }
         //   if (fpToUpdate && fpToUpdate.bUpperLeftFound && fpToUpdate.bUpperRightFound &&
         //     fpToUpdate.bLowerRightFound && fpToUpdate.bLowerLeftFound) {
-    
+
         //     this.notifyCameraMove(fpToUpdate, scaleToUpdate, this.elementId);
         //   }
         // }
@@ -1100,22 +1227,22 @@ class MapContainer extends PureComponent {
     updatePositionText = (x, y, z, updateHeight = true) => {
         let height;
         try {
-          //when updating position height displayed, use default precision
-          const heightForQuery = {};
-          const lonNew = (Math.abs(x) > 100000) ? x : x * 100000;
-          const latNew = (Math.abs(y) > 100000) ? y : y * 100000;
-          const positionToCheck = new window.MapCore.SMcVector3D(lonNew, latNew, 0);
-          if (this.viewport.GetTerrainHeight(positionToCheck, heightForQuery)) {
-            height = heightForQuery.Value;
-          }
-        } catch (exp) {}
-    
+            //when updating position height displayed, use default precision
+            const heightForQuery = {};
+            const lonNew = (Math.abs(x) > 100000) ? x : x * 100000;
+            const latNew = (Math.abs(y) > 100000) ? y : y * 100000;
+            const positionToCheck = new window.MapCore.SMcVector3D(lonNew, latNew, 0);
+            if (this.viewport.GetTerrainHeight(positionToCheck, heightForQuery)) {
+                height = heightForQuery.Value;
+            }
+        } catch (exp) { }
+
         // Update context with new height
         if (updateHeight) {
-          this.lastUpdatedHeight = height;
-          console.log('mapheightchanged', height);
+            this.lastUpdatedHeight = height;
+            console.log('mapheightchanged', height);
         }
-    
+
         // Update context with new position
         // const point = new geo.coordinate(x, y, height);
         // this.lastPositionChanged = point;
@@ -1126,155 +1253,155 @@ class MapContainer extends PureComponent {
         const currentScale = this.getCameraScale();
         this.setCameraScale(currentScale / (amount || 1.5));
         if (this.lastClickPos) {
-          this.updatePositionText(this.lastClickPos.x, this.lastClickPos.y, this.lastClickPos.z);
+            this.updatePositionText(this.lastClickPos.x, this.lastClickPos.y, this.lastClickPos.z);
         }
-      }
-    
+    }
+
     zoomOut = (amount, duration) => {
         const currentScale = this.getCameraScale();
         this.setCameraScale(currentScale * (amount || 1.5));
         if (this.lastClickPos) {
-          this.updatePositionText(this.lastClickPos.x, this.lastClickPos.y, this.lastClickPos.z);
+            this.updatePositionText(this.lastClickPos.x, this.lastClickPos.y, this.lastClickPos.z);
         }
     }
-      
+
     handleZoomOrRotate = e => {
 
-            const xDistance = e.touches[0].screenX - e.touches[1].screenX;
-            const yDistance = e.touches[0].screenY - e.touches[1].screenY;
+        const xDistance = e.touches[0].screenX - e.touches[1].screenX;
+        const yDistance = e.touches[0].screenY - e.touches[1].screenY;
 
-            const currentDistance = Math.abs((xDistance * xDistance) + (yDistance * yDistance));
+        const currentDistance = Math.abs((xDistance * xDistance) + (yDistance * yDistance));
 
-            if (!this.lastTouchDistance) {
-              this.lastTouchDistance = currentDistance;
+        if (!this.lastTouchDistance) {
+            this.lastTouchDistance = currentDistance;
+        } else {
+            const zoomIn = currentDistance - this.lastTouchDistance > 0;
+            const difDistance = Math.abs(currentDistance - this.lastTouchDistance);
+
+            // Calculate the average position(screen and geo) of the touches
+            const rect = e.target.getBoundingClientRect();
+
+            const firstTouchX = e.targetTouches[0].pageX - rect.left;
+            const firstTouchY = e.targetTouches[0].pageY - rect.top;
+
+            const secondTouchX = e.targetTouches[1].pageX - rect.left;
+            const secondTouchY = e.targetTouches[1].pageY - rect.top;
+
+            const averageX = (firstTouchX + secondTouchX) / 2;
+            const averageY = (firstTouchY + secondTouchY) / 2;
+
+            const averageWorldPosition = this.screenToWorld(averageX, averageY, { withoutConvert: true });
+
+            let prevAverageX;
+            let prevAverageY;
+
+            if (!this.pinchStatus) {
+                this.pinchStatus = { averageX, averageY, averageWorldPosition };
             } else {
-              const zoomIn = currentDistance - this.lastTouchDistance > 0;
-              const difDistance = Math.abs(currentDistance - this.lastTouchDistance);
-
-              // Calculate the average position(screen and geo) of the touches
-              const rect = e.target.getBoundingClientRect();
-
-              const firstTouchX = e.targetTouches[0].pageX - rect.left;
-              const firstTouchY = e.targetTouches[0].pageY - rect.top;
-
-              const secondTouchX = e.targetTouches[1].pageX - rect.left;
-              const secondTouchY = e.targetTouches[1].pageY - rect.top;
-
-              const averageX = (firstTouchX + secondTouchX) / 2;
-              const averageY = (firstTouchY + secondTouchY) / 2;
-
-              const averageWorldPosition = this.screenToWorld(averageX, averageY, {withoutConvert: true});
-
-              let prevAverageX;
-              let prevAverageY;
-
-              if (!this.pinchStatus) {
-                this.pinchStatus = {averageX, averageY, averageWorldPosition};
-              } else {
                 prevAverageX = this.pinchStatus.averageX;
                 prevAverageY = this.pinchStatus.averageY;
 
                 this.pinchStatus.averageX = averageX;
                 this.pinchStatus.averageY = averageY;
-              }
+            }
 
-              if (!this.state.is3DClicked) {
+            if (!this.state.is3DClicked) {
                 if (difDistance > 10000) {
-                  //The distance between the touches is big\small enough for zooming in\out.
-                  if (zoomIn) {
-                    this.zoomIn(1.05);
-                  } else {
-                    this.zoomOut(1.05);
-                  }
-                  this.lastTouchDistance = currentDistance;
+                    //The distance between the touches is big\small enough for zooming in\out.
+                    if (zoomIn) {
+                        this.zoomIn(1.05);
+                    } else {
+                        this.zoomOut(1.05);
+                    }
+                    this.lastTouchDistance = currentDistance;
                 }
-              } else if (!this.pinchStatus.coordToRotateAround3D) {
+            } else if (!this.pinchStatus.coordToRotateAround3D) {
                 if (difDistance > 1000) {
-                  //The distance between the touches is big\small enough for zooming in\out.
-                  const zoomFactor = difDistance / 5000;
-                  if (zoomIn) {
-                    this.moveCameraRelativeToOrientation(0, zoomFactor, false, true);
-                  } else {
-                    this.moveCameraRelativeToOrientation(0, -zoomFactor, false, true);
-                  }
-                  this.lastTouchDistance = currentDistance;
-                  prevAverageX = undefined;
-                  prevAverageY = undefined;
-                  this.pinchStatus.zooming3D = true;
+                    //The distance between the touches is big\small enough for zooming in\out.
+                    const zoomFactor = difDistance / 5000;
+                    if (zoomIn) {
+                        this.moveCameraRelativeToOrientation(0, zoomFactor, false, true);
+                    } else {
+                        this.moveCameraRelativeToOrientation(0, -zoomFactor, false, true);
+                    }
+                    this.lastTouchDistance = currentDistance;
+                    prevAverageX = undefined;
+                    prevAverageY = undefined;
+                    this.pinchStatus.zooming3D = true;
                 } else {
-                  this.pinchStatus.zooming3D = false;
+                    this.pinchStatus.zooming3D = false;
                 }
-              }
+            }
 
-              if (!this.state.is3DClicked) {
+            if (!this.state.is3DClicked) {
                 // Calculating the angle between the touches for orientation setting
                 const currentRotation = Math.atan2(firstTouchY - secondTouchY, firstTouchX - secondTouchX) * 180 / Math.PI;
                 let difRotation = 0;
                 if (this.lastTouchRotation === undefined) {
-                  //first series of rotations
-                  this.lastTouchRotation = currentRotation;
-                } else {
-                  difRotation = Math.abs(currentRotation - this.lastTouchRotation);
-                  if (difRotation > 0.5) {
-                    const currentCameraOrientation = this.getCameraOrientation().azimuth;
-                    this.setCameraOrientation(currentCameraOrientation + this.lastTouchRotation - currentRotation);
+                    //first series of rotations
                     this.lastTouchRotation = currentRotation;
-                  }
+                } else {
+                    difRotation = Math.abs(currentRotation - this.lastTouchRotation);
+                    if (difRotation > 0.5) {
+                        const currentCameraOrientation = this.getCameraOrientation().azimuth;
+                        this.setCameraOrientation(currentCameraOrientation + this.lastTouchRotation - currentRotation);
+                        this.lastTouchRotation = currentRotation;
+                    }
                 }
 
                 if (this.pinchStatus) {
-                  // After zooming or changing orientation, set the map so the previous screen position with be placed on
-                  // the same geo position as it was before.
-                  const averageScreenAfterZoom = this.worldToScreen(this.pinchStatus.averageWorldPosition.Value, {native: true});
-                  const scrollX = averageScreenAfterZoom.x - this.pinchStatus.averageX;
-                  const scrollY = averageScreenAfterZoom.y - this.pinchStatus.averageY;
-                  try {
-                    this.viewport.ScrollCamera(scrollX, scrollY);
-                  } catch (exp) {
-                  }
+                    // After zooming or changing orientation, set the map so the previous screen position with be placed on
+                    // the same geo position as it was before.
+                    const averageScreenAfterZoom = this.worldToScreen(this.pinchStatus.averageWorldPosition.Value, { native: true });
+                    const scrollX = averageScreenAfterZoom.x - this.pinchStatus.averageX;
+                    const scrollY = averageScreenAfterZoom.y - this.pinchStatus.averageY;
+                    try {
+                        this.viewport.ScrollCamera(scrollX, scrollY);
+                    } catch (exp) {
+                    }
                 }
-              } else {
+            } else {
                 //handle 3d rotating
                 if (prevAverageX || prevAverageY) {
-                  const currentRotation = Math.atan2(firstTouchY - secondTouchY, firstTouchX - secondTouchX) * 180 / Math.PI;
-                  let difRotation = 0;
-                  if (this.lastTouchRotation === undefined) {
-                    //first series of rotations
-                    this.lastTouchRotation = currentRotation;
-                  } else {
-                    difRotation = Math.abs(currentRotation - this.lastTouchRotation);
-                    if (!this.pinchStatus.zooming3D && (difRotation > 2.5 || this.pinchStatus.coordToRotateAround3D)) {
-                      this.pinchStatus.coordToRotateAround3D = this.pinchStatus.coordToRotateAround3D || averageWorldPosition.Value;
-                      const nativeCoord = this.pinchStatus.coordToRotateAround3D;
-                      if (this.isGeoCoordValid(nativeCoord)) {
-                        const rotateSign = Math.sign(this.lastTouchRotation - currentRotation);
-                        this.rotateCameraAroundWorldPoint(nativeCoord, rotateSign * 2, 0, true);
-                      }
+                    const currentRotation = Math.atan2(firstTouchY - secondTouchY, firstTouchX - secondTouchX) * 180 / Math.PI;
+                    let difRotation = 0;
+                    if (this.lastTouchRotation === undefined) {
+                        //first series of rotations
+                        this.lastTouchRotation = currentRotation;
                     } else {
-                      this.cameraMoved = true;
-                      const offsetX = prevAverageX - this.pinchStatus.averageX;
-                      const offsetY = this.pinchStatus.averageY - prevAverageY;
-                      this.rotateCameraRelativeToOrientation(offsetX, offsetY, 0.1);
+                        difRotation = Math.abs(currentRotation - this.lastTouchRotation);
+                        if (!this.pinchStatus.zooming3D && (difRotation > 2.5 || this.pinchStatus.coordToRotateAround3D)) {
+                            this.pinchStatus.coordToRotateAround3D = this.pinchStatus.coordToRotateAround3D || averageWorldPosition.Value;
+                            const nativeCoord = this.pinchStatus.coordToRotateAround3D;
+                            if (this.isGeoCoordValid(nativeCoord)) {
+                                const rotateSign = Math.sign(this.lastTouchRotation - currentRotation);
+                                this.rotateCameraAroundWorldPoint(nativeCoord, rotateSign * 2, 0, true);
+                            }
+                        } else {
+                            this.cameraMoved = true;
+                            const offsetX = prevAverageX - this.pinchStatus.averageX;
+                            const offsetY = this.pinchStatus.averageY - prevAverageY;
+                            this.rotateCameraRelativeToOrientation(offsetX, offsetY, 0.1);
+                        }
+                        this.lastTouchRotation = currentRotation;
                     }
-                    this.lastTouchRotation = currentRotation;
-                  }
                 }
-              }
-            }          
+            }
+        }
     }
-    
-    touchMoveHandler = e => {   
+
+    touchMoveHandler = e => {
         const isTouch = true;
         if (e.touches.length === 1) {
             this.mouseMoveHandler(e, isTouch);
-        } else {    
+        } else {
             this.handleZoomOrRotate(e);
-        }   
-        e.preventDefault(); 
+        }
+        e.preventDefault();
     }
-    
+
     touchEndHandler = (e) => {
-        this.isTouch = false;        
+        this.isTouch = false;
         this.pinchStatus = undefined;
         if (e.touches && e.touches.length) {
             // Removing only one touch while there is more touches enabled
@@ -1305,12 +1432,12 @@ class MapContainer extends PureComponent {
             //     this.onLeftDoubleClick(e);
             // }
         }
-    
+
         e.preventDefault();
         e.target.focus()
     }
 
-    touchCancelHandler = (e) => {}
+    touchCancelHandler = (e) => { }
 
     createViewport(terrain, eMapTypeToOpen) {
         // create canvas if needed
@@ -1319,14 +1446,14 @@ class MapContainer extends PureComponent {
             // create canvas
             currCanvas = document.createElement('canvas');
             //currCanvas.style.border = "thick solid #FFFFFF"; 
-            
+
             currCanvas.addEventListener("wheel", this.mouseWheelHandler, false);
             currCanvas.addEventListener("mousemove", this.mouseMoveHandler, false);
             currCanvas.addEventListener("mousedown", this.mouseDownHandler, false);
             currCanvas.addEventListener("mouseup", this.mouseUpHandler, false);
             currCanvas.addEventListener("dblclick", this.mouseDblClickHandler, false);
 
-            currCanvas.addEventListener("touchstart", this.touchStartHandler, false);            
+            currCanvas.addEventListener("touchstart", this.touchStartHandler, false);
             currCanvas.addEventListener("touchend", this.touchEndHandler, false);
             currCanvas.addEventListener("touchmove", this.touchMoveHandler, false);
             currCanvas.addEventListener("touchcancel", this.touchCancelHandler, false);
@@ -1335,7 +1462,7 @@ class MapContainer extends PureComponent {
             // use existing canvas
             currCanvas = this.aViewports[0].canvas;
         }
-    
+
         // create viewport
         let layerGroup = this.state.mapLayerGroups.get(this.state.lastTerrainConfiguration);
         let vpCreateData = new window.MapCore.IMcMapViewport.SCreateData(eMapTypeToOpen);
@@ -1348,7 +1475,7 @@ class MapContainer extends PureComponent {
         }
         this.viewport = window.MapCore.IMcMapViewport.Create(/*Camera*/null, vpCreateData, terrain != null ? [terrain] : null);
         this.editMode = window.MapCore.IMcEditMode.Create(this.viewport);
-        
+
         // add camera-update callback
         let callback = new this.CCameraUpdateCallback();
         this.viewport.AddCameraUpdateCallback(callback);
@@ -1363,7 +1490,7 @@ class MapContainer extends PureComponent {
                 this.viewport.SetCameraScale(layerGroup.InitialScale2D);
             }
         }
-        
+
         this.viewport.SetBackgroundColor(window.MapCore.SMcBColor(70, 70, 70, 255));
 
         // set object delays for optimazing rendering objects
@@ -1388,7 +1515,7 @@ class MapContainer extends PureComponent {
         }
 
         this.aViewports.push(viewportData);
-        const canvasParent =  document.getElementById('canvasesContainer')
+        const canvasParent = document.getElementById('canvasesContainer')
         canvasParent.appendChild(currCanvas);
         this.activeViewport = this.aViewports.length - 1;
 
@@ -1423,17 +1550,16 @@ class MapContainer extends PureComponent {
     }
 
     doNextViewport() {
-        if (this.aViewports.length > 1)
-        {
+        if (this.aViewports.length > 1) {
             this.activeViewport = (this.activeViewport + 1) % this.aViewports.length;
             this.updateActiveViewport();
         }
-    }   
+    }
 
     // function creating terrain overlayManager and viewport, starting rendering
     initializeViewports() {
         let terrain = this.mapTerrains.get(this.state.lastTerrainConfiguration);
-        if (terrain == undefined) {            
+        if (terrain == undefined) {
             if (this.aLastTerrainLayers.length > 0) {
                 terrain = window.MapCore.IMcMapTerrain.Create(this.lastCoordSys, this.aLastTerrainLayers);
                 terrain.AddRef();
@@ -1443,26 +1569,26 @@ class MapContainer extends PureComponent {
             }
             this.mapTerrains.set(this.state.lastTerrainConfiguration, terrain);
         }
-    
+
         // create overlay manager
-        if (this.overlayManager == null) {            
+        if (this.overlayManager == null) {
             if (this.lastCoordSys == null) {
                 this.lastCoordSys = window.MapCore.IMcGridUTM.Create(36, window.MapCore.IMcGridCoordinateSystem.EDatumType.EDT_ED50_ISRAEL);
                 this.lastCoordSys.AddRef();
             }
             this.overlayManager = window.MapCore.IMcOverlayManager.Create(this.lastCoordSys);
             this.overlayManager.AddRef();
-    
+
             // create overlay for objects
             this.overlay = window.MapCore.IMcOverlay.Create(this.overlayManager);
-    
+
         }
-    
+
         // create map viewports
         switch (this.state.lastViewportConfiguration) {
             case "2D/3D":
                 this.createViewport(terrain, window.MapCore.IMcMapCamera.EMapType.EMT_2D);
-                this.createViewport(terrain,window. MapCore.IMcMapCamera.EMapType.EMT_3D);
+                this.createViewport(terrain, window.MapCore.IMcMapCamera.EMapType.EMT_3D);
                 this.DoPrevViewport();
                 break;
             case "3D/2D":
@@ -1483,7 +1609,7 @@ class MapContainer extends PureComponent {
                 this.createViewport(terrain, window.MapCore.IMcMapCamera.EMapType.EMT_3D);
                 break;
         }
-        
+
         // example of try-catch MapCoreError
         try {
             // MapCore API function call
@@ -1496,7 +1622,7 @@ class MapContainer extends PureComponent {
                 throw ex;
             }
         }
-    
+
         // ask the browser to render once
         requestAnimationFrame(this.renderMapContinuously);
     }
@@ -1505,25 +1631,24 @@ class MapContainer extends PureComponent {
         // if this terrain has not been created yet
         if (this.mapTerrains.get(this.state.lastTerrainConfiguration) == undefined) {
             this.aLastTerrainLayers = [];
-            let group = this.state.mapLayerGroups.get(this.state.lastTerrainConfiguration);            
+            let group = this.state.mapLayerGroups.get(this.state.lastTerrainConfiguration);
             // create coordinate system by running a code string prepared during parsing configuration files (JSON configuration file and capabilities XML of MapCoreLayerServer)
             // e.g. MapCore.IMcGridCoordSystemGeographic.Create(MapCore.IMcGridCoordinateSystem.EDatumType.EDT_WGS84)
             this.lastCoordSys = eval(group.coordSystemString);
-        
+
             for (let i = 0; i < group.aLayerCreateStrings.length; ++i) {
                 // create map layer by running code string prepared during parsing configuration files (JSON configuration file and capabilities XML of MapCoreLayerServer)
                 // e.g. MapCore.IMcNativeRasterMapLayer.Create('http:Maps/Raster/SwissOrtho-GW') or CreateWMTSRasterLayer(...) or CreateWMSRasterLayer(...)
                 const layer = eval(group.aLayerCreateStrings[i]);
                 this.aLastTerrainLayers.push(layer);
-                if (layer instanceof window.MapCore.IMc3DModelMapLayer)
-                {
+                if (layer instanceof window.MapCore.IMc3DModelMapLayer) {
                     layer.SetDisplayingItemsAttachedToTerrain(true);
                     layer.SetDisplayingDtmVisualization(true);
                 }
             }
             this.lastCoordSys.AddRef();
         }
-    
+
         this.initializeViewports();
     }
 
@@ -1533,54 +1658,53 @@ class MapContainer extends PureComponent {
     //         const capabilitiesXMLDoc =  new DOMParser().parseFromString(response.data, "text/xml");
     //         this.parseCapabilitiesXML(capabilitiesXMLDoc, config.urls.getCapabilities);
     //         this.openMap(this.context.mapToPreview.title);
-            
+
     //     } catch (e) {
-//         
+    //         
     //     }
     // }
-    
+
     async openMap(title, is3d) {
-        const serverUrl = externalConfig.getConfiguration().MAPCORE_LAYER_SERVER_URL;        
-            if (serverUrl) {
-                try {
-                    const response = await axios.get(serverUrl + config.urls.getCapabilities);
-                    const capabilitiesXMLDoc =  new DOMParser().parseFromString(response.data, "text/xml");
-                    this.parseCapabilitiesXML(capabilitiesXMLDoc, config.urls.getCapabilities);
-                } catch (e) {                    
-                }
-            } else {
-                this.parseLayersConfiguration([this.props.mapToShow])
+        const serverUrl = externalConfig.getConfiguration().MAPCORE_LAYER_SERVER_URL;
+        if (serverUrl) {
+            try {
+                const response = await axios.get(serverUrl + config.urls.getCapabilities);
+                const capabilitiesXMLDoc = new DOMParser().parseFromString(response.data, "text/xml");
+                this.parseCapabilitiesXML(capabilitiesXMLDoc, config.urls.getCapabilities);
+            } catch (e) {
             }
+        } else {
+            this.parseLayersConfiguration([this.props.mapToShow])
+        }
 
 
-            this.state.mapLayerGroups.forEach( (value, key) => {
-                if (key === title) {
-                    
-                    this.setState({
-                            lastTerrainConfiguration: key,
-                            lastViewportConfiguration: is3d ? "3D":"2D"
-                    }, () => {
-                        if (this.device === null) {
-                            // create map device (MapCore initialization)
-                            let init = new window.MapCore.IMcMapDevice.SInitParams();
-                            init.uNumTerrainTileRenderTargets = 100;
-                        
-                            const device = window.MapCore.IMcMapDevice.Create(init);
-                            device.AddRef();
-                            this.device = device;
-                        
-                            // create callback classes
-                            this.createCallbackClasses();
-                        }        
-                        this.createMapLayersAndViewports();
-                    });
-                }
-            })                                
+        this.state.mapLayerGroups.forEach((value, key) => {
+            if (key === title) {
+
+                this.setState({
+                    lastTerrainConfiguration: key,
+                    lastViewportConfiguration: is3d ? "3D" : "2D"
+                }, () => {
+                    if (this.device === null) {
+                        // create map device (MapCore initialization)
+                        let init = new window.MapCore.IMcMapDevice.SInitParams();
+                        init.uNumTerrainTileRenderTargets = 100;
+
+                        const device = window.MapCore.IMcMapDevice.Create(init);
+                        device.AddRef();
+                        this.device = device;
+
+                        // create callback classes
+                        this.createCallbackClasses();
+                    }
+                    this.createMapLayersAndViewports();
+                });
+            }
+        })
     }
 
     doDtmVisualization() {
-        if (!this.viewport.GetDtmVisualization())
-        {
+        if (!this.viewport.GetDtmVisualization()) {
             let result = this.calcMinMaxHeights();
             let DtmVisualization = new window.MapCore.IMcMapViewport.SDtmVisualizationParams();
             window.MapCore.IMcMapViewport.SDtmVisualizationParams.SetDefaultHeightColors(DtmVisualization, result.minHeight, result.maxHeight);
@@ -1589,8 +1713,7 @@ class MapContainer extends PureComponent {
             DtmVisualization.uShadingTransparency = 255;
             this.viewport.SetDtmVisualization(true, DtmVisualization);
         }
-        else
-        {
+        else {
             this.viewport.SetDtmVisualization(false);
         }
     }
@@ -1612,7 +1735,7 @@ class MapContainer extends PureComponent {
             currCanvas.removeEventListener("mousedown", this.mouseDownHandler, false);
             currCanvas.removeEventListener("mouseup", this.mouseUpHandler, false);
             currCanvas.removeEventListener("dblclick", this.mouseDblClickHandler, false);
-            currCanvas.removeEventListener("touchstart", this.touchStartHandler, false);            
+            currCanvas.removeEventListener("touchstart", this.touchStartHandler, false);
             currCanvas.removeEventListener("touchend", this.touchEndHandler, false);
             currCanvas.removeEventListener("touchmove", this.touchMoveHandler, false);
             currCanvas.removeEventListener("touchcancel", this.touchCancelHandler, false);
@@ -1634,7 +1757,7 @@ class MapContainer extends PureComponent {
             // delete overlay manager
             this.overlayManager.Release();
             this.overlayManager = null;
-    
+
         }
         else {
             // there are viewports: update active viewport
@@ -1652,9 +1775,9 @@ class MapContainer extends PureComponent {
             lastViewportConfiguration: null /*  2D/3D, 3D/2D, 2D, 3D */,
             bSameCanvas: true
         });
-    
+
         this.mapTerrains = new Map;
-        this.device = null         
+        this.device = null
         this.viewportData = null;
         this.aLastTerrainLayers = [];
         this.lastCoordSys = null;
@@ -1678,22 +1801,22 @@ class MapContainer extends PureComponent {
             </div>
         )
     }
-    
+
     renderRow(label, value) {
         return (
             <div className={cn.DescRow}>
                 <span className={cn.DescLabel}>{label}:</span>
                 <span className={cn.DescValue}>{value}</span>
-             </div>
+            </div>
         )
     }
 
     onSelectOtherMapClicked = () => {
-        this.setState({isSwitchMapFormOpen: true});
+        this.setState({ isSwitchMapFormOpen: true });
     }
 
     showHideDtmActionClicked = () => {
-        this.setState({isDTMClicked: !this.state.isDTMClicked}, this.doDtmVisualization)
+        this.setState({ isDTMClicked: !this.state.isDTMClicked }, this.doDtmVisualization)
     }
 
     showHide3DActionClicked = () => {
@@ -1707,10 +1830,10 @@ class MapContainer extends PureComponent {
         e.preventDefault();
         e.stopPropagation();
 
-        const selectOtherMapAction = {            
+        const selectOtherMapAction = {
             name: "Select Other Map",
             func: this.onSelectOtherMapClicked,
-            iconCss: "Map"            
+            iconCss: "Map"
         };
 
         const menuItemsList = [];
@@ -1720,10 +1843,14 @@ class MapContainer extends PureComponent {
         if (true) {
             const showHideDtmAction = {
                 name: (this.state.isDTMClicked ? 'Hide' : 'Show') + " DTM visualization",
-                func: this.showHideDtmActionClicked,
+                func: () => this.showHideDtmActionClicked(),
                 iconCss: "DTM"
             }
-    
+            const selectOrigin = {
+                name: "Select Origin",
+                func: () => this.createOriginText(),
+                iconCss: "DTM"
+            }
             const showHide3DAction = {
                 name: 'Switch To ' + (this.state.is3DClicked ? '2D' : '3D'),
                 func: this.showHide3DActionClicked,
@@ -1733,12 +1860,13 @@ class MapContainer extends PureComponent {
             menuItemsList.push(showHideDtmAction);
             menuItemsList.push(showHide3DAction);
             menuItemsList.push(selectOtherMapAction);
+            menuItemsList.push(selectOrigin);
         }
 
-        this.props.showContextMenu(e.nativeEvent.x, e.nativeEvent.y, menuItemsList);        
+        this.props.showContextMenu(e.nativeEvent.x, e.nativeEvent.y, menuItemsList);
     }
 
-    renderMapToolbox() {        
+    renderMapToolbox() {
         return (
             <div className={`${cn.MapToolbox}`}>
                 <div className={cn.Description}>
@@ -1753,7 +1881,7 @@ class MapContainer extends PureComponent {
         const isOpenClass = this.state.isSwitchMapFormOpen ? cn.Open : '';
         return (
             <div className={`${cn.SwitchMapForm} ${isOpenClass}`}>
-                {isOpenClass ?  <SwitchMapForm onCancel={() => this.setState({isSwitchMapFormOpen: false})}/> : null}
+                {isOpenClass ? <SwitchMapForm onCancel={() => this.setState({ isSwitchMapFormOpen: false })} /> : null}
             </div>
         )
     }
@@ -1768,7 +1896,7 @@ class MapContainer extends PureComponent {
         );
     }
 
-    render() {            
+    render() {
         return (
             <div className={cn.Wrapper}>
                 {this.props.isMapCoreSDKLoaded ? this.getCanvas() : this.renderLoadingMessage()}
@@ -1780,14 +1908,16 @@ class MapContainer extends PureComponent {
 const mapStateToProps = (state) => {
     return {
         isMapCoreSDKLoaded: state.map.isMapCoreSDKLoaded,
-        mapToShow: state.map.mapToShow
+        mapToShow: state.map.mapToShow,
+        dronePositionOffset: state.map.dronePositionOffset
     };
 };
 
 const mapDispachToProps = (dispatch) => {
     return {
-        showContextMenu: (x, y, items) => dispatch({ type: actionTypes.SHOW_CONTEXT_MENU, payload: {x, y, items} }),
-        closeContextMenu: () => dispatch({ type: actionTypes.CLOSE_CONTEXT_MENU}),
+        showContextMenu: (x, y, items) => dispatch({ type: actionTypes.SHOW_CONTEXT_MENU, payload: { x, y, items } }),
+        closeContextMenu: () => dispatch({ type: actionTypes.CLOSE_CONTEXT_MENU }),
+        subscribeToDronePosition: () => dispatch(actions.subscribeToDronePosition())
     };
 };
 
