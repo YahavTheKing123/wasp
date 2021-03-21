@@ -99,10 +99,18 @@
 }
 
 .SkeletonTab{
- box-shadow: 0px 0px 0px 5px rgb(242, 88, 88);
- animation: borderAnimation 2s infinite;
  height: 100%;
+ width: 100%;
 }
+.WeaponDetected{
+ box-shadow: 0px 0px 0px 5px rgb(242, 88, 88);
+  animation: borderAnimation 0.8s infinite;
+ }
+
+.WindowTab{
+  height: 100%;
+  width: 100%;
+ }
 
 .VideoImage {
   cursor: pointer;
@@ -112,17 +120,14 @@
 }
 
 .AlertIcon{
-  mask-image: url(../../assets/images/alert.svg);  
   cursor: pointer;
   background-repeat: no-repeat;
-  height: 36px;
-  width: 40px;
+  height: 45px;
+  width: 45px;
   position: absolute;
-  background-color: #f25858;
   right: 0;
   bottom: 0;
-  transform: translate(-50%, -50%);
-  animation: alertAnimation 2s infinite;
+  transform: translate(-50%, -50%) scaleX(-1);
  }
 
  @keyframes alertAnimation {

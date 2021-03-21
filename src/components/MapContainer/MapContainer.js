@@ -102,7 +102,7 @@ class MapContainer extends PureComponent {
             this.RemoveDroneData();
         }
         if (this.state.workingOriginSelected != prevState.workingOriginSelected) {
-            this.props.subscribeToDronePosition();
+            this.props.subscribeToDroneData();
         }
         if (this.props.dronePositionOffset && prevProps.dronePositionOffset != this.props.dronePositionOffset) {
             this.MoveDrone();
@@ -150,6 +150,7 @@ class MapContainer extends PureComponent {
 
     // function creating randomly distributed objects after ensuring testObjectsScheme has been loaded
     DoCreateObjects = () => {
+
         this.DoLine();
         if (this.testObjectsScheme == null) {
             this.FetchFileToByteArray("http:ObjectWorld/Schemes/ScreenPicture-Scheme.m").then(
@@ -170,6 +171,7 @@ class MapContainer extends PureComponent {
 
     // function starting text drawing by EditMode
     createOriginText = () => {
+
         if (this.textScheme == null) {
             this.FetchFileToByteArray("http:ObjectWorld/Schemes/TextScheme.m").then(
                 bytes => {
@@ -878,7 +880,7 @@ class MapContainer extends PureComponent {
             let bHandled = {};
             let eCursor = {};
             this.editMode.OnMouseEvent(window.MapCore.IMcEditMode.EMouseEvent.EME_BUTTON_PRESSED, EventPixel, e.ctrlKey, 0, bHandled, eCursor);
-            if (!this.state.workingOriginSelected && this.WorkingOrigin.GetLocationPoints().length > 0) {
+             if (!this.state.workingOriginSelected &&  this.WorkingOrigin && this.WorkingOrigin.GetLocationPoints().length > 0) {
                 this.setState({ workingOriginSelected: true });
             }
 
@@ -1917,7 +1919,7 @@ const mapDispachToProps = (dispatch) => {
     return {
         showContextMenu: (x, y, items) => dispatch({ type: actionTypes.SHOW_CONTEXT_MENU, payload: { x, y, items } }),
         closeContextMenu: () => dispatch({ type: actionTypes.CLOSE_CONTEXT_MENU }),
-        subscribeToDronePosition: () => dispatch(actions.subscribeToDronePosition())
+        subscribeToDroneData: () => dispatch(actions.subscribeToDroneData())
     };
 };
 

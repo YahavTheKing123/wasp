@@ -49,6 +49,8 @@ const actionTypes = {
 
 	/* Output */
 	UPDATE_SKELETON_RANGE: 'UPDATE_SKELETON_RANGE',
+	SET_WEAPON_DETECTION: 'SET_WEAPON_DETECTION',
+	
 	
 };
 export default actionTypes;

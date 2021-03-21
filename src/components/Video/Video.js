@@ -155,8 +155,9 @@ class Video extends Component {
     }
 
     updateExposure(sliderOffset) {
-        const exposureValue = 5000 * (100 - sliderOffset) / 100;
+        const exposureValue = 500 * (100 - sliderOffset) / 100;
         console.log("new exposureValue is ", exposureValue);
+        this.setState({sliderOffset});
         this.props.setExposure(exposureValue)
     }
 
@@ -177,7 +178,7 @@ class Video extends Component {
                 }
 
                 {this.state.showExposure &&
-                    <Slider updatePosition={(offset) => this.updateExposure(offset)} />
+                    <Slider sliderOffset={this.state.sliderOffset} updatePosition={(offset) => this.updateExposure(offset)} />
                 }
 
                 <img

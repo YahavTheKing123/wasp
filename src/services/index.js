@@ -73,9 +73,20 @@ export function getService(serviceName) {
             fixedFrame: 'map',
             angularThres: 0.1,
             transThres: 0.1
-        })
+        }),
+        getDetectionImage: new window.ROSLIB.Topic({
+            ros: rosWebSocket.getRosWebsocketObject(),
+            name: '/seeker/detections',
+            messageType: 'vision_msgs/Detection2DArray'
+        }),
+        getSkeletonRenge: new window.ROSLIB.Topic({
+            ros: rosWebSocket.getRosWebsocketObject(),
+            name: '/seeker/Range',
+            messageType: ''
+        }),
+        
 
-
+        
     }
 
     return services[serviceName];

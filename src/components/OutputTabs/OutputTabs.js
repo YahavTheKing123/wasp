@@ -2,9 +2,11 @@ import React, { Component } from 'react'
 import cn from './OutputTabs.module.css'
 import WeaponDetection from '../../assets/images/WeaponDetection.png';
 import externalConfig from '../../ExternalConfigurationHandler';
+import actions from '../../store/actions';
 import config, { devVideoSnapshotUrl, devVideoStreamUrl } from '../../config';
 import { connect } from 'react-redux';
 import EnemySpottedSound from '../../assets/EnemySpotted.mp3';
+import ArmedRed from '../../assets/images/armedRed.svg';
 
 
 class OutputTabs extends Component {
@@ -21,11 +23,7 @@ class OutputTabs extends Component {
 
     }
 
-    getCorrectPosition() {
-
-    }
-
-    onImageLoaded = (e) => {
+      onImageLoaded = (e) => {
         if (!this.props.imageSentToDroneData || !this.props.imageSentToDroneData.point) {
             console.log("Error, this.props.imageSentToDroneData.point as it is undefined");
             return;
@@ -113,25 +111,51 @@ class OutputTabs extends Component {
     }
 
     getSkeletonTab() {
-        return (<div className={cn.SkeletonTab} >
+        let weaponDetectedClass = this.props.weaponDetected ?  cn.WeaponDetected : undefined;
+        return (<div className={`${cn.SkeletonTab} ${weaponDetectedClass}`} >
             <img
                 crossOrigin="anonymous"
                 //    onLoad={this.onVideoLoaded}
                 //   onError={this.onVideoError}
                 className={cn.VideoImage}
-                src={this.getVideoSrc()}
+                src={this.getSkeletonVideoSrc()}
                 id='droneImage'
             //    onClick={this.props.pointVideoImage}
             />
-            <span className={`${cn.AlertIcon}`} />
-            { this.props.skeletonRange && <span className={`${cn.SkeletonRange}`} > -{this.props.skeletonRange}mm- </span>}
+             <img  className={`${cn.AlertIcon}`} src={ArmedRed} />
+            { this.props.skeletonRange && <span className={`${cn.SkeletonRange}`} > -{this.props.skeletonRange}m- </span>}
         </div>)
     }
 
     getWindowDetectionTab() {
-        return this.props.imageSentToDroneData ? this.renderTabs() : this.renderNoOutputReceived();
+        return (<div className={`${cn.WindowTab}`} >
+            <img
+                crossOrigin="anonymous"
+                //    onLoad={this.onVideoLoaded}
+                //   onError={this.onVideoError}
+                className={cn.VideoImage}
+                src={this.getWindowDetectionVideoSrc()}
+                id='droneImage'
+            //    onClick={this.props.pointVideoImage}
+            />
+            <span className={`${cn.AlertIcon}`} />
+            { this.props.skeletonRange && <span className={`${cn.SkeletonRange}`} > -{this.props.skeletonRange}m- </span>}
+        </div>)
     }
-    getVideoSrc() {
+
+    getWindowDetectionVideoSrc() {
+        const { BE_PORT, BE_IP } = externalConfig.getConfiguration();
+
+        const snapshotUrl = `//${BE_IP}:${BE_PORT}${config.urls.windowDetectionSnapshot}`;
+        const streamUrl = `//${BE_IP}:${BE_PORT}${config.urls.windowDetectionStream}`;
+
+        if (this.props.isPaused) {
+            return process.env.NODE_ENV === 'development' ? devVideoSnapshotUrl : snapshotUrl;
+        } else {
+            return process.env.NODE_ENV === 'development' ? devVideoStreamUrl : streamUrl;
+        }
+    }
+    getSkeletonVideoSrc() {
         const { BE_PORT, BE_IP } = externalConfig.getConfiguration();
 
         const snapshotUrl = `//${BE_IP}:${BE_PORT}${config.urls.skeletonSnapshot}`;
@@ -143,7 +167,6 @@ class OutputTabs extends Component {
             return process.env.NODE_ENV === 'development' ? devVideoStreamUrl : streamUrl;
         }
     }
-
     getSelectedTab() {
         switch (this.state.selectedTab) {
             case "Capture":
@@ -174,13 +197,14 @@ const mapStateToProps = (state) => {
     return {
         tabs: state.video.tabs,
         imageSentToDroneData: state.layout.imageSentToDroneData,
-        skeletonRange: state.output.skeletonRange
+        skeletonRange: state.output.skeletonRange,
+        weaponDetected :  state.output.weaponDetected,
     };
 };
 
 const mapDispachToProps = (dispatch) => {
     return {
-
+        subscribeToDetectionImage: () => dispatch(actions.subscribeToDetectionImage())
     };
 };
 

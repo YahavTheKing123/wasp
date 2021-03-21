@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="31px" height="31px" viewBox="0 0 28 28" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>icons/rec off</title>
+    <g id="Video" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Autonomy-Video-Icons" transform="translate(-237.000000, -424.000000)">
+            <g id="Icons/Video/REC-Copy" transform="translate(237.000000, 424.000000)">
+                <g id="Group" transform="translate(3.010660, 3.010660)">
+                    <g id="Group-3" transform="translate(0.480000, 0.480000)">
+                        <rect id="Rectangle" fill="#6B6C6B" x="1.98951966e-15" y="1.98951966e-15" width="23.7201212" height="23.7201212" rx="5.376"></rect>
+                        <circle id="Oval" fill="#C9C9C9" cx="11.8600606" cy="6.59606058" r="3.136"></circle>
+                        <text id="REC" font-family="ArialMT, Arial" font-size="7.28" font-weight="normal" fill="#FFFFFF">
+                            <tspan x="4.13947562" y="18.4678363">REC</tspan>
+                        </text>
+                    </g>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>
