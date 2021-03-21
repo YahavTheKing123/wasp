@@ -171,8 +171,8 @@ export const setExposure = (exposureVal) => {
             if (result.isSuccess) {
                 dispatch({ type: actionTypes.SET_EXPOSURE_SUCCESS });
             } else {
-                dispatch({ type: actionTypes.SET_EXPOSURE_FAILED });
-                dispatch({ type: actionTypes.SHOW_GLOBAL_MESSAGE, payload: { text: `Setting Exposure failed...`, type: logSeverities.error } });
+             //   dispatch({ type: actionTypes.SET_EXPOSURE_FAILED });
+            //  dispatch({ type: actionTypes.SHOW_GLOBAL_MESSAGE, payload: { text: `Setting Exposure failed...`, type: logSeverities.error } });
             }
             console.log(result)
         });

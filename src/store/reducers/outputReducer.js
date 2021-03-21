@@ -1,10 +1,11 @@
 import actionTypes from '../actions/actionTypes';
 
 const initialState = {
-    skeletonRange: 200
+    skeletonRange: 200,
+    weaponDetected: false
 };
 
-const outputReducer = (state = initialState, action ) => {
+const outputReducer = (state = initialState, action) => {
     switch (action.type) {
         case actionTypes.TOGGLE_SIDE_BAR: {
             return {
@@ -16,6 +17,11 @@ const outputReducer = (state = initialState, action ) => {
             return {
                 ...state,
                 skeletonRange: action.payload.skeletonRange
+            }
+        case actionTypes.SET_WEAPON_DETECTION:
+            return {
+                ...state,
+                weaponDetected: action.payload.weaponDetected
             }
         default:
             return state;

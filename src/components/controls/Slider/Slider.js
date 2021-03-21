@@ -10,7 +10,7 @@ export default class Slider extends Component {
 
         this.state = {
             offset: 0,
-            prevOffset: 0,
+            prevOffset: this.props.sliderOffset ? this.props.sliderOffset : 0,
             dragging: false,
             startY: null
         };

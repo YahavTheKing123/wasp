@@ -2,14 +2,14 @@ const config = {
     urls: {
       getCapabilities: '/map/opr?service=wmts&request=GetCapabilities',
       configuration: 'configuration.json',
-      vidoeStream: '/stream?topic=/d415/color/image_raw',
+      videoStream: '/stream?topic=/d415/color/image_raw',
       videoSnapshot: '/snapshot?topic=/d415/color/image_raw',
 
-      skeletonStream: '/stream?topic=/d415/color/image_raw',
-      skeletonSnapshot: '/snapshot?topic=/d415/color/image_raw',
+      skeletonStream: '/stream?topic=/SkeletonDetector/Image',
+      skeletonSnapshot: '/snapshot?topic=/SkeletonDetector/Image',
 
-      windowDetectionStream: '/stream?topic=/d415/color/image_raw',
-      windowDetectionSnapshot: '/snapshot?topic=/d415/color/image_raw',
+      windowDetectionStream: '/stream?topic=/seeker/detectionImage',
+      windowDetectionSnapshot: '/snapshot?topic=/seeker/detectionImage',
     }
 };
 
