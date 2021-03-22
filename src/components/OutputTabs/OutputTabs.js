@@ -50,6 +50,10 @@ class OutputTabs extends Component {
             img.onload = this.onImageLoaded;
             img.src = this.props.imageSentToDroneData.image;
         }
+
+        if (prevProps.weaponDetected !== this.props.weaponDetected) {
+            this.EnemySpotted.play();
+        }
     }
 
     renderTabs() {
@@ -75,10 +79,7 @@ class OutputTabs extends Component {
     }
 
     onToggleTabClick = (selectedTab) => {
-        if (selectedTab == "Skeleton") {
-            this.EnemySpotted.play();
-        }
-        this.setState({ selectedTab });
+              this.setState({ selectedTab });
     }
 
     renderTabsToggle = () => {
@@ -122,7 +123,7 @@ class OutputTabs extends Component {
                 id='droneImage'
             //    onClick={this.props.pointVideoImage}
             />
-             <img  className={`${cn.AlertIcon}`} src={ArmedRed} />
+            {this.props.weaponDetected &&  <img  className={`${cn.AlertIcon}`} src={ArmedRed} />}
             { this.props.skeletonRange && <span className={`${cn.SkeletonRange}`} > -{this.props.skeletonRange}m- </span>}
         </div>)
     }

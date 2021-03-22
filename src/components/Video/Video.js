@@ -118,15 +118,16 @@ class Video extends Component {
             <div className={`${cn.VideoHeader}`}>
                 <div className={cn.Description}>
                     {this.props.isPaused ? 'Video paused' :
-                        <span className={cn.StreamingIconWrapper}>Video Feed<span className={cn.StreamingIcon}/></span>
+                        <span className={cn.StreamingIconWrapper}>Video Feed<span className={cn.StreamingIcon} /></span>
                     }
                 </div>
                 <span className={`${cn.Exposure}`}
                     onClick={() => this.setState({ showExposure: !this.state.showExposure })}>
                 </span>
-                <span className={`${cn.ToggleTarget} ${hideTargetClass}`}
+                {this.props.weaponDetected && <span className={`${cn.ToggleTarget} ${hideTargetClass}`}
                     onClick={() => this.setState({ showTarget: !this.state.showTarget })}>
                 </span>
+                }
             </div>
         )
     }
@@ -143,7 +144,7 @@ class Video extends Component {
                     onClick={() => this.setState({ isRecording: !this.state.isRecording })}
                     title={this.getRecordTitle()}
                     className={`${cn.ControlBtn} ${cn.RecordButton}`}>
-                    <span className={`${this.getRecordButton()}`}/>
+                    <span className={`${this.getRecordButton()}`} />
                 </button>
                 <button
                     onClick={this.state.isFullScreen ? this.onExitFullScreenClick : this.onFullScreenClick}
@@ -157,7 +158,7 @@ class Video extends Component {
     updateExposure(sliderOffset) {
         const exposureValue = 500 * (100 - sliderOffset) / 100;
         console.log("new exposureValue is ", exposureValue);
-        this.setState({sliderOffset});
+        this.setState({ sliderOffset });
         this.props.setExposure(exposureValue)
     }
 
@@ -173,7 +174,7 @@ class Video extends Component {
             <>
                 {this.renderVideoHeader()}
 
-                {this.state.showTarget &&
+                {this.state.showTarget && this.props.weaponDetected &&
                     <img className={`${cn.TargetIcon}${largeTarget}`} style={this.state.targetPosition} src={targetIcon} />
                 }
 
@@ -208,7 +209,8 @@ class Video extends Component {
 
 const mapStateToProps = (state) => {
     return {
-        isPaused: state.video.isPaused
+        isPaused: state.video.isPaused,
+        weaponDetected: state.output.weaponDetected,
     };
 };
 
