@@ -205,7 +205,7 @@ const mapStateToProps = (state) => {
 
 const mapDispachToProps = (dispatch) => {
     return {
-        subscribeToDetectionImage: () => dispatch(actions.subscribeToDetectionImage())
+      
     };
 };
 

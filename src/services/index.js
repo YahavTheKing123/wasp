@@ -76,8 +76,8 @@ export function getService(serviceName) {
         }),
         getDetectionImage: new window.ROSLIB.Topic({
             ros: rosWebSocket.getRosWebsocketObject(),
-            name: '/seeker/detections',
-            messageType: 'vision_msgs/Detection2DArray'
+            name: '/seeker/state',
+            messageType: 'std_msgs/String'
         }),
         getSkeletonRenge: new window.ROSLIB.Topic({
             ros: rosWebSocket.getRosWebsocketObject(),

@@ -107,10 +107,7 @@ class MapContainer extends PureComponent {
         if (this.props.dronePositionOffset && prevProps.dronePositionOffset != this.props.dronePositionOffset) {
             this.MoveDrone();
         }
-
-        if (this.editMode) {
-            console.log(this.editMode.IsEditingActive(), "jghjhjh");
-        }
+      
     }
 
     RemoveDroneData = () => {
@@ -223,7 +220,6 @@ class MapContainer extends PureComponent {
             z: this.WorkingOrigin.GetLocationPoints()[0].z
         }
         this.DroneRouteCoordinates.push(coordinate);
-
         this.DroneObject = window.MapCore.IMcObject.Create(this.overlay, this.testObjectsScheme, [coordinate]);
         this.DroneRouteObject = window.MapCore.IMcObject.Create(this.overlay, this.lineScheme, [coordinate]);
     }
@@ -237,12 +233,17 @@ class MapContainer extends PureComponent {
         if (!this.DroneObject || !this.DroneRouteObject) {
             this.DoCreateObjects();
         }
-        const offset = this.props.droneMoveOffset;
+
+        const offset = this.props.dronePositionOffset;
         const origin = this.WorkingOrigin.GetLocationPoints()[0];
         let newCoordinate = {
             x: origin.x + offset.x,
             y: origin.y + offset.y,
             z: origin.z + offset.z
+        }
+
+        if (!this.DroneObject) {
+            return;
         }
         this.DroneRouteCoordinates.push(newCoordinate);
 
@@ -880,7 +881,7 @@ class MapContainer extends PureComponent {
             let bHandled = {};
             let eCursor = {};
             this.editMode.OnMouseEvent(window.MapCore.IMcEditMode.EMouseEvent.EME_BUTTON_PRESSED, EventPixel, e.ctrlKey, 0, bHandled, eCursor);
-             if (!this.state.workingOriginSelected &&  this.WorkingOrigin && this.WorkingOrigin.GetLocationPoints().length > 0) {
+            if (!this.state.workingOriginSelected && this.WorkingOrigin && this.WorkingOrigin.GetLocationPoints().length > 0) {
                 this.setState({ workingOriginSelected: true });
             }
 
