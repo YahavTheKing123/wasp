@@ -53,6 +53,11 @@ class OutputTabs extends Component {
 
         if (prevProps.weaponDetected !== this.props.weaponDetected) {
             this.EnemySpotted.play();
+            this.onToggleTabClick("Skeleton");
+        }
+
+        if (prevProps.skeletonRange === 'N/A' && this.props.skeletonRange !== 'N/A') {
+            this.onToggleTabClick("Skeleton");
         }
     }
 
@@ -111,6 +116,13 @@ class OutputTabs extends Component {
         return this.props.imageSentToDroneData ? this.renderTabs() : this.renderNoOutputReceived();
     }
 
+    getSkeletonRange() {
+        if (this.props.skeletonRange && this.props.skeletonRange !== 'N/A') {
+            return `${this.props.skeletonRange} m`;
+        }
+        return this.props.skeletonRange;
+    }
+
     getSkeletonTab() {
         let weaponDetectedClass = this.props.weaponDetected ?  cn.WeaponDetected : undefined;
         return (<div className={`${cn.SkeletonTab} ${weaponDetectedClass}`} >
@@ -124,7 +136,7 @@ class OutputTabs extends Component {
             //    onClick={this.props.pointVideoImage}
             />
             {this.props.weaponDetected &&  <img  className={`${cn.AlertIcon}`} src={ArmedRed} />}
-            { this.props.skeletonRange && <span className={`${cn.SkeletonRange}`} > -{this.props.skeletonRange}m- </span>}
+            { this.props.skeletonRange && <span className={`${cn.SkeletonRange}`} > {this.getSkeletonRange()} </span>}
         </div>)
     }
 
@@ -139,8 +151,7 @@ class OutputTabs extends Component {
                 id='droneImage'
             //    onClick={this.props.pointVideoImage}
             />
-            <span className={`${cn.AlertIcon}`} />
-            { this.props.skeletonRange && <span className={`${cn.SkeletonRange}`} > -{this.props.skeletonRange}m- </span>}
+            <span className={`${cn.AlertIcon}`} />            
         </div>)
     }
 

@@ -23,6 +23,11 @@ class RosWebSocket {
             this.rosWebSocket.on('connection', () => {
                 store.dispatch(actions.showGlobalMessage({text: `Connected successfuly to ros websocket`, type:logSeverities.success, isRemoved: true}))                
                 store.dispatch({type: actionTypes.ROSS_WEBSOCKET_CONNECTION_SUCCESS});
+
+                store.dispatch(actions.subscribeToDroneData());
+                store.dispatch(actions.subscribeToSkeletonRange());
+                store.dispatch(actions.subscribeToWeaponDetection());
+
             });
     
             this.rosWebSocket.on('error', error => {                

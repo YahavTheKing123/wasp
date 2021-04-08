@@ -1,7 +1,7 @@
 import actionTypes from '../actions/actionTypes';
 
 const initialState = {
-    skeletonRange: 200,
+    skeletonRange: 'N/A',
     weaponDetected: false
 };
 

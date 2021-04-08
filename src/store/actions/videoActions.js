@@ -117,18 +117,18 @@ export const reset = () => {
 
 export const takeoff = () => {
     return async (dispatch) => {
-        dispatch({ type: actionTypes.TAKE_OFF_START });
-        dispatch({ type: actionTypes.SHOW_GLOBAL_MESSAGE, payload: { text: `Taking off...`, type: logSeverities.info } });
-
+        dispatch({ type: actionTypes.TAKE_OFF_START });        
+        dispatch(showGlobalMessage({ text: `Taking off...`, type: logSeverities.info, isRemoved: true }));
         const requestTakeoff = new window.ROSLIB.ServiceRequest({});
 
         getService('seekerTakeoff').callService(requestTakeoff, result => {
-            if (result.isSuccess) {
+            dispatch({ type: actionTypes.TAKE_OFF_SUCCESS });
+            /*if (result.isSuccess) {
                 dispatch({ type: actionTypes.TAKE_OFF_SUCCESS });
             } else {
                 dispatch({ type: actionTypes.TAKE_OFF_FAILED });
                 dispatch({ type: actionTypes.SHOW_GLOBAL_MESSAGE, payload: { text: `Taking off failed...`, type: logSeverities.error } });
-            }
+            }*/
             console.log(result)
         });
     };
@@ -154,9 +154,8 @@ export const goToLocation = (location) => {
 
 export const setExposure = (exposureVal) => {
     return async (dispatch) => {
-        dispatch({ type: actionTypes.SET_EXPOSURE_START });
-        dispatch({ type: actionTypes.SHOW_GLOBAL_MESSAGE, payload: { text: `Setting Exposure...`, type: logSeverities.info } });
-
+        dispatch({ type: actionTypes.SET_EXPOSURE_START });        
+        dispatch(showGlobalMessage({ text: `Setting Exposure...`, type: logSeverities.info, isRemoved: true }));
         const setExposure = new window.ROSLIB.ServiceRequest({
             config: {
                 bools: [], strs: [], strs: [], doubles: [], groups: [],
@@ -166,13 +165,13 @@ export const setExposure = (exposureVal) => {
 
             }
         });
-
+        
         getService('setExposure').callService(setExposure, result => {
             if (result.isSuccess) {
                 dispatch({ type: actionTypes.SET_EXPOSURE_SUCCESS });
             } else {
-             //   dispatch({ type: actionTypes.SET_EXPOSURE_FAILED });
-            //  dispatch({ type: actionTypes.SHOW_GLOBAL_MESSAGE, payload: { text: `Setting Exposure failed...`, type: logSeverities.error } });
+                //   dispatch({ type: actionTypes.SET_EXPOSURE_FAILED });
+                //  dispatch({ type: actionTypes.SHOW_GLOBAL_MESSAGE, payload: { text: `Setting Exposure failed...`, type: logSeverities.error } });
             }
             console.log(result)
         });
@@ -180,3 +179,36 @@ export const setExposure = (exposureVal) => {
 };
 
 
+export const subscribeToSkeletonRange = () => {
+    return (dispatch) => {
+        console.log("subscribe: getSkeletonRange");
+        getService('getSkeletonRange').subscribe(function (response) {
+            let range = 0;
+            try {
+                if (response.data) {
+                    range = (response.data / 100).toFixed(1)
+
+                }
+            } catch {
+
+            }
+            dispatch({ type: actionTypes.UPDATE_SKELETON_RANGE, payload: { skeletonRange: range } });
+        });
+    };
+};
+
+export const subscribeToWeaponDetection = () => {
+    return (dispatch) => {
+        console.log("subscribe: getDetectionImage");
+        getService('getDetectionImage').subscribe(function (response) {
+            
+            const WEAPON_ID = 1;
+            const WEAPON_MESSAGE = "INDOOR_EXPLORATION";
+            console.log(response);
+            if(response && response.data == WEAPON_MESSAGE){
+                dispatch({ type: actionTypes.SET_WEAPON_DETECTION, payload: { weaponDetected: true } });
+                dispatch({ type: actionTypes.SHOW_GLOBAL_MESSAGE, payload: { text: `Threat Detected`, type: logSeverities.warn } });
+            }
+        });
+    };
+};

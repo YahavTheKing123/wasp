@@ -79,14 +79,11 @@ export function getService(serviceName) {
             name: '/seeker/state',
             messageType: 'std_msgs/String'
         }),
-        getSkeletonRenge: new window.ROSLIB.Topic({
+        getSkeletonRange: new window.ROSLIB.Topic({
             ros: rosWebSocket.getRosWebsocketObject(),
-            name: '/seeker/Range',
-            messageType: ''
-        }),
-        
-
-        
+            name: '/SkeletonDetector/Range',
+            messageType: 'std_msgs/Float32'
+        }),                
     }
 
     return services[serviceName];

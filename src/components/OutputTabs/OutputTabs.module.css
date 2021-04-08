@@ -29,6 +29,7 @@
       justify-content: center;
       height: 100%;
       background: rgba(0, 0, 0, 0.2);
+      width: 100%;
   }
   
   .Tabs {
@@ -63,24 +64,28 @@
 }
 .tabslidertabs{
 	display: flex;
-	list-style: none;
-	position: relative;
-	border-radius: 35px;
 	overflow: hidden;
 	background: var(--button-clear-color);
-	height: 20px;
+	height: 23px;
 	user-select: none; 
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
-  margin-top: 5px;
-
+  margin-top: 10px;
+  border: 1px solid #2d2d2d96;
+  align-items: center;
+  border-radius: 2px;
 }
+
 .TabSelected{
   background:  var(--app-bg-color);
   transition: all 250ms ease-in-out;
-  border-radius: 35px;
+  /* border-radius: 35px; */
   color: white !important;
+}
+
+.tabslidertabs .tabslidertrigger:last-child {
+  border-right: 0; 
 }
 
 .tabslidertrigger {
@@ -95,7 +100,7 @@
 	display: inline-block;
 	transition: color 250ms ease-in-out;
 	user-select: none; 
-
+  border-right: 1px solid #2d2d2d96;
 }
 
 .SkeletonTab{
@@ -144,11 +149,14 @@
 
 .SkeletonRange{
   position: absolute;
-    bottom: 5%;
-    color: white;
-    font-size: 19px;
-    font-weight: 500;
-    font-family: monospace;
-    left: 50%;
-    transform: translateX(-50%);
+  bottom: 5%;
+  color: white;
+  font-size: 20px;
+  font-weight: 500;
+  font-family: monospace;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: rgba(25,25,25,0.75);
+  padding: 2px 4px;
+  border-radius: 2px;
 }

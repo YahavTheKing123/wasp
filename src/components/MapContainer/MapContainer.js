@@ -101,10 +101,10 @@ class MapContainer extends PureComponent {
             console.log('mapCore version: ', window.MapCore.IMcMapDevice.GetVersion());
             this.RemoveDroneData();
         }
-        if (this.state.workingOriginSelected != prevState.workingOriginSelected) {
-            this.props.subscribeToDroneData();
-        }
-        if (this.props.dronePositionOffset && prevProps.dronePositionOffset != this.props.dronePositionOffset) {
+        
+        if (this.state.workingOriginSelected && 
+            this.props.dronePositionOffset && 
+            (prevProps.dronePositionOffset != this.props.dronePositionOffset)) {
             this.MoveDrone();
         }
       
