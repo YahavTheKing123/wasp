@@ -2,7 +2,9 @@ import actionTypes from '../actions/actionTypes';
 
 const initialState = {
     skeletonRange: 'N/A',
-    weaponDetected: false
+    weaponDetected: false,
+    indoorExplorationFlag: false,
+    missionState: ''
 };
 
 const outputReducer = (state = initialState, action) => {
@@ -22,6 +24,21 @@ const outputReducer = (state = initialState, action) => {
             return {
                 ...state,
                 weaponDetected: action.payload.weaponDetected
+            }
+        case actionTypes.SET_INDOOR_EXPLORATION_FLAG:
+            return {
+                ...state,
+                indoorExplorationFlag: true
+            }
+        case actionTypes.REMOVE_INDOOR_EXPLORATION_FLAG:
+            return {
+                ...state,
+                indoorExplorationFlag: false
+            }
+        case actionTypes.SET_MISSION_STATE:
+            return {
+                ...state,
+                missionState: action.payload.missionState
             }
         default:
             return state;

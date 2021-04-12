@@ -9,7 +9,7 @@
     display: none;
 }
 .contextMenuUL {
-    font-size: 13.5px;
+    font-size: 14px;
     box-shadow: none;
     border-radius: 0;
     box-sizing: border-box;
@@ -50,8 +50,8 @@
 
 .ContextMenuIcon {
     margin: 10px;
-    width: 16px;
-    height: 16px;
+    width: 20px;
+    height: 20px;
     background-color:var(--app-font-color);    
     mask-position: center;
     mask-repeat: no-repeat;
@@ -65,10 +65,13 @@
 .DTM {
     -webkit-mask-image: url('../../assets/images/mountain.svg');
     mask-image: url('../../assets/images/mountain.svg');
-    height: 18px;
-    width: 18px;
 }
 .ThreeD {
     -webkit-mask-image: url('../../assets/images/cube.svg');
     mask-image: url('../../assets/images/cube.svg');
+}
+
+.AddMapLocation {
+    -webkit-mask-image: url('../../assets/images/addMapLocation.svg');
+    mask-image: url('../../assets/images/addMapLocation.svg');
 }

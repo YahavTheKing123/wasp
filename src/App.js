@@ -68,7 +68,18 @@ class App extends Component {
         return (
             <header className={classNames.AppHeader}>
                 <img src={logo} alt='logo' />
-                <div className={classNames.HeaderLeftWrapper}>                                        
+                <div className={classNames.HeaderLeftWrapper}>
+                <span className={classNames.HeaderItem}>
+                        <span className={`${classNames.Icon} ${classNames.DroneIcon}`}></span>
+                        <span className={classNames.LongLatWrapper}>
+                            <span className={classNames.MissionWrapper}>
+                                <span className={classNames.lonLatLabel}>Mission:</span>
+                            </span>
+                            <span className={classNames.MissionValueWrapper}>                                
+                                <span className={classNames.MissionValue}>{this.props.missionState}</span>
+                            </span>
+                        </span>
+                    </span>                    
                     <span className={classNames.HeaderItem}>
                         <span className={`${classNames.Icon} ${classNames.PositionIcon}`}></span>
                         <span className={classNames.LongLatWrapper}>
@@ -150,6 +161,7 @@ const mapStateToProps = state => {
     return {
       contextMenu: state.layout.contextMenu,
       popupDetails: state.layout.popupDetails,
+      missionState: state.output.missionState || 'N/A',
     }
   };
 

@@ -58,6 +58,11 @@ export function getService(serviceName) {
             name: 'seeker/Takeoff',
             serviceType: 'seeker/Takeoff'
         }),
+        startIndoorExploration: new window.ROSLIB.Service({
+            ros: rosWebSocket.getRosWebsocketObject(),
+            name: 'seeker/SetIndoorState',
+            serviceType: 'seeker/SetIndoorState'
+        }),
         flyToTopic: new window.ROSLIB.Topic({
             ros: rosWebSocket.getRosWebsocketObject(),
             name: '/seeker/TranslatePosition',
@@ -74,7 +79,7 @@ export function getService(serviceName) {
             angularThres: 0.1,
             transThres: 0.1
         }),
-        getDetectionImage: new window.ROSLIB.Topic({
+        getDroneExploreState: new window.ROSLIB.Topic({
             ros: rosWebSocket.getRosWebsocketObject(),
             name: '/seeker/state',
             messageType: 'std_msgs/String'

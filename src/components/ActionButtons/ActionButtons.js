@@ -51,7 +51,11 @@ class ActionButtons extends Component {
                         <span className={`${cn.Icon} ${cn.TakeoffIcon}`}></span>
                         <span className={cn.ButtonLabel}>Takeoff</span>
                     </button>
-                    <button className={cn.Button} onClick={this.props.locate}>
+                    <button className={`${cn.Button} ${this.props.indoorExplorationFlag ? cn.Clicked : ''}`} onClick={this.props.startIndoorExploration}>
+                        <span className={`${cn.Icon} ${cn.IndoorExploration}`}></span>
+                        <span className={cn.ButtonLabel}>{'Indoor \nExploration'}</span>
+                    </button>
+                    <button className={cn.Button } onClick={this.props.locate}>
                         <span className={`${cn.Icon} ${cn.LocateIcon}`}></span>
                         <span className={cn.ButtonLabel}>Locate</span>
                     </button>
@@ -71,13 +75,15 @@ class ActionButtons extends Component {
 const mapStateToProps = (state) => {
     return {
         isPaused: state.video.isPaused,
-        isRosWebsocketConncted: state.layout.isRosWebsocketConncted
+        isRosWebsocketConncted: state.layout.isRosWebsocketConncted,
+        indoorExplorationFlag: state.output.indoorExplorationFlag
     }
 };
 
 const mapDispachToProps = dispatch => {
     return {
         takeoff: () => dispatch(actions.takeoff()),
+        startIndoorExploration: () => dispatch(actions.startIndoorExploration()),
         locate: () => dispatch(actions.locate()),
         restart: () => dispatch(actions.restart()),
         showPopup: details => dispatch({ type: actionTypes.SHOW_POPUP, payload: details }),

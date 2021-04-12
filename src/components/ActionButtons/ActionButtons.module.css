@@ -27,9 +27,6 @@
     justify-content: center;
     white-space: nowrap;
 }
-.Button:active {
-    background:#CABE4E;
-}
 
 .Button:first-child {
     border-top: 1px solid #5c5c5c;
@@ -38,10 +35,25 @@
     color: rgba(255,255,255,0.7);
     margin-top: 7px;
     font-size: 12px;
+    white-space: pre-line;
 }
+.Button:active {
+    background:#CABE4E;
+}
+
 .Button:active .ButtonLabel {
     color: #000000;
 }
+
+.Button.Clicked {
+    background:#CABE4E;
+}
+
+.Button.Clicked .ButtonLabel {
+    color: #000000;
+    font-weight: 600;
+}
+
 .Icon {
     height: 28px;
     width: 28px;
@@ -78,4 +90,8 @@
 
 .PlayIcon {
     background-image: url(../../assets/images/play.svg);
+}
+
+.IndoorExploration {
+    background-image: url(../../assets/images/indoor.svg);
 }

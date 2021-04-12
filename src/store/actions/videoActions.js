@@ -133,6 +133,16 @@ export const takeoff = () => {
         });
     };
 };
+export const startIndoorExploration = () => {
+    return async (dispatch) => {
+        dispatch({ type: actionTypes.START_INDOOR_EXPLORATION });
+        const requestIndoorExplorationFlag = new window.ROSLIB.ServiceRequest({});
+
+        getService('startIndoorExploration').callService(requestIndoorExplorationFlag, result => {
+            console.log(result);
+        });
+    };
+};
 
 export const goToLocation = (location) => {
     return async (dispatch) => {
@@ -199,15 +209,22 @@ export const subscribeToSkeletonRange = () => {
 
 export const subscribeToWeaponDetection = () => {
     return (dispatch) => {
-        console.log("subscribe: getDetectionImage");
-        getService('getDetectionImage').subscribe(function (response) {
+        console.log("subscribe: getDroneExploreState");
+        getService('getDroneExploreState').subscribe(function (response) {
             
-            const WEAPON_ID = 1;
-            const WEAPON_MESSAGE = "INDOOR_EXPLORATION";
+            //const WEAPON_ID = 1;
+            const INDOOR_EXPLORATION = "INDOOR_EXPLORATION";
+            const INDOOR_EXPLORATION_THREAT = "INDOOR_EXPLORATION_THREAT";
+
             console.log(response);
-            if(response && response.data == WEAPON_MESSAGE){
+            dispatch({ type: actionTypes.SET_MISSION_STATE, payload: { missionState: response.data } });
+
+            if(response && response.data == INDOOR_EXPLORATION) {
                 dispatch({ type: actionTypes.SET_WEAPON_DETECTION, payload: { weaponDetected: true } });
                 dispatch({ type: actionTypes.SHOW_GLOBAL_MESSAGE, payload: { text: `Threat Detected`, type: logSeverities.warn } });
+                dispatch({ type: actionTypes.SET_INDOOR_EXPLORATION_FLAG });
+            } else {                
+                dispatch({ type: actionTypes.REMOVE_INDOOR_EXPLORATION_FLAG });
             }
         });
     };

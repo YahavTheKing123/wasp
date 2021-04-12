@@ -1852,7 +1852,7 @@ class MapContainer extends PureComponent {
             const selectOrigin = {
                 name: "Select Origin",
                 func: () => this.createOriginText(),
-                iconCss: "DTM"
+                iconCss: "AddMapLocation"
             }
             const showHide3DAction = {
                 name: 'Switch To ' + (this.state.is3DClicked ? '2D' : '3D'),
@@ -1862,8 +1862,8 @@ class MapContainer extends PureComponent {
 
             menuItemsList.push(showHideDtmAction);
             menuItemsList.push(showHide3DAction);
-            menuItemsList.push(selectOtherMapAction);
             menuItemsList.push(selectOrigin);
+            menuItemsList.push(selectOtherMapAction);
         }
 
         this.props.showContextMenu(e.nativeEvent.x, e.nativeEvent.y, menuItemsList);
