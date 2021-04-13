@@ -4,6 +4,7 @@ const initialState = {
     isMapCoreSDKLoaded: false,
     mapToShow: null,
     droneMoveOffset: [],
+    lastPosition: {}
 };
 
 const mapReducer = (state = initialState, action) => {
@@ -23,6 +24,12 @@ const mapReducer = (state = initialState, action) => {
                 ...state,
                 dronePositionOffset: action.payload.dronePositionOffset
             }
+        case actionTypes.UPDATE_DRONE_LAST_POSITION:
+            return {
+                ...state,
+                lastPosition: action.payload.lastPosition
+            }
+
         default:
             return state;
     }

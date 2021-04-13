@@ -156,7 +156,7 @@ class Video extends Component {
     }
 
     updateExposure(sliderOffset) {
-        const exposureValue = 500 * (100 - sliderOffset) / 100;
+        const exposureValue = config.EXPOSURE_MAX_LEVEL * (100 - sliderOffset) / 100;
         console.log("new exposureValue is ", exposureValue);
         this.setState({ sliderOffset });
         this.props.setExposure(exposureValue)
