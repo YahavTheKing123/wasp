@@ -17,7 +17,7 @@ class OutputTabs extends Component {
         this.state = {
             pointPosition: null,
             showCapture: true,
-            selectedTab: "Capture"
+            selectedTab: "WindowDetection"
         }
         this.EnemySpotted = new Audio(EnemySpottedSound);
 
@@ -56,7 +56,8 @@ class OutputTabs extends Component {
             this.onToggleTabClick("Skeleton");
         }
 
-        if (prevProps.skeletonRange === 'N/A' && this.props.skeletonRange !== 'N/A') {
+        if ((prevProps.skeletonRange === 'N/A' && this.props.skeletonRange !== 'N/A') || 
+            (!prevProps.indoorExplorationFlag && this.props.indoorExplorationFlag)) {
             this.onToggleTabClick("Skeleton");
         }
     }
@@ -211,6 +212,7 @@ const mapStateToProps = (state) => {
         imageSentToDroneData: state.layout.imageSentToDroneData,
         skeletonRange: state.output.skeletonRange,
         weaponDetected :  state.output.weaponDetected,
+        indoorExplorationFlag: state.output.indoorExplorationFlag
     };
 };
 

@@ -217,14 +217,17 @@ export const subscribeToWeaponDetection = () => {
             const INDOOR_EXPLORATION_THREAT = "INDOOR_EXPLORATION_THREAT";
 
             console.log(response);
-            dispatch({ type: actionTypes.SET_MISSION_STATE, payload: { missionState: response.data } });
+            
+            if(response && response.data) {
+                dispatch({ type: actionTypes.SET_MISSION_STATE, payload: { missionState: response.data } });
 
-            if(response && response.data == INDOOR_EXPLORATION) {
-                dispatch({ type: actionTypes.SET_WEAPON_DETECTION, payload: { weaponDetected: true } });
-                dispatch({ type: actionTypes.SHOW_GLOBAL_MESSAGE, payload: { text: `Threat Detected`, type: logSeverities.warn } });
-                dispatch({ type: actionTypes.SET_INDOOR_EXPLORATION_FLAG });
-            } else {                
-                dispatch({ type: actionTypes.REMOVE_INDOOR_EXPLORATION_FLAG });
+                if (response.data === INDOOR_EXPLORATION) {
+                    dispatch({ type: actionTypes.SET_INDOOR_EXPLORATION_FLAG });
+                } else if (response.data === INDOOR_EXPLORATION_THREAT) {
+                    dispatch({ type: actionTypes.SET_WEAPON_DETECTION, payload: { weaponDetected: true } });                
+                    dispatch(showGlobalMessage({ text: `Threat Detected`, type: logSeverities.warn, isRemoved: true }));
+                }
+                                
             }
         });
     };
