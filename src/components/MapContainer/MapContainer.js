@@ -110,6 +110,8 @@ class MapContainer extends PureComponent {
       
     }
 
+  
+
     RemoveDroneData = () => {
         if (this.WorkingOrigin) {
             this.WorkingOrigin.Remove();
@@ -241,16 +243,30 @@ class MapContainer extends PureComponent {
             y: origin.y + offset.y,
             z: origin.z + offset.z
         }
-
-        if (!this.DroneObject) {
-            return;
+        
+        if(this.DroneRouteCoordinates.length > 0){
+           let prevCoordinate =  this.DroneRouteCoordinates[this.DroneRouteCoordinates.length-1];
+           if (this.calculateDistance(prevCoordinate,newCoordinate) < config.MIN_DRONE_DISTANCE_MOVE){ //too small distance , not importent
+               return;
+           }
         }
+      
         this.DroneRouteCoordinates.push(newCoordinate);
 
         this.DroneObject.UpdateLocationPoints([newCoordinate]);
         this.DroneRouteObject = window.MapCore.IMcObject.Create(this.overlay, this.lineScheme, this.DroneRouteCoordinates);
         this.DroneRouteObject.SetState([2])
+        this.props.updateDroneLastCoordiante(newCoordinate);
     }
+
+    calculateDistance(p1, p2) {
+        var a = p2.x - p1.x;
+        var b = p2.y - p1.y;
+        var c = p2.z - p1.z;
+    
+        return Math.sqrt(a * a + b * b + c * c);
+    }
+
     // function fetching a file from server to byte-array
     FetchFileToByteArray(uri) {
         return fetch(uri)
@@ -1920,7 +1936,8 @@ const mapDispachToProps = (dispatch) => {
     return {
         showContextMenu: (x, y, items) => dispatch({ type: actionTypes.SHOW_CONTEXT_MENU, payload: { x, y, items } }),
         closeContextMenu: () => dispatch({ type: actionTypes.CLOSE_CONTEXT_MENU }),
-        subscribeToDroneData: () => dispatch(actions.subscribeToDroneData())
+        subscribeToDroneData: () => dispatch(actions.subscribeToDroneData()),
+        updateDroneLastCoordiante: (lastPosition) => dispatch({ type: actionTypes.UPDATE_DRONE_LAST_POSITION, payload: {lastPosition } }),
     };
 };
 

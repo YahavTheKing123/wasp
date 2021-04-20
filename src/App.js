@@ -84,12 +84,16 @@ class App extends Component {
                         <span className={`${classNames.Icon} ${classNames.PositionIcon}`}></span>
                         <span className={classNames.LongLatWrapper}>
                             <span>
-                                <span className={classNames.lonLatLabel}>lat:</span>
-                                <span className={classNames.lonLatValue}>32.35249</span>
+                                <span className={classNames.lonLatLabel}>easting:</span>
+                                <span className={classNames.lonLatValue}>{this.props.lastPosition.x || "N/A"}</span>
                             </span>
                             <span>
-                                <span className={classNames.lonLatLabel}>long:</span>
-                                <span className={classNames.lonLatValue}>34.87586</span>
+                                <span className={classNames.lonLatLabel}>norting:</span>
+                                <span className={classNames.lonLatValue}>{this.props.lastPosition.y ||  "N/A"}</span>
+                            </span>
+                            <span>
+                                <span className={classNames.lonLatLabel}>height:</span>
+                                <span className={classNames.lonLatValue}>{this.props.lastPosition.z ||  "N/A"}</span>
                             </span>
                         </span>
                     </span>
@@ -162,6 +166,7 @@ const mapStateToProps = state => {
       contextMenu: state.layout.contextMenu,
       popupDetails: state.layout.popupDetails,
       missionState: state.output.missionState || 'N/A',
+      lastPosition: state.map.lastPosition || {}
     }
   };
 

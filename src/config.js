@@ -10,7 +10,10 @@ const config = {
 
       windowDetectionStream: '/stream?topic=/seeker/detectionImage',
       windowDetectionSnapshot: '/snapshot?topic=/seeker/detectionImage',
-    }
+    },
+
+    MIN_DRONE_DISTANCE_MOVE : 0.25, // 25 cm
+    EXPOSURE_MAX_LEVEL : 100
 };
 
 export const devVideoSnapshotUrl = `https://images.pexels.com/photos/78783/submachine-gun-rifle-automatic-weapon-weapon-78783.jpeg?auto=compress&cs=tinysrgb&h=750&w=1260`;
@@ -31,5 +34,6 @@ export const logSeverities = {
   warn: 'warn',
   error: 'error'
 };
+
 
 export default config;
