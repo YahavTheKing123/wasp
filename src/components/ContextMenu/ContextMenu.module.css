@@ -22,13 +22,15 @@
     border: 1px solid #282828;
     box-shadow: 0 4px 8px rgba(0,0,0,.175);
     border-radius: 3px;
-    transform: translate(-95%,10px);
+    transform: translate(-95%, 10px);
 }
-
-
 
 .contextMenuUL.Close {
     transform: scale(0);
+}
+
+.contextMenuUL.right {
+    transform: translate(0, 10px);
 }
 
 .menuItem {
@@ -74,4 +76,30 @@
 .AddMapLocation {
     -webkit-mask-image: url('../../assets/images/addMapLocation.svg');
     mask-image: url('../../assets/images/addMapLocation.svg');
+}
+.DeleteIcon {
+    -webkit-mask-image: url('../../assets/images/delete.svg');
+    mask-image: url('../../assets/images/delete.svg');
+}
+
+.EditIcon {
+    -webkit-mask-image: url('../../assets/images/edit.svg');
+    mask-image: url('../../assets/images/edit.svg');
+}
+
+.ArrowUpIcon {
+    -webkit-mask-image: url('../../assets/images/arrowLeft.svg');
+    mask-image: url('../../assets/images/arrowLeft.svg');
+    transform: rotate(-90deg);
+}
+
+.ArrowDownIcon {
+    -webkit-mask-image: url('../../assets/images/arrowLeft.svg');
+    mask-image: url('../../assets/images/arrowLeft.svg');
+    transform: rotate(90deg);
+}
+
+.MissionPlannerIcon {
+    -webkit-mask-image: url('../../assets/images/list.svg');
+    mask-image: url('../../assets/images/list.svg');
 }

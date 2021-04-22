@@ -13,6 +13,7 @@ import externalConfig from './ExternalConfigurationHandler';
 import Loader from './components/LoaderAlt/LoaderAlt';
 import axios from 'axios';
 import config from './config';
+import {BrowserRouter} from 'react-router-dom';
 
 const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
 export const store = createStore(rootReducer, composeEnhancers(applyMiddleware(reduxThunk)));
@@ -43,7 +44,9 @@ function renderAplication() {
     ReactDOM.render(
         <React.StrictMode>
             <Provider store={store}>
-                <App />
+                <BrowserRouter>
+                    <App />
+                </BrowserRouter>
             </Provider>
         </React.StrictMode>,
         document.getElementById('root')

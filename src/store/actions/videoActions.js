@@ -168,7 +168,7 @@ export const setExposure = (exposureVal) => {
         dispatch(showGlobalMessage({ text: `Setting Exposure...`, type: logSeverities.info, isRemoved: true }));
         const setExposure = new window.ROSLIB.ServiceRequest({
             config: {
-                bools: [], strs: [], strs: [], doubles: [], groups: [],
+                bools: [], strs: [], doubles: [], groups: [],
                 ints: [
                     { name: 'exposure', value: exposureVal }
                 ],

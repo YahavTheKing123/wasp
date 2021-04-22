@@ -1,0 +1,7 @@
+.Wrapper {
+    min-height: 200px;
+}
+
+.Row + .Row{
+    margin-top: 25px;
+}

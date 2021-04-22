@@ -1,0 +1,80 @@
+.Wrapper {
+    display: flex;    
+    justify-content: center;
+    height: 100%;
+    position: relative;
+}
+
+.Center {
+    align-items: center;
+}
+
+.StartNewBtn {
+    width: 300px;
+    height: 100px;
+    background: #2d2d2d;
+    border: 1px solid var(--app-bg-color);
+    color: var(--app-font-color);
+    font-size: 18px;
+    font-weight: 400;
+    font-family: inherit;
+    box-shadow: 1px s;
+    box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+}
+.SideBar {
+    position: absolute;
+    height: 100%;
+    width: var(--app-header-height);
+    background: var(--app-bg-color-alt);
+    left: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.SidebarLabel {
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+    text-transform: uppercase;
+    letter-spacing: 8px;
+    color: #f6ea74;
+    background: #f6ea740f;
+    padding: 20px 5px;
+}
+
+.SideBarButtons {
+    position: absolute;
+    top: 40px;
+    display: flex;
+    flex-direction: column;
+}
+
+.SideBarBtn {    
+    width: 24px;
+    height: 24px;
+    background-color: #cbcbcb;
+    mask-position: center;
+    mask-repeat: no-repeat;
+    -webkit-mask-position: center;
+    -webkit-mask-repeat: no-repeat;
+    cursor: pointer;
+    margin-bottom: 25px;
+}
+.SideBarBtn:hover, .SideBarBtn:active {
+    background-color: var(--app-font-color);
+}
+.NavigateBack {
+    -webkit-mask-image: url('../../assets/images/arrowLeft.svg');
+    mask-image: url('../../assets/images/arrowLeft.svg');
+}
+.Import {
+    -webkit-mask-image: url('../../assets/images/uploadDoc.svg');
+    mask-image: url('../../assets/images/uploadDoc.svg');
+}
+
+.Export {
+    -webkit-mask-image: url('../../assets/images/downloadDoc.svg');
+    mask-image: url('../../assets/images/downloadDoc.svg');
+
+}

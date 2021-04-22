@@ -35,7 +35,7 @@ class ContextMenu extends Component {
    updatePosition( left ,top, menuItems) {     
      this.setState({
        top: this.getNewTop(top) ,
-       left : (left > document.body.offsetWidth - this.CONTEXT_MENU_WIDTH ) ? left - this.CONTEXT_MENU_WIDTH : left ,       
+       left : ( left + this.CONTEXT_MENU_WIDTH )  > document.body.offsetWidth ? document.body.offsetWidth - 20 : left ,       
        menuItems
      })
    }
@@ -55,6 +55,7 @@ class ContextMenu extends Component {
 
     render() {
       const closeClass = ((this.state.menuItems != null) && (this.state.menuItems.length > 0))  ?  '' : classNames.Close;
+      const side = this.props.contextMenu.options && this.props.contextMenu.options.side ? classNames[this.props.contextMenu.options.side] : '';
       let menuItems = "";
 
       if (this.state.menuItems && this.state.menuItems.length > 0) {
@@ -74,15 +75,13 @@ class ContextMenu extends Component {
 
       return(
         <div style={{top: this.state.top , left: this.state.left}} className={`${classNames.contextMenu} ${closeClass}`} ref={this.contextRef}>
-          <ul  className={`${classNames.contextMenuUL} ${closeClass}`}>
+          <ul  className={`${classNames.contextMenuUL} ${closeClass} ${side}`}>
             {menuItems}
           </ul>
         </div>
       )
     }
-
 }
-
 
 const mapStateToProps = state => {
   return {

@@ -31,8 +31,7 @@ class SwitchMapForm extends Component {
     }
 
     renderBody() {
-        const layers = externalConfig.getConfiguration().streamingLayers;
-        const maps = layers.map(item => <div>{item.groupName}</div>)
+        const layers = externalConfig.getConfiguration().streamingLayers;        
 
         return (
             <div className={cn.Body}>

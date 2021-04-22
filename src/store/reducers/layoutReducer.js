@@ -41,7 +41,8 @@ const layoutReducer = (state = initialState, action ) => {
         case actionTypes.SHOW_CONTEXT_MENU: {
             const contextMenu = {   
                 x: action.payload.x, 
-                y: action.payload.y, 
+                y: action.payload.y,
+                options: action.payload.options,
                 items: action.payload.items
             };
             return {

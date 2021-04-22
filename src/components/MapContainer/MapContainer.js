@@ -234,6 +234,7 @@ class MapContainer extends PureComponent {
         }
         if (!this.DroneObject || !this.DroneRouteObject) {
             this.DoCreateObjects();
+            return;
         }
 
         const offset = this.props.dronePositionOffset;

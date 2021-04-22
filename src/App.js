@@ -4,18 +4,15 @@ import classNames from './App.module.css';
 import Loader from './components/LoaderAlt/LoaderAlt';
 import Clock from './components/Clock/Clock';
 import Popup from './components/Popup/Popup';
-import FlightTelemetry from './components/FlightTelemetry/FlightTelemetry';
 import Error from './components/Error/Error';
-import MapContainer from './components/MapContainer/MapContainer';
-import OutputTabs from './components/OutputTabs/OutputTabs';
-import Video from './components/Video/Video';
-import ActionButtons from './components/ActionButtons/ActionButtons';
 import GlobalMessage from './components/GlobalMessage/GlobalMessage';
 import actionTypes from './store/actions/actionTypes';
 import { connect } from 'react-redux';
 import ContextMenu from './components/ContextMenu/ContextMenu';
 import externalConfig from './ExternalConfigurationHandler';
-
+import { Switch, Route, withRouter } from 'react-router-dom';
+import Main from './components/Main/Main'
+import MissionPlanner from './components/MissionPlanner/MissionPlanner'
 
 class App extends Component {
 
@@ -65,9 +62,13 @@ class App extends Component {
     }
 
     getMainHeader() {
+        if (this.props.history.location.pathname.includes('mission-planner')) return;
+        
         return (
             <header className={classNames.AppHeader}>
-                <img src={logo} alt='logo' />
+                <div className={classNames.LogoWrapper} onClick={() => this.props.history.push('/')}>
+                    <img src={logo} alt='logo'/>
+                </div>
                 <div className={classNames.HeaderLeftWrapper}>
                 <span className={classNames.HeaderItem}>
                         <span className={`${classNames.Icon} ${classNames.DroneIcon}`}></span>
@@ -102,61 +103,48 @@ class App extends Component {
                         <span className={`${classNames.Icon} ${classNames.BatteryIcon}`}></span>
                         <span className={classNames.BatteryValue}>59%</span>
                     </span>
-                    <div className={classNames.RightHeader}>{this.getClock()}</div>
+                    <div className={classNames.HeaderItem}>{this.getClock()}</div>
+                    <button className={classNames.MenuBtn} onClick={this.onMoreActionsClick}>
+                        <span className={`${classNames.Icon} ${classNames.MenuIcon}`}></span>
+                    </button>
                 </div>
             </header>
         );
     }
 
-    getMainLeftPane() {
-        return <MapContainer />;
-    }
+    onMoreActionsClick = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
 
-    getMainRightPane() {
-        return (
-            <div className={classNames.RightPaneWrapper}>
-                <div className={classNames.RightPaneWrapperItem}>
-                    <Video />
-                </div>
-                <div className={classNames.RightPaneWrapperItem}>
-                    <OutputTabs />
-                </div>
-            </div>
-        );
-    }
+        const menuItemsList = [
+            {
+                name: "Mission Planner Page",
+                func: () => this.props.history.push('/mission-planner'),
+                iconCss: "MissionPlannerIcon"
+            }
+        ];
 
-    getMainContent() {
-        return (
-            <div className={classNames.MainContentWrapper}>
-                <div className={`${classNames.Split} ${classNames.Left}`}>
-                    {this.getMainLeftPane()}
-                </div>
-                <div className={`${classNames.Split} ${classNames.Right}`}>
-                    {this.getMainRightPane()}
-                </div>
-            </div>
-        );
-    }
-
-    getActionButtons() {
-        return <ActionButtons/>        
+        this.props.showContextMenu(e.clientX, e.clientY, menuItemsList);
     }
 
     render() {
         if (this.props.isLoading) {
             return <Loader loadingMessage={'initializing...'} />;
         }
-        return (
-            <div className={classNames.App}>
-                <GlobalMessage />
-                {this.props.popupDetails ? <Popup popupDetails={this.props.popupDetails}/> : null}
-                <FlightTelemetry/>
-                {this.props.contextMenu ? <ContextMenu contextMenu={this.props.contextMenu}/> : null}
-                {this.getActionButtons()}
-                {this.getGeneralErrorPopup()}
-                {this.getMainHeader()}
-                {this.getMainContent()}
-            </div>
+        return (            
+                <div className={classNames.App}>                 
+                        <GlobalMessage />
+                        {this.props.popupDetails ? <Popup popupDetails={this.props.popupDetails}/> : null}                
+                        {this.props.contextMenu ? <ContextMenu contextMenu={this.props.contextMenu}/> : null}
+                        {this.getGeneralErrorPopup()}                
+                        {this.getMainHeader()}
+                    
+                        <Switch>            
+                            <Route exact path='/' render={()=> <Main/>} />              
+                            <Route exact path='/mission-planner' render={()=> <MissionPlanner/>} /> 
+                            <Route render={()=> <Main/>} />              
+                        </Switch>                    
+                </div>                        
         );
     }
 }
@@ -173,8 +161,11 @@ const mapStateToProps = state => {
 const mapDispachToProps = (dispatch) => {
     return {
         setMapCoreSDKLoadedFlag: () => dispatch({type: actionTypes.SET_MAPCORE_SDK_LOADED_FLAG}),
-        setMapToShow: groupNode => dispatch({type: actionTypes.SET_MAP_TO_SHOW, payload: groupNode})
+        setMapToShow: groupNode => dispatch({type: actionTypes.SET_MAP_TO_SHOW, payload: groupNode}),
+        showContextMenu: (x, y, items) => dispatch({ type: actionTypes.SHOW_CONTEXT_MENU, payload: { x, y, items } }),
     };
 };
 
-export default connect(mapStateToProps, mapDispachToProps)(App);
+export default withRouter(connect(mapStateToProps, mapDispachToProps)(App));
+
+//export default connect(mapStateToProps, mapDispachToProps)(App);

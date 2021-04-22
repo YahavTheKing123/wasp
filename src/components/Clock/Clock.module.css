@@ -3,10 +3,9 @@
     font-size: 15px;
     display: flex;
     align-items: center;
-    justify-content: flex-end;
-    margin-left: 15px;
+    justify-content: flex-end;  
+    margin: 0 15px  
 }
 .Hour {
-    font-weight: 400;
-    margin-left: 5px;
+    font-weight: 400;    
 }

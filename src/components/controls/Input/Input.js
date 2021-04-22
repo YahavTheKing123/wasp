@@ -36,8 +36,10 @@ export default class Input extends Component {
         const mandatoyClass = this.props.mandatory ? ` ${cn.Mandatory}` : '';
         const errorClass = this.props.error ? ` ${cn.ShowError}` : '';
         const readOnly = this.props.readOnly ? ` ${cn.readOnly}` : '';
+        const disabled = this.props.disabled ? ` ${cn.Disabled}` : '';
+
         return (
-            <div className={cn.Row}>
+            <div className={`${cn.Row}${disabled}`}>
                 <span className={`${cn.Label}${mandatoyClass}`}>{this.props.label}{this.renderInfo()}</span>
                 <div className={cn.InputWrapper}>
                     <div className={cn.InnerInputWrapper}>
@@ -49,8 +51,8 @@ export default class Input extends Component {
                             maxLength={this.props.maxLength || null} 
                             type={this.props.type || 'text'}                  
                             onFocus={this.props.onFocus}
-                            onChange={this.props.onChange}
-                            readOnly = {this.props.readOnly} />                        
+                            onChange={this.props.onChange}                            
+                            readOnly = {this.props.readOnly || this.props.disabled} />                        
                         {/*<img className={`${cn.ValidationImg}${errorClass}`} src={validationX} alt=""/>*/}
                     </div>
                     <div className={`${cn.ValidationMessage}${errorClass}`}>{this.props.error || ''}</div>                   

@@ -1,4 +1,4 @@
-import config, { logSeverities } from './config';
+import { logSeverities } from './config';
 import actionTypes from './store/actions/actionTypes';
 import actions from './store/actions';
 import externalConfig from './ExternalConfigurationHandler';

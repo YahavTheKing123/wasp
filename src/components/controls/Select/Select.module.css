@@ -1,0 +1,28 @@
+.ComboLabel {
+    width: 100%;
+    display: inline-block;
+    font-size: 14px;
+    margin-bottom: 10px;
+}
+.Mandatory{
+    position: relative;
+}
+.Mandatory::after {
+    content: '*';
+    color: var(--app-validation-color);
+    margin-left: 3px;
+    position: absolute;
+}
+
+.DropDownWrapper {
+    width: 100%;    
+}
+
+.DropDownArrow {    
+    width: 8px;
+    height: 7px;        
+    -webkit-mask-image: url(../../../assets/images/dropdownArrow1.svg);
+    -webkit-mask-position: center;
+    -webkit-mask-repeat: no-repeat;
+    background-color: var(--app-font-color);
+}
