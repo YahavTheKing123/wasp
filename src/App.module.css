@@ -178,3 +178,13 @@
   display: inline-block;
   background-image: url(./assets/images/menu.svg);
 }
+.MissionPlannerOverlay {
+  width: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--app-bg-color);
+  z-index: 2;
+}

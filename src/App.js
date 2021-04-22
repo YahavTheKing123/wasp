@@ -132,18 +132,21 @@ class App extends Component {
             return <Loader loadingMessage={'initializing...'} />;
         }
         return (            
-                <div className={classNames.App}>                 
+                <div className={classNames.App}>
                         <GlobalMessage />
                         {this.props.popupDetails ? <Popup popupDetails={this.props.popupDetails}/> : null}                
                         {this.props.contextMenu ? <ContextMenu contextMenu={this.props.contextMenu}/> : null}
                         {this.getGeneralErrorPopup()}                
                         {this.getMainHeader()}
-                    
-                        <Switch>            
+                        <Main/>
+                        <div className={classNames.MissionPlannerOverlay}>
+                            <MissionPlanner/>
+                        </div>
+                        {/* <Switch>            
                             <Route exact path='/' render={()=> <Main/>} />              
-                            <Route exact path='/mission-planner' render={()=> <MissionPlanner/>} /> 
+                            {<Route exact path='/mission-planner' render={()=> <MissionPlanner/>} />}
                             <Route render={()=> <Main/>} />              
-                        </Switch>                    
+                        </Switch>                     */}
                 </div>                        
         );
     }
