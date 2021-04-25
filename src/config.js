@@ -2,6 +2,7 @@ const config = {
     urls: {
       getCapabilities: '/map/opr?service=wmts&request=GetCapabilities',
       configuration: 'configuration.json',
+      loadMission: 'defaultMission.json',
       videoStream: '/stream?topic=/d415/color/image_raw',
       videoSnapshot: '/snapshot?topic=/d415/color/image_raw',
 

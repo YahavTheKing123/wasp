@@ -83,12 +83,20 @@ class MissionPlanStage extends Component {
         return false;
     }
 
+    renderMenuBtn() {
+        const {isShowMenu} = this.props;
+        if (!isShowMenu) return null;
+        return (
+            <button className={cn.MenuBtn} onClick={this.onMenuBtnClick}>{this.renderMenuBtnIcon()}</button>
+        )
+    }
+
     render() {
         const {selectedStageType, stageParamsInput} = this.props.stage;
 
         return (
             <div className={cn.StageWrapper}>
-                <button className={cn.MenuBtn} onClick={this.onMenuBtnClick}>{this.renderMenuBtnIcon()}</button>
+                {this.renderMenuBtn()}                
                 <div className={cn.LabelsWrapper}>
                     <div className={cn.StageTypeLabel}>{selectedStageType.label}</div>                
                     <div className={cn.StageParamsLabel}>{stageParamsInput}</div>

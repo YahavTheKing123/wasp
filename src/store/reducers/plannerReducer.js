@@ -1,8 +1,14 @@
 import actionTypes from '../actions/actionTypes';
 
-const initialState = {
+export const viewerStates = {
+    draft: 'draft',
+    savedMission: 'savedMission'
+}
+
+const initialState = {    
     draftMissionStages: [],
-    savedMissionPlan: []
+    savedMissionPlan: [],
+    viewerState: viewerStates.draft
 };
 
 function immutablySwapItems(items, firstIndex, secondIndex) {
@@ -76,6 +82,19 @@ const plannerReducer = (state = initialState, action) => {
             return {
                 ...state,
                 savedMissionPlan: []
+            }            
+        }
+        case actionTypes.TOGGLE_MISSION_PLAN_VIEWER_STATE: {            
+            return {
+                ...state,
+                viewerState: state.viewerState === viewerStates.draft ? viewerStates.savedMission : viewerStates.draft
+            }            
+        }
+        case actionTypes.LOAD_DEFAULT_PLAN: {
+            return {
+                ...state,
+                savedMissionPlan: action.payload,
+                viewerState: viewerStates.savedMission
             }            
         }
         default:

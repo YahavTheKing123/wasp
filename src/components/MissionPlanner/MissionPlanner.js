@@ -6,6 +6,8 @@ import actions from '../../store/actions';
 import MissionPlanStages from './MissionPlanStages/MissionPlanStages';
 import {withRouter} from 'react-router-dom';
 import {logSeverities} from '../../config';
+import {viewerStates} from '../../store/reducers/plannerReducer';
+
 class MissionPlanner extends Component {
 
     addMissionPlanStageFormPopupOkBtnClick = () => {
@@ -45,7 +47,31 @@ class MissionPlanner extends Component {
 
 
     renderMissionPlanStages() {
-        return <MissionPlanStages missionStages={this.props.draftMissionStages} />
+        
+
+        const {viewerState, draftMissionStages, savedMissionPlan} =  this.props;
+        if (viewerState === viewerStates.draft) {
+            return (
+                    draftMissionStages.length ? 
+                    <MissionPlanStages 
+                        missionStages={viewerState === viewerStates.draft ? draftMissionStages : savedMissionPlan}
+                        isReadOnly={viewerState === viewerStates.savedMission}
+                    /> : 
+                    this.renderStartNewMissionButton()
+            )
+        } else {
+            // saved mission plan flow
+            return (
+                savedMissionPlan.length > 0 ? 
+                <MissionPlanStages 
+                    missionStages={viewerState === viewerStates.draft ? draftMissionStages : savedMissionPlan}
+                    isReadOnly={viewerState === viewerStates.savedMission}
+                /> : 
+                <div className={cn.EmptyPlanStagesMessage}>
+                    No Saved Plan in Memory
+                </div>
+            )
+        }         
     }
 
     onBackBtnClick = () => {        
@@ -64,6 +90,10 @@ class MissionPlanner extends Component {
     onRemoveSavedPlanBtnClick = () => {        
         this.props.removeSavedPlan();
         this.props.showGlobalMessage('Mission Plan Successfuly Removed');
+    }
+    
+    onLoadMissionBtnClick = () => {
+        this.props.importPlanFromFile();
     }
 
     renderSideBar() {
@@ -86,9 +116,27 @@ class MissionPlanner extends Component {
                             <button title='Remove Saved Plan' className={`${cn.SideBarBtn} ${cn.Remove}`} onClick={this.onRemoveSavedPlanBtnClick}></button>
                             : null
                     }                    
-                    <button title='Load Mission Plan From File' className={`${cn.SideBarBtn} ${cn.Import}`}></button>
+                    <button title='Load Mission Plan From File' className={`${cn.SideBarBtn} ${cn.Import}`} onClick={this.onLoadMissionBtnClick}></button>
                 </div>
                 <span className={cn.SidebarLabel}>Mission Planner</span>
+            </div>
+        )
+    }
+
+    onSwitchViewStateClick = e => {
+        e.preventDefault();
+        this.props.toggleViewerState();
+    }
+
+    renderHeader() {
+        const {viewerState} = this.props;
+
+        return (
+            <div className={cn.Header}>
+                {viewerState === viewerStates.draft ? 'Viewing Mission Draft -  ' : 'Viewing Saved Mission - '} 
+                <a className={cn.HeaderBtn} href={'#'} onClick={this.onSwitchViewStateClick }>
+                    {` Switch to ${viewerState === viewerStates.draft ? 'Saved Mission' : 'Draft'}`}
+                </a>
             </div>
         )
     }
@@ -97,7 +145,8 @@ class MissionPlanner extends Component {
         const centerClass = !this.props.draftMissionStages.length ? cn.Center : '';
         return (            
             <div className={`${cn.Wrapper} ${centerClass}`}>
-                {this.props.draftMissionStages.length ? this.renderMissionPlanStages() : this.renderStartNewMissionButton()}
+                {this.renderHeader()}
+                {this.renderMissionPlanStages()}                
                 {this.renderSideBar()}
             </div>            
         )
@@ -107,7 +156,8 @@ class MissionPlanner extends Component {
 const mapStateToProps = (state) => {
     return {
         draftMissionStages: state.planner.draftMissionStages,
-        savedMissionPlan: state.planner.savedMissionPlan
+        savedMissionPlan: state.planner.savedMissionPlan,
+        viewerState: state.planner.viewerState
     }
 };
 
@@ -120,6 +170,8 @@ const mapDispachToProps = dispatch => {
         saveMissionPlan: () => dispatch({ type: actionTypes.SAVE_MISSION_PLAN }),
         removeDraftPlan: () => dispatch({ type: actionTypes.REMOVE_DRAFT_MISSION_PLAN }),
         removeSavedPlan: () => dispatch({ type: actionTypes.REMOVE_SAVED_MISSION_PLAN }),
+        toggleViewerState: () => dispatch({ type: actionTypes.TOGGLE_MISSION_PLAN_VIEWER_STATE }),
+        importPlanFromFile: () => dispatch(actions.importPlanFromFile()),
     }
 }
 

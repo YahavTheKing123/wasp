@@ -1,6 +1,8 @@
 import { showGlobalMessage } from './layoutActions';
-import { logSeverities } from '../../config';
+import config, { logSeverities } from '../../config';
 import { getService } from '../../services';
+import axios from 'axios';
+import actionTypes from './actionTypes';
 
 export const runSavedMissionPlan = () => {
     return (dispatch, getState) => {
@@ -51,4 +53,18 @@ export const runSavedMissionPlan = () => {
 
     };
 };
+
+export const importPlanFromFile = () => {    
+    return async (dispatch, getState) => {
+        try {
+            const response = await axios.get(config.urls.loadMission);
+            dispatch({ type: actionTypes.LOAD_DEFAULT_PLAN, payload: response.data }); 
+            dispatch(showGlobalMessage({ text: `Default plan loaded and saved successfully`, type: logSeverities.success, isRemoved: true }));            
+        } catch (e) {
+            dispatch(showGlobalMessage({ text: `Unable to load default plan`, type: logSeverities.error, isRemoved: true }));
+            console.log(e)
+        }        
+    };
+};
+
 

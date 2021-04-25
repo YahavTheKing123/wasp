@@ -1,0 +1,23 @@
+[
+	{
+	  "selectedStageType": {
+		"value": "Takeoff",
+		"label": "Takeoff",
+		"rossService": "addMissionTakeoff"
+	  },
+	  "stageParamsInput": "",
+	  "stageId": 90981
+	},
+	{
+	  "selectedStageType": {
+		"value": "Go To Waypoint",
+		"label": "Go To Waypoint",
+		"params": {
+		  "label": "Waypoint Values x,y,z:"
+		},
+		"rossService": "addMissionWP"
+	  },
+	  "stageParamsInput": "1,2,3",
+	  "stageId": 8883
+	}
+  ]

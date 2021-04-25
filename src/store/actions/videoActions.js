@@ -221,11 +221,13 @@ export const subscribeToWeaponDetection = () => {
             if(response && response.data) {
                 dispatch({ type: actionTypes.SET_MISSION_STATE, payload: { missionState: response.data } });
 
-                if (response.data === INDOOR_EXPLORATION) {
+                if (response.data &&  response.data.startsWith(INDOOR_EXPLORATION)) {
                     dispatch({ type: actionTypes.SET_INDOOR_EXPLORATION_FLAG });
-                } else if (response.data === INDOOR_EXPLORATION_THREAT) {
                     dispatch({ type: actionTypes.SET_WEAPON_DETECTION, payload: { weaponDetected: true } });                
-                    dispatch(showGlobalMessage({ text: `Threat Detected`, type: logSeverities.warn, isRemoved: true }));
+                    dispatch(showGlobalMessage({ text: `Threat Detected`, type: logSeverities.warn, isRemoved: true }));                    
+                } else if (response.data === INDOOR_EXPLORATION_THREAT) {
+                    // dispatch({ type: actionTypes.SET_WEAPON_DETECTION, payload: { weaponDetected: true } });                
+                    // dispatch(showGlobalMessage({ text: `Threat Detected`, type: logSeverities.warn, isRemoved: true }));
                 }
                                 
             }

@@ -12,6 +12,8 @@ export default class MissionPlanStages extends Component {
 
     render() {
         const {missionStages} = this.props;
+        const {isReadOnly} = this.props;
+
         return (
             <div className={cn.MissionStagesWrapper}>
                 {
@@ -20,7 +22,8 @@ export default class MissionPlanStages extends Component {
                                             <Stage
                                                 stageIndex={i}
                                                 stage={stage} 
-                                                isShowAddStageBtn={i === missionStages.length - 1}
+                                                isShowAddStageBtn={!isReadOnly &&  i === missionStages.length - 1}
+                                                isShowMenu={!isReadOnly}
                                             />
                                             {i !== missionStages.length - 1 ? this.renderArrow() : null}
                                         </React.Fragment>
