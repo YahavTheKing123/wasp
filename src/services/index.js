@@ -88,7 +88,29 @@ export function getService(serviceName) {
             ros: rosWebSocket.getRosWebsocketObject(),
             name: '/SkeletonDetector/Range',
             messageType: 'std_msgs/Float32'
-        }),                
+        }),
+        // Mission Plan Execute - state
+        doMissionReset: new window.ROSLIB.Service({
+            ros: rosWebSocket.getRosWebsocketObject(),
+            name: '/seeker/DoMissionReset',
+            serviceType: '/seeker/DoMissionReset'
+        }),
+        doMissionExecute: new window.ROSLIB.Service({
+            ros: rosWebSocket.getRosWebsocketObject(),
+            name: '/seeker/DoMissionExecute',
+            serviceType: '/seeker/DoMissionExecute'
+        }),
+        addMissionTakeoff: new window.ROSLIB.Service({
+            ros: rosWebSocket.getRosWebsocketObject(),
+            name: '/seeker/AddMissionTakeoff',
+            serviceType: '/seeker/AddMissionTakeoff'
+        }),
+        addMissionWP: new window.ROSLIB.Topic({
+            ros: rosWebSocket.getRosWebsocketObject(),
+            name: '/seeker/AddMissionWP',
+            messageType: 'geometry_msgs/Vector3'
+        }),        
+        // Mission Plan Execute - end
     }
 
     return services[serviceName];

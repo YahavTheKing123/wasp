@@ -1,7 +1,8 @@
 import actionTypes from '../actions/actionTypes';
 
 const initialState = {
-    missionStages: [],
+    draftMissionStages: [],
+    savedMissionPlan: []
 };
 
 function immutablySwapItems(items, firstIndex, secondIndex) {
@@ -17,20 +18,20 @@ const plannerReducer = (state = initialState, action) => {
         case actionTypes.ADD_NEW_MISSION_PLAN_STAGE:
             return {
                 ...state,
-                missionStages: [...state.missionStages, action.payload]
+                draftMissionStages: [...state.draftMissionStages, action.payload]
             }
         case actionTypes.DELETE_MISSION_PLAN_STAGE:
             return {
                 ...state,
-                missionStages: state.missionStages.filter(stage => stage.stageId !== action.payload.id)
+                draftMissionStages: state.draftMissionStages.filter(stage => stage.stageId !== action.payload.id)
             }
         case actionTypes.EDIT_MISSION_PLAN_STAGE: {
             return {
                 ...state,
-                missionStages: [
-                    ...state.missionStages.slice(0, action.payload.stageIndex),
+                draftMissionStages: [
+                    ...state.draftMissionStages.slice(0, action.payload.stageIndex),
                     action.payload.stage,
-                    ...state.missionStages.slice(action.payload.stageIndex + 1),
+                    ...state.draftMissionStages.slice(action.payload.stageIndex + 1),
                 ]
             }
         }
@@ -41,19 +42,40 @@ const plannerReducer = (state = initialState, action) => {
             // swapping the elements in immutable way:
             return {
                 ...state,
-                missionStages: immutablySwapItems(state.missionStages, currentStageIndex, currentStageIndex - 1)
+                draftMissionStages: immutablySwapItems(state.draftMissionStages, currentStageIndex, currentStageIndex - 1)
 
             }            
         }
         case actionTypes.MOVE_UP_MISSION_PLAN_STAGE: {
             const currentStageIndex = action.payload;
 
-            if (state.missionStages.length === 0 ||
-                currentStageIndex === state.missionStages.length - 1) return state;
+            if (state.draftMissionStages.length === 0 ||
+                currentStageIndex === state.draftMissionStages.length - 1) return state;
             // swapping the elements in immutable way:
             return {
                 ...state,
-                missionStages: immutablySwapItems(state.missionStages, currentStageIndex, currentStageIndex + 1)
+                draftMissionStages: immutablySwapItems(state.draftMissionStages, currentStageIndex, currentStageIndex + 1)
+            }            
+        }
+        case actionTypes.SAVE_MISSION_PLAN: {
+            // deep array clone
+            const savedMissionPlan = JSON.parse(JSON.stringify(state.draftMissionStages)); 
+
+            return {
+                ...state,
+                savedMissionPlan
+            }            
+        }
+        case actionTypes.REMOVE_DRAFT_MISSION_PLAN: {
+            return {
+                ...state,
+                draftMissionStages: []
+            }            
+        }
+        case actionTypes.REMOVE_SAVED_MISSION_PLAN: {
+            return {
+                ...state,
+                savedMissionPlan: []
             }            
         }
         default:

@@ -82,8 +82,9 @@
     position: relative;
     width: 2px;    
     height: 0;
-    border-bottom: 50px solid #ffffff80;
+    border-bottom: 0px solid #ffffff80;
     margin-bottom: 7px;
+    animation: arrow-grow 0.3s forwards;
 }
 
 .Arrow::after {
@@ -96,8 +97,18 @@
     border-top: 7px solid #ffffff80;
     left: 50%;
     top: 50px;
-    transform: translateX(-50%);
+    transform: translateX(-50%);    
 }
+
+@keyframes arrow-grow {
+    from {
+       border-bottom: 0px solid #ffffff80;
+    }
+    to {
+       border-bottom: 50px solid #ffffff80;
+    }
+}
+
 .LabelsWrapper {
 
 }

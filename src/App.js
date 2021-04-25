@@ -61,9 +61,12 @@ class App extends Component {
         return <Clock />;
     }
 
-    getMainHeader() {
-        if (this.props.history.location.pathname.includes('mission-planner')) return;
-        
+    formatPosition(value) {
+        if (!value) return null;
+        return Math.round(value);
+    }
+
+    getMainHeader() {    
         return (
             <header className={classNames.AppHeader}>
                 <div className={classNames.LogoWrapper} onClick={() => this.props.history.push('/')}>
@@ -85,16 +88,16 @@ class App extends Component {
                         <span className={`${classNames.Icon} ${classNames.PositionIcon}`}></span>
                         <span className={classNames.LongLatWrapper}>
                             <span>
-                                <span className={classNames.lonLatLabel}>easting:</span>
-                                <span className={classNames.lonLatValue}>{this.props.lastPosition.x || "N/A"}</span>
+                                <span className={classNames.lonLatLabel}>X:</span>
+                                <span className={classNames.lonLatValue}>{this.formatPosition(this.props.lastPosition.x) || "N/A"}</span>
                             </span>
                             <span>
-                                <span className={classNames.lonLatLabel}>norting:</span>
-                                <span className={classNames.lonLatValue}>{this.props.lastPosition.y ||  "N/A"}</span>
+                                <span className={classNames.lonLatLabel}>Y:</span>
+                                <span className={classNames.lonLatValue}>{this.formatPosition(this.props.lastPosition.y) ||  "N/A"}</span>
                             </span>
                             <span>
-                                <span className={classNames.lonLatLabel}>height:</span>
-                                <span className={classNames.lonLatValue}>{this.props.lastPosition.z ||  "N/A"}</span>
+                                <span className={classNames.lonLatLabel}>Z:</span>
+                                <span className={classNames.lonLatValue}>{this.formatPosition(this.props.lastPosition.z) ||  "N/A"}</span>
                             </span>
                         </span>
                     </span>
@@ -119,7 +122,7 @@ class App extends Component {
         const menuItemsList = [
             {
                 name: "Mission Planner Page",
-                func: () => this.props.history.push('/mission-planner'),
+                func: this.props.showMissionPlannerScreen,
                 iconCss: "MissionPlannerIcon"
             }
         ];
@@ -128,25 +131,24 @@ class App extends Component {
     }
 
     render() {
+        
         if (this.props.isLoading) {
             return <Loader loadingMessage={'initializing...'} />;
         }
+        
+        const plannerHiddenClass = this.props.isMissionPlanScreenHidden ? ` ${classNames.MissionPlannerHidden}` : '';
+
         return (            
                 <div className={classNames.App}>
                         <GlobalMessage />
                         {this.props.popupDetails ? <Popup popupDetails={this.props.popupDetails}/> : null}                
                         {this.props.contextMenu ? <ContextMenu contextMenu={this.props.contextMenu}/> : null}
-                        {this.getGeneralErrorPopup()}                
+                        {this.getGeneralErrorPopup()}
                         {this.getMainHeader()}
-                        <Main/>
-                        <div className={classNames.MissionPlannerOverlay}>
+                        <Main isMissionPlanScreenHidden={this.props.isMissionPlanScreenHidden}/>
+                        <div className={`${classNames.MissionPlannerOverlay}${plannerHiddenClass}`}>
                             <MissionPlanner/>
                         </div>
-                        {/* <Switch>            
-                            <Route exact path='/' render={()=> <Main/>} />              
-                            {<Route exact path='/mission-planner' render={()=> <MissionPlanner/>} />}
-                            <Route render={()=> <Main/>} />              
-                        </Switch>                     */}
                 </div>                        
         );
     }
@@ -157,7 +159,8 @@ const mapStateToProps = state => {
       contextMenu: state.layout.contextMenu,
       popupDetails: state.layout.popupDetails,
       missionState: state.output.missionState || 'N/A',
-      lastPosition: state.map.lastPosition || {}
+      lastPosition: state.map.lastPosition || {},
+      isMissionPlanScreenHidden: state.layout.isMissionPlanScreenHidden
     }
   };
 
@@ -166,6 +169,7 @@ const mapDispachToProps = (dispatch) => {
         setMapCoreSDKLoadedFlag: () => dispatch({type: actionTypes.SET_MAPCORE_SDK_LOADED_FLAG}),
         setMapToShow: groupNode => dispatch({type: actionTypes.SET_MAP_TO_SHOW, payload: groupNode}),
         showContextMenu: (x, y, items) => dispatch({ type: actionTypes.SHOW_CONTEXT_MENU, payload: { x, y, items } }),
+        showMissionPlannerScreen: () => dispatch({ type: actionTypes.SHOW_MISSION_PLANNER_SCREEN }),
     };
 };
 

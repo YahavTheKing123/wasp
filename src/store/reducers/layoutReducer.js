@@ -5,7 +5,8 @@ const initialState = {
     isRosWebsocketConncted: false,
     contextMenu: null,    //{x,y,menuItems}
     popupDetails: null,
-    imageSentToDroneData: null
+    imageSentToDroneData: null,
+    isMissionPlanScreenHidden: true
 };
 
 const layoutReducer = (state = initialState, action ) => {
@@ -67,13 +68,25 @@ const layoutReducer = (state = initialState, action ) => {
                 ...state,
                 popupDetails: null
             }        
-        }  
+        }
         case actionTypes.IMAGE_SENT_TO_DRONE: {
             return {
                 ...state,
                 imageSentToDroneData: action.payload
             }
-        }      
+        }
+        case actionTypes.SHOW_MISSION_PLANNER_SCREEN: {
+            return {
+                ...state,
+                isMissionPlanScreenHidden: false
+            }
+        }
+        case actionTypes.HIDE_MISSION_PLANNER_SCREEN: {
+            return {
+                ...state,
+                isMissionPlanScreenHidden: true
+            }        
+        }        
         default:
             return state;
     }

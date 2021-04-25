@@ -86,14 +86,19 @@ class Video extends Component {
     }
 
     onExitFullScreenClick = () => {
-        if (document.exitFullscreen) {
-            document.exitFullscreen();
-        } else if (document.webkitExitFullscreen) { /* Safari */
-            document.webkitExitFullscreen();
-        } else if (document.msExitFullscreen) { /* IE11 */
-            document.msExitFullscreen();
+        // bug when we are in full screen and click on ESC key
+        if (document.fullscreenElement === null) {
+            this.onFullScreenClick();
+        } else {
+            if (document.exitFullscreen) {
+                document.exitFullscreen();
+            } else if (document.webkitExitFullscreen) { /* Safari */
+                document.webkitExitFullscreen();
+            } else if (document.msExitFullscreen) { /* IE11 */
+                document.msExitFullscreen();
+            }
+            this.setState({ isFullScreen: false })
         }
-        this.setState({ isFullScreen: false })
     }
 
     getPlayOrPauseButton() {

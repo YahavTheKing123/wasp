@@ -26,7 +26,7 @@ class ContextMenu extends Component {
 
     getNewTop(top) {
       const menuHight = 35 * this.props.contextMenu.items.length;
-      if (top +  menuHight / 2 > document.body.offsetHeight) {        
+      if (top +  menuHight > document.body.offsetHeight) {        
         return top - menuHight;
       }
       return top;

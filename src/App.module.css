@@ -188,3 +188,9 @@
   background: var(--app-bg-color);
   z-index: 2;
 }
+
+.MissionPlannerOverlay.MissionPlannerHidden {
+    opacity: 0;
+    height: 0;
+    pointer-events: none;
+}

@@ -35,8 +35,10 @@ class GlobalMessage extends PureComponent {
     }
 
     renderNotification(notification) {
+        const missionPlannerOpenClass = this.props.isMissionPlanScreenHidden ? '' : ` ${classNames.MissionPlannerOpen}`;
+
         return (
-            <div className={classNames.Wrapper}>
+            <div className={`${classNames.Wrapper}${missionPlannerOpenClass}`}>
                 {this.renderIcon()}
                 {this.renderText(notification.text)}
             </div>
@@ -51,7 +53,8 @@ class GlobalMessage extends PureComponent {
 
 const mapStateToProps = (state) => {
     return {
-        appGlobalMessage: state.layout.appGlobalMessage
+        appGlobalMessage: state.layout.appGlobalMessage,
+        isMissionPlanScreenHidden: state.layout.isMissionPlanScreenHidden
     };
 };
 

@@ -67,6 +67,13 @@ class ActionButtons extends Component {
                         <span className={`${cn.Icon} ${cn.ResetIcon}`}></span>
                         <span className={cn.ButtonLabel}>Reset</span>
                     </button>
+                    {
+                        this.props.savedMissionPlan.length ? 
+                            (<button className={cn.Button} onClick={this.props.runSavedMissionPlan}>
+                                <span className={`${cn.Icon} ${cn.RunPlanIcon}`}></span>
+                                <span className={cn.ButtonLabel}>Run Saved Plan</span>
+                            </button>) : null
+                    }
             </div>
         )
     }
@@ -76,7 +83,8 @@ const mapStateToProps = (state) => {
     return {
         isPaused: state.video.isPaused,
         isRosWebsocketConncted: state.layout.isRosWebsocketConncted,
-        indoorExplorationFlag: state.output.indoorExplorationFlag
+        indoorExplorationFlag: state.output.indoorExplorationFlag,
+        savedMissionPlan: state.planner.savedMissionPlan,
     }
 };
 
@@ -88,6 +96,7 @@ const mapDispachToProps = dispatch => {
         restart: () => dispatch(actions.restart()),
         showPopup: details => dispatch({ type: actionTypes.SHOW_POPUP, payload: details }),
         goToLocation: location => dispatch(actions.goToLocation(location)),
+        runSavedMissionPlan: () => dispatch(actions.runSavedMissionPlan()),
     }
 }
 

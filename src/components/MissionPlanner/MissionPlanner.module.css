@@ -30,7 +30,9 @@
     left: 0;
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: space-between;
+    flex-direction: column;
+    padding: 40px 0;
 }
 
 .SidebarLabel {
@@ -41,11 +43,12 @@
     color: #f6ea74;
     background: #f6ea740f;
     padding: 20px 5px;
+    display: flex;
+    align-items: center;
+    margin: 10px;
 }
 
 .SideBarButtons {
-    position: absolute;
-    top: 40px;
     display: flex;
     flex-direction: column;
 }
@@ -76,5 +79,19 @@
 .Export {
     -webkit-mask-image: url('../../assets/images/downloadDoc.svg');
     mask-image: url('../../assets/images/downloadDoc.svg');
+}
 
+.Save {
+    -webkit-mask-image: url('../../assets/images/save.svg');
+    mask-image: url('../../assets/images/save.svg');
+}
+
+.Remove {
+    -webkit-mask-image: url('../../assets/images/delete.svg');
+    mask-image: url('../../assets/images/delete.svg');
+}
+
+.ClearStages {
+    -webkit-mask-image: url('../../assets/images/clear-list.svg');
+    mask-image: url('../../assets/images/clear-list.svg');
 }
