@@ -96,27 +96,51 @@ class MissionPlanner extends Component {
         this.props.importPlanFromFile();
     }
 
+    onExportMissionBtnClick = () => {
+        const {draftMissionStages, savedMissionPlan, viewerState} = this.props;
+        const plan = viewerState === viewerStates.draft ? draftMissionStages : savedMissionPlan;
+        this.props.exportPlanToFile(plan, viewerState);
+    }
+
+    renderDraftButtons(draftMissionStages) {
+        const buttons = [<button title='Back to Main' className={`${cn.SideBarBtn} ${cn.NavigateBack}`} onClick={this.onBackBtnClick}></button>];
+        
+        if (draftMissionStages.length > 0) {
+            buttons.push(<button title='Save Plan' className={`${cn.SideBarBtn} ${cn.Save}`} onClick={this.onSaveBtnClick}></button>)
+            buttons.push(<button title='Clear Draft Stages' className={`${cn.SideBarBtn} ${cn.ClearStages}`} onClick={this.onClearDraftBtnClick}></button>)
+            buttons.push(<button title='Download Draft' className={`${cn.SideBarBtn} ${cn.Export}`} onClick={this.onExportMissionBtnClick}></button>)
+        }                        
+        buttons.push(<button title='Load Mission Plan From File' className={`${cn.SideBarBtn} ${cn.Import}`} onClick={this.onLoadMissionBtnClick}></button>)
+
+        return buttons;
+    }
+
+    renderSavedPlanButtons(savedMissionPlan) {
+        const buttons = [<button title='Back to Main' className={`${cn.SideBarBtn} ${cn.NavigateBack}`} onClick={this.onBackBtnClick}></button>];
+
+        if (savedMissionPlan.length > 0) {
+            buttons.push(<button title='Remove Saved Plan' className={`${cn.SideBarBtn} ${cn.Remove}`} onClick={this.onRemoveSavedPlanBtnClick}></button>)
+            buttons.push(<button title='Download Saved Plan' className={`${cn.SideBarBtn} ${cn.Export}`} onClick={this.onExportMissionBtnClick}></button>)
+        }                        
+        buttons.push(<button title='Load Mission Plan From File' className={`${cn.SideBarBtn} ${cn.Import}`} onClick={this.onLoadMissionBtnClick}></button>)
+
+        return buttons;
+    }
+
+
     renderSideBar() {
-        const {draftMissionStages, savedMissionPlan} = this.props;
+        const {draftMissionStages, savedMissionPlan, viewerState} = this.props;
+        let buttons = [];
+        if (viewerState === viewerStates.draft) {
+            buttons = this.renderDraftButtons(draftMissionStages);
+        } else {
+            buttons = this.renderSavedPlanButtons(savedMissionPlan);
+        }
 
         return (
             <div className={cn.SideBar}>
                 <div className={cn.SideBarButtons}>
-                    <button title='Back to Main' className={`${cn.SideBarBtn} ${cn.NavigateBack}`} onClick={this.onBackBtnClick}></button>
-                    {
-                        draftMissionStages.length > 0 ? 
-                        <>
-                            <button title='Save Plan' className={`${cn.SideBarBtn} ${cn.Save}`} onClick={this.onSaveBtnClick}></button> 
-                            <button title='Clear Draft Stages' className={`${cn.SideBarBtn} ${cn.ClearStages}`} onClick={this.onClearDraftBtnClick}></button> 
-                            <button title='Download Draft' className={`${cn.SideBarBtn} ${cn.Export}`}></button>
-                        </> : null
-                    }
-                    {
-                        savedMissionPlan.length > 0 ?                         
-                            <button title='Remove Saved Plan' className={`${cn.SideBarBtn} ${cn.Remove}`} onClick={this.onRemoveSavedPlanBtnClick}></button>
-                            : null
-                    }                    
-                    <button title='Load Mission Plan From File' className={`${cn.SideBarBtn} ${cn.Import}`} onClick={this.onLoadMissionBtnClick}></button>
+                    {buttons}
                 </div>
                 <span className={cn.SidebarLabel}>Mission Planner</span>
             </div>
@@ -130,13 +154,16 @@ class MissionPlanner extends Component {
 
     renderHeader() {
         const {viewerState} = this.props;
-
+        const icon = viewerState === viewerStates.draft ? ` ${cn.DraftIcon}` : ` ${cn.SavedPlanIcon}`
         return (
             <div className={cn.Header}>
-                {viewerState === viewerStates.draft ? 'Viewing Mission Draft -  ' : 'Viewing Saved Mission - '} 
-                <a className={cn.HeaderBtn} href={'#'} onClick={this.onSwitchViewStateClick }>
-                    {` Switch to ${viewerState === viewerStates.draft ? 'Saved Mission' : 'Draft'}`}
-                </a>
+                <span></span>
+                <span className={cn.HeaderTextWrapper}>
+                    <span className={cn.HeaderTextState}>{viewerState === viewerStates.draft ? 'Mission Draft' : 'Saved Mission'}</span>
+                    <a className={cn.HeaderBtn} href={'#'} onClick={this.onSwitchViewStateClick }>
+                        {` View ${viewerState === viewerStates.draft ? 'Saved Mission' : 'Draft Mission'}`}
+                    </a>
+                </span>
             </div>
         )
     }
@@ -172,6 +199,7 @@ const mapDispachToProps = dispatch => {
         removeSavedPlan: () => dispatch({ type: actionTypes.REMOVE_SAVED_MISSION_PLAN }),
         toggleViewerState: () => dispatch({ type: actionTypes.TOGGLE_MISSION_PLAN_VIEWER_STATE }),
         importPlanFromFile: () => dispatch(actions.importPlanFromFile()),
+        exportPlanToFile: (plan, viewerState) => dispatch(actions.exportPlanToFile(plan, viewerState)),
     }
 }
 

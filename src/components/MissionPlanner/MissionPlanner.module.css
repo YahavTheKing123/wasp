@@ -54,22 +54,62 @@
 }
 
 .Header {
-    border: 1px solid rgba(255,255,255,0.5);
+    border: 1px solid #363636;
     position: absolute;
     left: 80px;
-    top: 40px;
-    padding: 15px 25px;
+    top: 30px;
+    padding: 15px;
     border-radius: 2px;
     color: rgba(255,255,255,0.7);
     display: flex;
-    align-items: center;
     justify-content: center;
     font-size: 15px;
+    background: #303030;
+    box-shadow: 0px 8px 15px rgb(0 0 0 / 10%);    
+    min-width: 185px;
 }
 
 .HeaderBtn {
-    color: #ffffff;
-    margin-left: 5px;
+    color: #4599ff;
+    margin-top: 7px;
+    text-align: center;
+    font-size: 14px;
+    text-decoration: none;
+}
+
+.HeaderIcon {    
+    width: 32px;
+    height: 32px;
+    background-color: #cbcbcb;
+    mask-position: center;
+    mask-repeat: no-repeat;
+    -webkit-mask-position: center;
+    -webkit-mask-repeat: no-repeat;
+    cursor: pointer;
+    margin-right: 10px;
+    display: flex;
+    margin: auto;
+}
+.HeaderTextWrapper {
+    display: flex;
+    flex-direction: column;
+    margin-left: 15px;
+    margin-right: 10px;
+}
+
+.HeaderTextState {
+    display: flex;
+    justify-content: center;
+}
+
+.DraftIcon {
+    -webkit-mask-image: url('../../assets/images/document.svg');
+    mask-image: url('../../assets/images/document.svg');
+}
+
+.SavedPlanIcon {
+    -webkit-mask-image: url('../../assets/images/document-done.svg');
+    mask-image: url('../../assets/images/document-done.svg');
 }
 
 .SideBarBtn {    

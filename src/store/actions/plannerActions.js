@@ -55,15 +55,32 @@ export const runSavedMissionPlan = () => {
 };
 
 export const importPlanFromFile = () => {    
-    return async (dispatch, getState) => {
+    return async (dispatch) => {
         try {
             const response = await axios.get(config.urls.loadMission);
             dispatch({ type: actionTypes.LOAD_DEFAULT_PLAN, payload: response.data }); 
-            dispatch(showGlobalMessage({ text: `Default plan loaded and saved successfully`, type: logSeverities.success, isRemoved: true }));            
+            dispatch(showGlobalMessage({ text: `Default plan loaded successfully`, type: logSeverities.success, isRemoved: true }));            
         } catch (e) {
             dispatch(showGlobalMessage({ text: `Unable to load default plan`, type: logSeverities.error, isRemoved: true }));
             console.log(e)
         }        
+    };
+};
+
+export const exportPlanToFile = (plan, viewerState) => {    
+    return async (dispatch) => {
+        try {            
+            const url = 'data:text/json;charset=utf8,' + encodeURIComponent(JSON.stringify(plan));
+            const downloadAnchor = document.createElement('a');
+            downloadAnchor.setAttribute("href", url);
+            downloadAnchor.setAttribute("download", `${viewerState}.json`);
+            document.body.appendChild(downloadAnchor);
+            downloadAnchor.click();
+            downloadAnchor.remove();
+        } catch (e) {
+            dispatch(showGlobalMessage({ text: `Unable to load default plan`, type: logSeverities.error, isRemoved: true }));
+            console.log(e)
+        }
     };
 };
 

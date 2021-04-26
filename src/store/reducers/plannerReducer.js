@@ -91,11 +91,19 @@ const plannerReducer = (state = initialState, action) => {
             }            
         }
         case actionTypes.LOAD_DEFAULT_PLAN: {
-            return {
-                ...state,
-                savedMissionPlan: action.payload,
-                viewerState: viewerStates.savedMission
-            }            
+
+            if (state.viewerState === viewerStates.savedMission) {
+                return {
+                    ...state,
+                    savedMissionPlan: action.payload                
+                }   
+            } else {
+                return {
+                    ...state,
+                    draftMissionStages: action.payload                
+                }   
+            }
+         
         }
         default:
             return state;
