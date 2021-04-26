@@ -70,7 +70,7 @@ export const importPlanFromFile = () => {
 export const exportPlanToFile = (plan, viewerState) => {    
     return async (dispatch) => {
         try {            
-            const url = 'data:text/json;charset=utf8,' + encodeURIComponent(JSON.stringify(plan));
+            const url = 'data:text/json;charset=utf8,' + encodeURIComponent(JSON.stringify(plan, null, 2));
             const downloadAnchor = document.createElement('a');
             downloadAnchor.setAttribute("href", url);
             downloadAnchor.setAttribute("download", `${viewerState}.json`);
