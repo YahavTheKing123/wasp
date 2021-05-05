@@ -12,21 +12,21 @@ class Popup extends PureComponent {
     componentDidMount() {
         document.addEventListener('keydown', this.handleKeyDown);
     }
-    
+
     componentWillUnmount() {
         document.removeEventListener('keydown', this.handleKeyDown);
     }
 
-    handleKeyDown = (e) =>{             
-        if (e.keyCode === this.EscKey){
-            this.closePopup();   
+    handleKeyDown = (e) => {
+        if (e.keyCode === this.EscKey) {
+            this.closePopup();
         } else if ((e.keyCode === this.EnterKey) && this.props.popupDetails.primayButton && this.props.popupDetails.primayButton.callback) {
             this.props.popupDetails.primayButton.callback();
             this.closePopup();
         }
     }
 
-    closePopup = () => {        
+    closePopup = () => {
         if (this.props.popupDetails && this.props.popupDetails.onCloseButtonClick) {
             this.props.popupDetails.onCloseButtonClick();
         }
@@ -42,8 +42,8 @@ class Popup extends PureComponent {
         return (
             this.props.hideXButton ? null :
                 <a className={cn.Close} href="#" onClick={this.onCloseBtnClick}>
-                    <img className={cn.closeBtn} src={closeImg}/>
-                </a> 
+                    <img className={cn.closeBtn} src={closeImg} />
+                </a>
         );
     }
     closePopup() {
@@ -73,13 +73,26 @@ class Popup extends PureComponent {
         //default primary button in case no other button was injected as props
         let primaryButton = <button type="button" className={`${cn.Btn} ${cn.BtnPrimary}`} onClick={this.onPrimaryBtnClick}>Close</button>;
         let secondaryButton = null;
+        const popupDetails = this.props.popupDetails;
 
-        if (this.props.popupDetails.primayButton) {
-            primaryButton = <button type="button" className={`${cn.FormButton} ${cn.Apply}`} onClick={this.onPrimaryBtnClick}>{this.props.popupDetails.primayButton.title}</button>;
+        if (popupDetails.primayButton) {
+            let disabled = popupDetails.primayButton.disabled;
+            primaryButton =
+                <button type="button"
+                    className={`${cn.FormButton} ${cn.Apply} ${disabled ? cn.Disabled : ""}`}
+                    onClick={disabled ? undefined : this.onPrimaryBtnClick}>
+                    {popupDetails.primayButton.title}
+                </button>;
         }
 
-        if (this.props.popupDetails.secondaryButton) {
-            secondaryButton = <button type="button" className={`${cn.FormButton}`} onClick={this.onSecondaryBtnClick}>{this.props.popupDetails.secondaryButton.title}</button>
+        if (popupDetails.secondaryButton) {
+            let disabled = popupDetails.secondaryButton.disabled;
+            secondaryButton =
+                <button type="button"
+                    className={`${cn.FormButton}   ${disabled ? cn.Disabled : ""}`}
+                    onClick={disabled ? undefined : this.onSecondaryBtnClick}>
+                    {popupDetails.secondaryButton.title}
+                </button>
         }
 
         return (
@@ -94,7 +107,7 @@ class Popup extends PureComponent {
         return (
 
             <div className={cn.PopupFooter}>
-                <div>         
+                <div>
                     {this.renderButtons()}
                 </div>
             </div>
@@ -105,8 +118,8 @@ class Popup extends PureComponent {
         return (
             <div className={cn.PopupHeader}>
                 <div className={cn.PopupHeaderWrapper}>
-                    <h2 className={cn.h2}>{this.props.popupDetails.title}</h2>                                            
-                    {this.getXBtn()}                    
+                    <h2 className={cn.h2}>{this.props.popupDetails.title}</h2>
+                    {this.getXBtn()}
                 </div>
             </div>
         );
@@ -114,7 +127,7 @@ class Popup extends PureComponent {
 
     renderChild() {
         const Child = PopupChildren[this.props.popupDetails.modalChild];
-        return <Child {...this.props.popupDetails.modalChildProps}/>;
+        return <Child {...this.props.popupDetails.modalChildProps} />;
     }
 
     getBody() {
@@ -129,28 +142,30 @@ class Popup extends PureComponent {
 
     render() {
         if (!this.props.popupDetails) return null;
-        
+        let visibility = this.props.isPointSelectionMode ? { visibility: "hidden" } : {};
         const size = this.props.popupDetails.size ? cn[this.props.popupDetails.size] : '';
         return (
-            <div className={cn.Overlay}>
-                <div className={`${cn.Popup} ${size}`}>
+            <div className={cn.Overlay} >
+                <div className={`${cn.Popup} ${size}`} style={visibility}>
                     {this.getHeader()}
                     {this.getBody()}
                     {this.getFooter()}
                 </div>
             </div>
-        )           
+        )
     }
 }
 
 const mapStateToProps = state => {
-    return {                
+    return {
+        isPointSelectionMode: state.layout.isPointSelectionMode
     }
 };
 
 const mapDispachToProps = dispatch => {
     return {
-      hidePopup: () => dispatch({type: actionTypes.HIDE_POPUP})
+        hidePopup: () => dispatch({ type: actionTypes.HIDE_POPUP })
+
     }
 }
 

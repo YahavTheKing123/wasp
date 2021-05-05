@@ -101,3 +101,7 @@
     max-width: 550px;
     min-width: 0;
   }
+
+  .Disabled{
+    visibility: hidden;
+  }

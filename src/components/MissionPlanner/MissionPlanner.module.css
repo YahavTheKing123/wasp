@@ -2,7 +2,10 @@
     display: flex;    
     justify-content: center;
     height: 100%;
-    position: relative;
+    position: absolute;
+    left: 50px;
+    right: 0;
+    
 }
 
 .Center {
@@ -41,7 +44,6 @@
     text-transform: uppercase;
     letter-spacing: 8px;
     color: #f6ea74;
-    background: #f6ea740f;
     padding: 20px 5px;
     display: flex;
     align-items: center;

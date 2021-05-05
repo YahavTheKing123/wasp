@@ -14,6 +14,7 @@ class GoToLocationForm extends Component {
           this.inputRef.current.focus();
         }
     }
+
     
     onValueChange = e => {        
         const newValue = e.target.value;
@@ -24,6 +25,7 @@ class GoToLocationForm extends Component {
     }
 
     render() {
+        console.log(this.props)
         return (            
             <div className={cn.Wrapper}>                
                 <Input 

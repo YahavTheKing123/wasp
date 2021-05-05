@@ -32,10 +32,10 @@ export default class Main extends Component {
 
     render() {
 
-        const hiddenClass = !this.props.isMissionPlanScreenHidden ? ` ${classNames.Hidden}` : '';
+        //const hiddenClass = !this.props.isMissionPlanScreenHidden ? ` ${classNames.Hidden}` : '';
 
         return (
-            <div className={`${classNames.MainContentWrapper}${hiddenClass}`}>
+            <div className={`${classNames.MainContentWrapper}`}>
                 <div className={`${classNames.Split} ${classNames.Left}`}>
                     {this.getMainLeftPane()}
                 </div>

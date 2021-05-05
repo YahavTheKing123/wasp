@@ -1,7 +1,36 @@
 .Wrapper {
     min-height: 200px;
 }
+.InputWrapper {
+    display: flex;
+}
 
 .Row + .Row{
     margin-top: 25px;
+}
+
+.InnerInputWrapper:nth-child(n+2) {
+    margin-left:5px;  
+ }
+ .Label {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    position: relative;
+    font-size: 14px;
+    margin-bottom: 10px;
+}
+
+.Icon {
+    height: 30px;
+    width: 30px;
+    background-position: center;
+    background-repeat: no-repeat;    
+    background-size: cover;        
+    cursor: pointer;    
+        padding-right: 15px;
+  }
+  
+.PositionIcon {
+    background-image: url(../../../assets/images/position.svg);
 }
