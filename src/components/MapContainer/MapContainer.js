@@ -934,7 +934,6 @@ class MapContainer extends PureComponent {
         if (this.viewport.GetWindowHandle() != e.target) {
             return;
         }
-        debugger;
         let EventPixel = window.MapCore.SMcPoint(e.offsetX, e.offsetY);
         let buttons = this.mouseDownButtons & ~e.buttons;
         if (this.bEdit) {
