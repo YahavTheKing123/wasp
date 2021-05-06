@@ -159,6 +159,10 @@ class MissionPlanner extends Component {
         this.props.toggleViewerState();
     }
 
+    getSwithBtnTitle(viewerState) {
+        return `View ${viewerState === viewerStates.draft ? 'Saved Mission' : 'Draft Mission'}`;
+    }
+
     renderHeader() {
         const { viewerState } = this.props;
         const icon = viewerState === viewerStates.draft ? ` ${cn.DraftIcon}` : ` ${cn.SavedPlanIcon}`
@@ -167,8 +171,8 @@ class MissionPlanner extends Component {
                 <span></span>
                 <span className={cn.HeaderTextWrapper}>
                     <span className={cn.HeaderTextState}>{viewerState === viewerStates.draft ? 'Mission Draft' : 'Saved Mission'}</span>
-                    <a className={cn.HeaderBtn} href={'#'} onClick={this.onSwitchViewStateClick}>
-                        {` View ${viewerState === viewerStates.draft ? 'Saved Mission' : 'Draft Mission'}`}
+                    <a href={'#'} className={cn.HeaderBtnWrapper} onClick={this.onSwitchViewStateClick} title={this.getSwithBtnTitle(viewerState)}>
+                        <span className={cn.HeaderBtn}></span>
                     </a>
                 </span>
             </div>
