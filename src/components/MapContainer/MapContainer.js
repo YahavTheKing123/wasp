@@ -75,6 +75,8 @@ class MapContainer extends PureComponent {
     droneScheme = null;
     lineScheme = null;
     textScheme = null;
+    locationScheme = null;
+    pinPointScheme = null;
 
     OriginAngle = 0;
     WorkingOrigin = null;
@@ -82,7 +84,7 @@ class MapContainer extends PureComponent {
     DroneObject = null;
     DroneRouteObject = null;
     SelectedMissionPointObject = null
-    MissionCoordinates = [];
+    MissionPointsObjects = [];
 
     componentDidMount() {
         window.addEventListener('resize', this.resizeCanvases);
@@ -136,7 +138,9 @@ class MapContainer extends PureComponent {
 
     CreateMapcoreObjects = () => {
         this.LoadMapcoreObject("lineScheme", "LineScheme.m");
-        this.LoadMapcoreObject("droneScheme", "ScreenPicture-Scheme.m");
+        this.LoadMapcoreObject("droneScheme", "Drone.m");
+        this.LoadMapcoreObject("locationScheme", "Location.m");
+        this.LoadMapcoreObject("pinPointScheme", "PinPoint.m");
         this.LoadMapcoreObject("textScheme", "TextScheme.m");
     }
 
@@ -161,10 +165,10 @@ class MapContainer extends PureComponent {
                 alert("There is no item marked for editing (with ID = 1000)");
                 return null;
             }
-
+          //  pItem.SetWidth(pItem.GetWidth()*1.5);
+          //  pItem.SetHeight(pItem.GetHeight()*1.5);
             // create object
             let pObject = window.MapCore.IMcObject.Create(this.overlay, scheme);
-
             // start EditMode action
             this.editMode.StartInitObject(pObject, pItem);
 
@@ -175,12 +179,12 @@ class MapContainer extends PureComponent {
     }
 
     selectMissionPointFromMap = () => {
-        this.SelectedMissionPointObject = this.StartEditMode(this.textScheme);
+        this.SelectedMissionPointObject = this.StartEditMode(this.pinPointScheme);
     }
 
     SetWorkingOrigin = () => {
         this.RemoveDroneData();
-        this.WorkingOrigin = this.StartEditMode(this.textScheme);
+        this.WorkingOrigin = this.StartEditMode(this.locationScheme);
     }
 
     DrawDroneObjects() {
@@ -869,8 +873,9 @@ class MapContainer extends PureComponent {
                 }
             }
         }
-
         let EventPixel = window.MapCore.SMcPoint(e.offsetX, e.offsetY);
+        let ret =  this.screenToWorld(e.offsetX, e.offsetY);
+
         this.mouseDownButtons = e.buttons;
         if (e.buttons == 1) {
             let bHandled = {};
@@ -887,7 +892,7 @@ class MapContainer extends PureComponent {
                     y: Math.round(locationPoints.y),
                     z: Math.round(locationPoints.z),
                 });
-                this.SelectedMissionPointObject.Remove();
+                this.MissionPointsObjects.push(this.SelectedMissionPointObject);
                 this.SelectedMissionPointObject = null;
             }
 
