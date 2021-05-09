@@ -1,39 +1,41 @@
 import React, { Component } from 'react'
 import cn from './MissionPlanner.module.css';
-import {connect} from 'react-redux';
+import { connect } from 'react-redux';
 import actionTypes from '../../store/actions/actionTypes';
 import actions from '../../store/actions';
 import MissionPlanStages from './MissionPlanStages/MissionPlanStages';
-import {withRouter} from 'react-router-dom';
-import {logSeverities} from '../../config';
-import {viewerStates} from '../../store/reducers/plannerReducer';
+import { withRouter } from 'react-router-dom';
+import { logSeverities } from '../../config';
+import { viewerStates } from '../../store/reducers/plannerReducer';
 
 class MissionPlanner extends Component {
 
     addMissionPlanStageFormPopupOkBtnClick = () => {
         const addStageState = this.getAddMissionPlanStageFormState();
-        if (addStageState) {
+        if (addStageState && addStageState.selectedStageType) {
             this.props.addNewStage(addStageState)
         }
     }
 
     onStartNewMissionClick = () => {
         const popupDetails = {
-            title: 'Add First Stage',            
+            title: 'Add First Stage',
             modalChild: 'AddMissionPlanStageForm',
             modalChildProps: {
                 size: 'small',
-                onPopupInitalLoad: getChildState => this.getAddMissionPlanStageFormState = getChildState
+                onPopupInitalLoad: getChildState => this.getAddMissionPlanStageFormState = getChildState,
+                selectPointFromMap: this.selectPointFromMap,
             },
             onCloseButtonClick: () => {
             },
             primayButton: {
                 title: 'Add',
+                disabled : false,
                 callback: this.addMissionPlanStageFormPopupOkBtnClick
             },
             secondaryButton: {
                 title: 'Cancel',
-                callback: () => {}
+                callback: () => { }
             }
         };
         this.props.showPopup(popupDetails);
@@ -47,34 +49,38 @@ class MissionPlanner extends Component {
 
 
     renderMissionPlanStages() {
-        
 
-        const {viewerState, draftMissionStages, savedMissionPlan} =  this.props;
+
+        const { viewerState, draftMissionStages, savedMissionPlan } = this.props;
         if (viewerState === viewerStates.draft) {
             return (
-                    draftMissionStages.length ? 
-                    <MissionPlanStages 
+                draftMissionStages.length ?
+                    <MissionPlanStages
                         missionStages={viewerState === viewerStates.draft ? draftMissionStages : savedMissionPlan}
                         isReadOnly={viewerState === viewerStates.savedMission}
-                    /> : 
+                    /> :
                     this.renderStartNewMissionButton()
             )
         } else {
             // saved mission plan flow
             return (
-                savedMissionPlan.length > 0 ? 
-                <MissionPlanStages 
-                    missionStages={viewerState === viewerStates.draft ? draftMissionStages : savedMissionPlan}
-                    isReadOnly={viewerState === viewerStates.savedMission}
-                /> : 
-                <div className={cn.EmptyPlanStagesMessage}>
-                    No Saved Plan in Memory
+                savedMissionPlan.length > 0 ?
+                    <MissionPlanStages
+                        missionStages={viewerState === viewerStates.draft ? draftMissionStages : savedMissionPlan}
+                        isReadOnly={viewerState === viewerStates.savedMission}
+                    /> :
+                    <div className={cn.EmptyPlanStagesMessage}>
+                        No Saved Plan in Memory
                 </div>
             )
-        }         
+        }
     }
 
-    onBackBtnClick = () => {        
+    selectPointFromMap = () => {
+        this.props.togglePointSelectionMode();
+    }
+
+    onBackBtnClick = () => {
         this.props.hideMissionPlannerScreen();
     }
 
@@ -87,54 +93,55 @@ class MissionPlanner extends Component {
         this.props.removeDraftPlan();
     }
 
-    onRemoveSavedPlanBtnClick = () => {        
+    onRemoveSavedPlanBtnClick = () => {
         this.props.removeSavedPlan();
         this.props.showGlobalMessage('Mission Plan Successfuly Removed');
     }
-    
+
     onLoadMissionBtnClick = () => {
         this.props.importPlanFromFile();
     }
 
     onExportMissionBtnClick = () => {
-        const {draftMissionStages, savedMissionPlan, viewerState} = this.props;
+        const { draftMissionStages, savedMissionPlan, viewerState } = this.props;
         const plan = viewerState === viewerStates.draft ? draftMissionStages : savedMissionPlan;
         this.props.exportPlanToFile(plan, viewerState);
     }
 
     renderDraftButtons(draftMissionStages) {
-        const buttons = [<button title='Back to Main' className={`${cn.SideBarBtn} ${cn.NavigateBack}`} onClick={this.onBackBtnClick}></button>];
-        
+        const buttons = [];
+
         if (draftMissionStages.length > 0) {
-            buttons.push(<button title='Save Plan' className={`${cn.SideBarBtn} ${cn.Save}`} onClick={this.onSaveBtnClick}></button>)
-            buttons.push(<button title='Clear Draft Stages' className={`${cn.SideBarBtn} ${cn.ClearStages}`} onClick={this.onClearDraftBtnClick}></button>)
-            buttons.push(<button title='Download Draft' className={`${cn.SideBarBtn} ${cn.Export}`} onClick={this.onExportMissionBtnClick}></button>)
-        }                        
-        buttons.push(<button title='Load Mission Plan From File' className={`${cn.SideBarBtn} ${cn.Import}`} onClick={this.onLoadMissionBtnClick}></button>)
+            buttons.push(<button title='Save Plan' className={`${cn.SideBarBtn} ${cn.Save}`} onClick={this.onSaveBtnClick}/>)
+            buttons.push(<button title='Clear Draft Stages' className={`${cn.SideBarBtn} ${cn.ClearStages}`} onClick={this.onClearDraftBtnClick}/>)
+            buttons.push(<button title='Download Draft' className={`${cn.SideBarBtn} ${cn.Export}`} onClick={this.onExportMissionBtnClick}/>)
+        }
+        buttons.push(<button title='Load Mission Plan From File' className={`${cn.SideBarBtn} ${cn.Import}`} onClick={this.onLoadMissionBtnClick}/>)
 
         return buttons;
     }
 
     renderSavedPlanButtons(savedMissionPlan) {
-        const buttons = [<button title='Back to Main' className={`${cn.SideBarBtn} ${cn.NavigateBack}`} onClick={this.onBackBtnClick}></button>];
+        const buttons = [];
 
         if (savedMissionPlan.length > 0) {
-            buttons.push(<button title='Remove Saved Plan' className={`${cn.SideBarBtn} ${cn.Remove}`} onClick={this.onRemoveSavedPlanBtnClick}></button>)
-            buttons.push(<button title='Download Saved Plan' className={`${cn.SideBarBtn} ${cn.Export}`} onClick={this.onExportMissionBtnClick}></button>)
-        }                        
-        buttons.push(<button title='Load Mission Plan From File' className={`${cn.SideBarBtn} ${cn.Import}`} onClick={this.onLoadMissionBtnClick}></button>)
+            buttons.push(<button title='Remove Saved Plan' className={`${cn.SideBarBtn} ${cn.Remove}`} onClick={this.onRemoveSavedPlanBtnClick}/>)
+            buttons.push(<button title='Download Saved Plan' className={`${cn.SideBarBtn} ${cn.Export}`} onClick={this.onExportMissionBtnClick}/>)
+        }
+        buttons.push(<button title='Load Mission Plan From File' className={`${cn.SideBarBtn} ${cn.Import}`} onClick={this.onLoadMissionBtnClick}/>)
 
         return buttons;
     }
 
 
     renderSideBar() {
-        const {draftMissionStages, savedMissionPlan, viewerState} = this.props;
-        let buttons = [];
+        const { draftMissionStages, savedMissionPlan, viewerState } = this.props;
+        let buttons = [<button title='Back to Main' className={`${cn.SideBarBtn} ${cn.ClosePlanner}`} onClick={this.onBackBtnClick}/>];
+        ;
         if (viewerState === viewerStates.draft) {
-            buttons = this.renderDraftButtons(draftMissionStages);
+            buttons.push(...this.renderDraftButtons(draftMissionStages));
         } else {
-            buttons = this.renderSavedPlanButtons(savedMissionPlan);
+            buttons.push(...this.renderSavedPlanButtons(savedMissionPlan));
         }
 
         return (
@@ -152,16 +159,20 @@ class MissionPlanner extends Component {
         this.props.toggleViewerState();
     }
 
+    getSwithBtnTitle(viewerState) {
+        return `View ${viewerState === viewerStates.draft ? 'Saved Mission' : 'Draft Mission'}`;
+    }
+
     renderHeader() {
-        const {viewerState} = this.props;
+        const { viewerState } = this.props;
         const icon = viewerState === viewerStates.draft ? ` ${cn.DraftIcon}` : ` ${cn.SavedPlanIcon}`
         return (
             <div className={cn.Header}>
                 <span></span>
                 <span className={cn.HeaderTextWrapper}>
                     <span className={cn.HeaderTextState}>{viewerState === viewerStates.draft ? 'Mission Draft' : 'Saved Mission'}</span>
-                    <a className={cn.HeaderBtn} href={'#'} onClick={this.onSwitchViewStateClick }>
-                        {` View ${viewerState === viewerStates.draft ? 'Saved Mission' : 'Draft Mission'}`}
+                    <a href={'#'} className={cn.HeaderBtnWrapper} onClick={this.onSwitchViewStateClick} title={this.getSwithBtnTitle(viewerState)}>
+                        <span className={cn.HeaderBtn}></span>
                     </a>
                 </span>
             </div>
@@ -170,13 +181,14 @@ class MissionPlanner extends Component {
 
     render() {
         const centerClass = !this.props.draftMissionStages.length ? cn.Center : '';
-        return (            
-            <div className={`${cn.Wrapper} ${centerClass}`}>
-                {this.renderHeader()}
-                {this.renderMissionPlanStages()}                
+        return (
+            <>
                 {this.renderSideBar()}
-            </div>            
-        )
+                <div className={`${cn.Wrapper} ${centerClass}`}>
+                    {this.renderHeader()}
+                    {this.renderMissionPlanStages()}
+                </div>
+            </>)
     }
 }
 
@@ -191,7 +203,7 @@ const mapStateToProps = (state) => {
 const mapDispachToProps = dispatch => {
     return {
         showPopup: details => dispatch({ type: actionTypes.SHOW_POPUP, payload: details }),
-        showGlobalMessage: text => dispatch(actions.showGlobalMessage({text, type: logSeverities.success, isRemoved: true})),
+        showGlobalMessage: text => dispatch(actions.showGlobalMessage({ text, type: logSeverities.success, isRemoved: true })),
         addNewStage: stage => dispatch({ type: actionTypes.ADD_NEW_MISSION_PLAN_STAGE, payload: stage }),
         hideMissionPlannerScreen: () => dispatch({ type: actionTypes.HIDE_MISSION_PLANNER_SCREEN }),
         saveMissionPlan: () => dispatch({ type: actionTypes.SAVE_MISSION_PLAN }),
@@ -200,6 +212,7 @@ const mapDispachToProps = dispatch => {
         toggleViewerState: () => dispatch({ type: actionTypes.TOGGLE_MISSION_PLAN_VIEWER_STATE }),
         importPlanFromFile: () => dispatch(actions.importPlanFromFile()),
         exportPlanToFile: (plan, viewerState) => dispatch(actions.exportPlanToFile(plan, viewerState)),
+        togglePointSelectionMode: () => dispatch({ type: actionTypes.TOGGLE_POINT_SELECTION_MODE}),
     }
 }
 

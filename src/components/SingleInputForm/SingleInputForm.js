@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
-import cn from './GoToLocationForm.module.css';
+import cn from './SingleInputForm.module.css';
 import {connect} from 'react-redux';
 import Input from '../controls/Input/Input';
 
-class GoToLocationForm extends Component {
+class SingleInputForm extends Component {
     inputRef = React.createRef()
     state = {
         value: ''
@@ -14,6 +14,7 @@ class GoToLocationForm extends Component {
           this.inputRef.current.focus();
         }
     }
+
     
     onValueChange = e => {        
         const newValue = e.target.value;
@@ -28,9 +29,10 @@ class GoToLocationForm extends Component {
             <div className={cn.Wrapper}>                
                 <Input 
                     parentRef={this.inputRef}
-                    value={this.state.value}
+                    value={this.state.value || this.props.defaultValue}
                     onChange={this.onValueChange}
-                    label={'Location To Go:'} />
+                    placeHolder= {this.props.placeHolder || ""}
+                    label={this.props.label} />
             </div>
         );
     }
@@ -51,4 +53,4 @@ const mapDispachToProps = dispatch => {
 export default connect(
     mapStateToProps,
     mapDispachToProps
-)(GoToLocationForm)
+)(SingleInputForm)

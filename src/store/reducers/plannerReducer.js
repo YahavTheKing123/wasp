@@ -8,7 +8,8 @@ export const viewerStates = {
 const initialState = {    
     draftMissionStages: [],
     savedMissionPlan: [],
-    viewerState: viewerStates.draft
+    viewerState: viewerStates.draft,
+
 };
 
 function immutablySwapItems(items, firstIndex, secondIndex) {
@@ -105,6 +106,7 @@ const plannerReducer = (state = initialState, action) => {
             }
          
         }
+
         default:
             return state;
     }

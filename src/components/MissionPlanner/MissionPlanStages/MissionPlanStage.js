@@ -13,15 +13,22 @@ class MissionPlanStage extends Component {
                 <span className={cn.BtnIconBall}></span>
             </span>
         )
-    }   
+    }
 
     addOrEditMissionPlanStageFormPopupOkBtnClick = (isAddStage) => {
         const addOrEditStageFormState = this.getAddMissionPlanStageFormState();
-        if (isAddStage) {
-            this.props.addNewStage(addOrEditStageFormState);
-        } else {
-            this.props.editStage(addOrEditStageFormState, this.props.stageIndex);        
+        debugger;
+        if (addOrEditStageFormState.selectedStageType) {
+            if (isAddStage) {
+                this.props.addNewStage(addOrEditStageFormState);
+            } else {
+                this.props.editStage(addOrEditStageFormState, this.props.stageIndex);
+            }
         }
+    }
+
+    selectPointFromMap = () => {
+        this.props.togglePointSelectionMode();
     }
 
     onAddOrEditStageBtnClicked = (isAddStage = false) => {
@@ -31,16 +38,18 @@ class MissionPlanStage extends Component {
             modalChildProps: {
                 stage: isAddStage ? null : this.props.stage,
                 size: 'small',
-                onPopupInitalLoad: getChildState => this.getAddMissionPlanStageFormState = getChildState
+                onPopupInitalLoad: getChildState => this.getAddMissionPlanStageFormState = getChildState,
+                selectPointFromMap: this.selectPointFromMap,
+
             },
-            onCloseButtonClick: () => {},
+            onCloseButtonClick: () => { },
             primayButton: {
                 title: 'Done',
                 callback: () => this.addOrEditMissionPlanStageFormPopupOkBtnClick(isAddStage)
             },
             secondaryButton: {
                 title: 'Cancel',
-                callback: () => {}
+                callback: () => { }
             }
         };
         this.props.showPopup(popupDetails);
@@ -73,7 +82,7 @@ class MissionPlanStage extends Component {
             },
         ];
 
-        this.props.showContextMenu(e.clientX, e.clientY, {side: 'right'}, menuItemsList);
+        this.props.showContextMenu(e.clientX, e.clientY, { side: 'left' }, menuItemsList);
     }
 
     renderAddNewStageBtn() {
@@ -84,7 +93,7 @@ class MissionPlanStage extends Component {
     }
 
     renderMenuBtn() {
-        const {isShowMenu} = this.props;
+        const { isShowMenu } = this.props;
         if (!isShowMenu) return null;
         return (
             <button className={cn.MenuBtn} onClick={this.onMenuBtnClick}>{this.renderMenuBtnIcon()}</button>
@@ -92,33 +101,34 @@ class MissionPlanStage extends Component {
     }
 
     render() {
-        const {selectedStageType, stageParamsInput} = this.props.stage;
+        const { selectedStageType, stageParamsInput } = this.props.stage;
 
         return (
             <div className={cn.StageWrapper}>
-                {this.renderMenuBtn()}                
+                {this.renderMenuBtn()}
                 <div className={cn.LabelsWrapper}>
-                    <div className={cn.StageTypeLabel}>{selectedStageType.label}</div>                
+                    <div className={cn.StageTypeLabel}>{selectedStageType.label}</div>
                     <div className={cn.StageParamsLabel}>{stageParamsInput}</div>
                 </div>
-                {this.renderAddNewStageBtn()}                
+                {this.renderAddNewStageBtn()}
             </div>
         )
     }
 }
 
 const mapStateToProps = (state) => ({
-    
+
 })
 
 const mapDispachToProps = (dispatch) => {
     return {
         showPopup: details => dispatch({ type: actionTypes.SHOW_POPUP, payload: details }),
-        showContextMenu: (x, y, options, items) => dispatch({ type: actionTypes.SHOW_CONTEXT_MENU, payload: { x, y, options ,items } }),
-        deleteStage: id => dispatch({ type: actionTypes.DELETE_MISSION_PLAN_STAGE, payload: { id }}),
-        editStage: (stage, index) => dispatch({ type: actionTypes.EDIT_MISSION_PLAN_STAGE, payload: {stage, stageIndex: index}}),
-        moveStageDown: (index) => dispatch({ type: actionTypes.MOVE_DOWN_MISSION_PLAN_STAGE, payload: index}),
-        moveStageUp: (index) => dispatch({ type: actionTypes.MOVE_UP_MISSION_PLAN_STAGE, payload: index}),
+        togglePointSelectionMode: () => dispatch({ type: actionTypes.TOGGLE_POINT_SELECTION_MODE }),
+        showContextMenu: (x, y, options, items) => dispatch({ type: actionTypes.SHOW_CONTEXT_MENU, payload: { x, y, options, items } }),
+        deleteStage: id => dispatch({ type: actionTypes.DELETE_MISSION_PLAN_STAGE, payload: { id } }),
+        editStage: (stage, index) => dispatch({ type: actionTypes.EDIT_MISSION_PLAN_STAGE, payload: { stage, stageIndex: index } }),
+        moveStageDown: (index) => dispatch({ type: actionTypes.MOVE_DOWN_MISSION_PLAN_STAGE, payload: index }),
+        moveStageUp: (index) => dispatch({ type: actionTypes.MOVE_UP_MISSION_PLAN_STAGE, payload: index }),
         addNewStage: stage => dispatch({ type: actionTypes.ADD_NEW_MISSION_PLAN_STAGE, payload: stage }),
     };
 };

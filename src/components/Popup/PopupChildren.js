@@ -1,8 +1,8 @@
-import GoToLocationForm from '../GoToLocationForm/GoToLocationForm';
+import SingleInputForm from '../SingleInputForm/SingleInputForm';
 import AddMissionPlanStageForm from '../MissionPlanner/AddMissionPlanStageForm/AddMissionPlanStageForm';
 
 const popupChildren = {
-        GoToLocationForm,
+        SingleInputForm,
         AddMissionPlanStageForm,
 };
 

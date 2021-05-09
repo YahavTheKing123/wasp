@@ -1,7 +1,39 @@
 .Wrapper {
     min-height: 200px;
 }
+.InputWrapper {
+    display: flex;
+}
 
 .Row + .Row{
     margin-top: 25px;
+}
+
+.InnerInputWrapper {
+    width: 100%; 
+ }
+.InnerInputWrapper:nth-child(n+2) {
+    margin-left:5px;  
+ }
+ .Label {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    position: relative;
+    font-size: 14px;
+}
+
+.Icon {
+    height: 34px;
+    width: 34px;
+    background-position: center;
+    background-repeat: no-repeat;    
+    background-size: cover;        
+    cursor: pointer;    
+    padding-right: 15px;
+    margin-top: 10px;
+  }
+  
+.PositionIcon {
+    background-image: url(../../../assets/images/position.svg);
 }
