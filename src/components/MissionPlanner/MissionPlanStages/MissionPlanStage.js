@@ -17,10 +17,13 @@ class MissionPlanStage extends Component {
 
     addOrEditMissionPlanStageFormPopupOkBtnClick = (isAddStage) => {
         const addOrEditStageFormState = this.getAddMissionPlanStageFormState();
-        if (isAddStage) {
-            this.props.addNewStage(addOrEditStageFormState);
-        } else {
-            this.props.editStage(addOrEditStageFormState, this.props.stageIndex);
+        debugger;
+        if (addOrEditStageFormState.selectedStageType) {
+            if (isAddStage) {
+                this.props.addNewStage(addOrEditStageFormState);
+            } else {
+                this.props.editStage(addOrEditStageFormState, this.props.stageIndex);
+            }
         }
     }
 
@@ -37,6 +40,7 @@ class MissionPlanStage extends Component {
                 size: 'small',
                 onPopupInitalLoad: getChildState => this.getAddMissionPlanStageFormState = getChildState,
                 selectPointFromMap: this.selectPointFromMap,
+
             },
             onCloseButtonClick: () => { },
             primayButton: {
@@ -78,7 +82,7 @@ class MissionPlanStage extends Component {
             },
         ];
 
-        this.props.showContextMenu(e.clientX, e.clientY, { side: 'right' }, menuItemsList);
+        this.props.showContextMenu(e.clientX, e.clientY, { side: 'left' }, menuItemsList);
     }
 
     renderAddNewStageBtn() {

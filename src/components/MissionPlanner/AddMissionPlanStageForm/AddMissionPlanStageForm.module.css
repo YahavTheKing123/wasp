@@ -9,6 +9,9 @@
     margin-top: 25px;
 }
 
+.InnerInputWrapper {
+    width: 100%; 
+ }
 .InnerInputWrapper:nth-child(n+2) {
     margin-left:5px;  
  }
@@ -18,17 +21,17 @@
     width: 100%;
     position: relative;
     font-size: 14px;
-    margin-bottom: 10px;
 }
 
 .Icon {
-    height: 30px;
-    width: 30px;
+    height: 34px;
+    width: 34px;
     background-position: center;
     background-repeat: no-repeat;    
     background-size: cover;        
     cursor: pointer;    
-        padding-right: 15px;
+    padding-right: 15px;
+    margin-top: 10px;
   }
   
 .PositionIcon {

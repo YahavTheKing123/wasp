@@ -12,7 +12,7 @@ class MissionPlanner extends Component {
 
     addMissionPlanStageFormPopupOkBtnClick = () => {
         const addStageState = this.getAddMissionPlanStageFormState();
-        if (addStageState) {
+        if (addStageState && addStageState.selectedStageType) {
             this.props.addNewStage(addStageState)
         }
     }
@@ -136,7 +136,7 @@ class MissionPlanner extends Component {
 
     renderSideBar() {
         const { draftMissionStages, savedMissionPlan, viewerState } = this.props;
-        let buttons = [<button title='Back to Main' className={`${cn.SideBarBtn} ${cn.NavigateBack}`} onClick={this.onBackBtnClick}/>];
+        let buttons = [<button title='Back to Main' className={`${cn.SideBarBtn} ${cn.ClosePlanner}`} onClick={this.onBackBtnClick}/>];
         ;
         if (viewerState === viewerStates.draft) {
             buttons.push(...this.renderDraftButtons(draftMissionStages));

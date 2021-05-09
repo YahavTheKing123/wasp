@@ -13,9 +13,11 @@ class ActionButtons extends Component {
     goToLocation = () => {
         const popupDetails = {
             title: 'Go To Location',            
-            modalChild: 'GoToLocationForm',            
+            modalChild: 'SingleInputForm',            
             modalChildProps: {
                 size: 'small',
+                label: "Set Location:",
+                placeHolder: "x,y,z",
                 onValueChange: value => this.tempLocationValue = value
             },
             onCloseButtonClick: () => {

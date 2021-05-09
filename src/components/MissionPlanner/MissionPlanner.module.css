@@ -141,9 +141,9 @@
     font-size: 20px;
 }
 
-.NavigateBack {
-    -webkit-mask-image: url('../../assets/images/arrowLeft.svg');
-    mask-image: url('../../assets/images/arrowLeft.svg');
+.ClosePlanner {
+    -webkit-mask-image: url('../../assets/images/close.svg');
+    mask-image: url('../../assets/images/close.svg');
 }
 .Import {
     -webkit-mask-image: url('../../assets/images/uploadDoc.svg');

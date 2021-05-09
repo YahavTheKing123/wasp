@@ -7,6 +7,7 @@ import externalConfig from '../../ExternalConfigurationHandler';
 import actionTypes from '../../store/actions/actionTypes';
 import actions from '../../store/actions';
 import SwitchMapForm from '../SwitchMapForm/SwitchMapForm';
+import * as geoCalculations from '../../utils/geoCalculations';
 
 class SLayerGroup {
     constructor(coordSystemString, bShowGeoInMetricProportion, bSetTerrainBoxByStaticLayerOnly, InitialScale2D) {
@@ -78,7 +79,7 @@ class MapContainer extends PureComponent {
     locationScheme = null;
     pinPointScheme = null;
 
-    OriginAngle = 0;
+    TempOriginAngle = 0;
     WorkingOrigin = null;
     DroneRouteCoordinates = [];
     DroneObject = null;
@@ -124,6 +125,7 @@ class MapContainer extends PureComponent {
         if (this.WorkingOrigin) {
             this.WorkingOrigin.Remove();
             this.WorkingOrigin = null;
+            this.props.saveOriginCoordinate(null);
         }
         if (this.DroneObject) {
             this.DroneObject.Remove();
@@ -165,8 +167,8 @@ class MapContainer extends PureComponent {
                 alert("There is no item marked for editing (with ID = 1000)");
                 return null;
             }
-          //  pItem.SetWidth(pItem.GetWidth()*1.5);
-          //  pItem.SetHeight(pItem.GetHeight()*1.5);
+            //  pItem.SetWidth(pItem.GetWidth()*1.5);
+            //  pItem.SetHeight(pItem.GetHeight()*1.5);
             // create object
             let pObject = window.MapCore.IMcObject.Create(this.overlay, scheme);
             // start EditMode action
@@ -188,15 +190,10 @@ class MapContainer extends PureComponent {
     }
 
     DrawDroneObjects() {
-        const locationPoints = this.WorkingOrigin.GetLocationPoints()[0];
-        let coordinate = {
-            x: locationPoints.x,
-            y: locationPoints.y,
-            z: locationPoints.z
-        }
-        this.DroneRouteCoordinates.push(coordinate);
-        this.DroneObject = window.MapCore.IMcObject.Create(this.overlay, this.droneScheme, [coordinate]);
-        this.DroneRouteObject = window.MapCore.IMcObject.Create(this.overlay, this.lineScheme, [coordinate]);
+        const originCoordinate = this.props.originCoordinate;
+        this.DroneRouteCoordinates.push(originCoordinate);
+        this.DroneObject = window.MapCore.IMcObject.Create(this.overlay, this.droneScheme, [originCoordinate]);
+        this.DroneRouteObject = window.MapCore.IMcObject.Create(this.overlay, this.lineScheme, [originCoordinate]);
     }
 
     MoveDrone = () => {
@@ -210,44 +207,25 @@ class MapContainer extends PureComponent {
             return;
         }
 
-        const offset = this.props.dronePositionOffset;
-        const origin = this.WorkingOrigin.GetLocationPoints()[0];
-        const newCoordinate = this.calculateOffsetWithAngle(origin, offset);
+
+        const offsetWithAngle = geoCalculations.calculateOffsetWithAngle(this.props.dronePositionOffset, this.props.workingOrigin.angle);
+        const coordinateWithOffset = geoCalculations.addCoordinates(this.props.workingOrigin.cooridante, offsetWithAngle);
 
         if (this.DroneRouteCoordinates.length > 0) {
             let prevCoordinate = this.DroneRouteCoordinates[this.DroneRouteCoordinates.length - 1];
-            if (this.calculateDistance(prevCoordinate, newCoordinate) < config.MIN_DRONE_DISTANCE_MOVE) { //too small distance , not importent
+            if (geoCalculations.calculateDistanceBetween2Points(prevCoordinate, coordinateWithOffset) < config.MIN_DRONE_DISTANCE_MOVE) { //too small distance , not importent
                 return;
             }
         }
 
-        this.DroneRouteCoordinates.push(newCoordinate);
+        this.DroneRouteCoordinates.push(coordinateWithOffset);
 
-        this.DroneObject.UpdateLocationPoints([newCoordinate]);
+        this.DroneObject.UpdateLocationPoints([coordinateWithOffset]);
         let prevRoute = this.DroneRouteObject;
         this.DroneRouteObject = window.MapCore.IMcObject.Create(this.overlay, this.lineScheme, this.DroneRouteCoordinates);
         this.DroneRouteObject.SetState([2])
         prevRoute.Remove();
-        this.props.updateDroneLastCoordiante(newCoordinate);
-    }
-
-    calculateDistance(p1, p2) {
-        var a = p2.x - p1.x;
-        var b = p2.y - p1.y;
-        var c = p2.z - p1.z;
-
-        return Math.sqrt(a * a + b * b + c * c);
-    }
-
-    calculateOffsetWithAngle(origin, offset) {
-        const radians = this.OriginAngle * Math.PI / 180;
-        let x = offset.x;
-        let y = offset.y;
-        return {
-            x: origin.x + x * Math.cos(radians) - y * Math.sin(radians),
-            y: origin.y + x * Math.sin(radians) + y * Math.cos(radians),
-            z: origin.z + offset.z
-        }
+        this.props.saveDroneLastCoordinate(coordinateWithOffset);
     }
 
 
@@ -271,6 +249,25 @@ class MapContainer extends PureComponent {
                 }
             );
     }
+
+    OnEditClickWorkingOrigin = () => {
+        if (this.WorkingOrigin && this.WorkingOrigin.GetLocationPoints().length > 0) {
+            const originCoordinate = geoCalculations.roundCoordinate(this.WorkingOrigin.GetLocationPoints()[0],  config.COORDINATE_DECIMALS_PRECISION);
+            this.props.saveOriginCoordinate(originCoordinate, this.TempOriginAngle);
+            this.props.saveDroneLastCoordinate(originCoordinate);
+        }
+    }
+    OnEditClickMissionPoint = () => {
+        if (this.SelectedMissionPointObject && this.SelectedMissionPointObject.GetLocationPoints().length > 0) {
+            this.props.togglePointSelectionMode();
+            const locationPoints = this.SelectedMissionPointObject.GetLocationPoints()[0];
+            this.props.selectPointFromMap(geoCalculations.roundCoordinate(locationPoints, config.COORDINATE_DECIMALS_PRECISION));
+            this.MissionPointsObjects.push(this.SelectedMissionPointObject);
+        }
+        
+        this.SelectedMissionPointObject = null;
+    }
+    
 
     parseLayersConfiguration(jsonLayerGroups) {
         try {
@@ -874,27 +871,21 @@ class MapContainer extends PureComponent {
             }
         }
         let EventPixel = window.MapCore.SMcPoint(e.offsetX, e.offsetY);
-        let ret =  this.screenToWorld(e.offsetX, e.offsetY);
+        let ret = this.screenToWorld(e.offsetX, e.offsetY);
 
         this.mouseDownButtons = e.buttons;
         if (e.buttons == 1) {
             let bHandled = {};
             let eCursor = {};
             this.editMode.OnMouseEvent(window.MapCore.IMcEditMode.EMouseEvent.EME_BUTTON_PRESSED, EventPixel, e.ctrlKey, 0, bHandled, eCursor);
-            if (!this.state.workingOriginSelected && this.WorkingOrigin && this.WorkingOrigin.GetLocationPoints().length > 0) {
-                this.setState({ workingOriginSelected: true });
+
+            if (this.props.isPointSelectionMode) {
+                this.OnEditClickMissionPoint();
             }
-            if (this.SelectedMissionPointObject && this.SelectedMissionPointObject.GetLocationPoints().length > 0) {
-                this.props.togglePointSelectionMode();
-                const locationPoints = this.SelectedMissionPointObject.GetLocationPoints()[0];
-                this.props.selectPointFromMap({
-                    x: Math.round(locationPoints.x),
-                    y: Math.round(locationPoints.y),
-                    z: Math.round(locationPoints.z),
-                });
-                this.MissionPointsObjects.push(this.SelectedMissionPointObject);
-                this.SelectedMissionPointObject = null;
+            else if (!this.props.workingOrigin || !this.props.workingOrigin.coordinate) {
+                this.OnEditClickWorkingOrigin();
             }
+
 
             if (bHandled.Value) {
                 e.preventDefault();
@@ -1838,17 +1829,19 @@ class MapContainer extends PureComponent {
                 is3DClicked: !this.state.is3DClicked
             }, () => this.openMap(this.props.mapToShow.groupName, this.state.is3DClicked))
     }
-    setAngle = (value) => {
-        this.OriginAngle = value;
+    setTempAngle = (value) => {
+        this.TempOriginAngle = value;
     }
 
     setOriginAngle = () => {
         const popupDetails = {
             title: 'Set Origin Angle',
-            modalChild: 'GoToLocationForm',
+            modalChild: 'SingleInputForm',
             modalChildProps: {
                 size: 'small',
-                onValueChange: this.setAngle
+                label: 'Set Angle(degrees ,North = 0):',
+                defaultValue: 0,
+                onValueChange: this.setTempAngle
             },
             onCloseButtonClick: () => {
             },
@@ -1858,9 +1851,7 @@ class MapContainer extends PureComponent {
             },
             secondaryButton: {
                 title: 'Cancel',
-                callback: () => {
-                    this.OriginAngle = 0
-                }
+                callback: () => this.setTempAngle(0)
             }
         };
         this.props.showPopup(popupDetails);
@@ -1952,8 +1943,8 @@ const mapStateToProps = (state) => {
         isMapCoreSDKLoaded: state.map.isMapCoreSDKLoaded,
         mapToShow: state.map.mapToShow,
         dronePositionOffset: state.map.dronePositionOffset,
+        workingOrigin: state.map.workingOrigin,
         isPointSelectionMode: state.layout.isPointSelectionMode
-
     };
 };
 
@@ -1963,7 +1954,8 @@ const mapDispachToProps = (dispatch) => {
         closeContextMenu: () => dispatch({ type: actionTypes.CLOSE_CONTEXT_MENU }),
         subscribeToDroneData: () => dispatch(actions.subscribeToDroneData()),
         showPopup: details => dispatch({ type: actionTypes.SHOW_POPUP, payload: details }),
-        updateDroneLastCoordiante: (lastPosition) => dispatch({ type: actionTypes.UPDATE_DRONE_LAST_POSITION, payload: { lastPosition } }),
+        saveOriginCoordinate: (coordinate, angle) => dispatch({ type: actionTypes.SAVE_ORIGIN_COORDINATE, payload: { coordinate, angle } }),
+        saveDroneLastCoordinate: (lastPosition) => dispatch({ type: actionTypes.SAVE_DRONE_LAST_POSITION, payload: { lastPosition } }),
         togglePointSelectionMode: () => dispatch({ type: actionTypes.TOGGLE_POINT_SELECTION_MODE }),
         selectPointFromMap: (pointFromMap) => dispatch({ type: actionTypes.SELECT_POINT_FROM_MAP, payload: { pointFromMap } }),
     };
