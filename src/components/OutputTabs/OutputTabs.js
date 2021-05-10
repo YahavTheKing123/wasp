@@ -23,6 +23,10 @@ class OutputTabs extends Component {
 
     }
 
+    componentWillUnmount() {
+        window.removeEventListener('resize', this.onImageLoaded())
+    }
+
       onImageLoaded = (e) => {
         if (!this.props.imageSentToDroneData || !this.props.imageSentToDroneData.point) {
             console.log("Error, this.props.imageSentToDroneData.point as it is undefined");
@@ -49,6 +53,7 @@ class OutputTabs extends Component {
             const img = document.createElement('img');
             img.onload = this.onImageLoaded;
             img.src = this.props.imageSentToDroneData.image;
+            window.addEventListener('resize', () => this.onImageLoaded({target: img}))
         }
 
         if (prevProps.weaponDetected !== this.props.weaponDetected) {
