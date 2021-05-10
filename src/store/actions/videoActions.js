@@ -43,8 +43,8 @@ export const pointVideoImage = ev => {
 
         const img = document.getElementById('droneImage');
         // Adjusting pixel to original img sizes
-        const adjustedX = (ev.pageX - img.getBoundingClientRect().x) / img.width * img.naturalWidth;
-        const adjustedY = (ev.pageY - img.getBoundingClientRect().y) / img.height * img.naturalHeight;
+        let adjustedX = (ev.pageX - img.getBoundingClientRect().x) / img.width * img.naturalWidth;
+        let adjustedY = (ev.pageY - img.getBoundingClientRect().y) / img.height * img.naturalHeight;
 
         console.log(adjustedX, adjustedY);
 
