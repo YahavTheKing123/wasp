@@ -105,10 +105,10 @@ export function getService(serviceName) {
             name: '/seeker/AddMissionTakeoff',
             serviceType: '/seeker/AddMissionTakeoff'
         }),
-        addMissionWP: new window.ROSLIB.Topic({
+        addMissionWP: new window.ROSLIB.Service({
             ros: rosWebSocket.getRosWebsocketObject(),
             name: '/seeker/AddMissionWP',
-            messageType: 'geometry_msgs/Vector3'
+            serviceType: '/seeker/AddMissionWP'
         }),        
         // Mission Plan Execute - end
     }
