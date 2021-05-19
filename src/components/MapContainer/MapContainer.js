@@ -108,7 +108,6 @@ class MapContainer extends PureComponent {
             this.CreateMapcoreObjects();
             this.RemoveDroneData();
         }
-
         if (this.state.workingOriginSelected &&
             this.props.dronePositionOffset &&
             (prevProps.dronePositionOffset != this.props.dronePositionOffset)) {
@@ -190,7 +189,7 @@ class MapContainer extends PureComponent {
     }
 
     DrawDroneObjects() {
-        const originCoordinate = this.props.originCoordinate;
+        const originCoordinate = this.props.workingOrigin.coordinate;
         this.DroneRouteCoordinates.push(originCoordinate);
         this.DroneObject = window.MapCore.IMcObject.Create(this.overlay, this.droneScheme, [originCoordinate]);
         this.DroneRouteObject = window.MapCore.IMcObject.Create(this.overlay, this.lineScheme, [originCoordinate]);
@@ -207,9 +206,8 @@ class MapContainer extends PureComponent {
             return;
         }
 
-
         const offsetWithAngle = geoCalculations.calculateOffsetWithAngle(this.props.dronePositionOffset, this.props.workingOrigin.angle);
-        const coordinateWithOffset = geoCalculations.addCoordinates(this.props.workingOrigin.cooridante, offsetWithAngle);
+        const coordinateWithOffset = geoCalculations.addCoordinates(this.props.workingOrigin.coordinate, offsetWithAngle);
 
         if (this.DroneRouteCoordinates.length > 0) {
             let prevCoordinate = this.DroneRouteCoordinates[this.DroneRouteCoordinates.length - 1];
@@ -252,6 +250,7 @@ class MapContainer extends PureComponent {
 
     OnEditClickWorkingOrigin = () => {
         if (this.WorkingOrigin && this.WorkingOrigin.GetLocationPoints().length > 0) {
+            this.setState({workingOriginSelected : true})
             const originCoordinate = geoCalculations.roundCoordinate(this.WorkingOrigin.GetLocationPoints()[0],  config.COORDINATE_DECIMALS_PRECISION);
             this.props.saveOriginCoordinate(originCoordinate, this.TempOriginAngle);
             this.props.saveDroneLastCoordinate(originCoordinate);
@@ -261,6 +260,7 @@ class MapContainer extends PureComponent {
         if (this.SelectedMissionPointObject && this.SelectedMissionPointObject.GetLocationPoints().length > 0) {
             this.props.togglePointSelectionMode();
             const locationPoints = this.SelectedMissionPointObject.GetLocationPoints()[0];
+            locationPoints.z = config.DEFAULT_MISSION_POINT_HEIGHT;
             this.props.selectPointFromMap(geoCalculations.roundCoordinate(locationPoints, config.COORDINATE_DECIMALS_PRECISION));
             this.MissionPointsObjects.push(this.SelectedMissionPointObject);
         }
