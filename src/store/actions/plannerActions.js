@@ -16,7 +16,11 @@ export const runSavedMissionPlan = () => {
 
         promises.push(
             new Promise((resolve) => {
-                getService('doMissionReset').callService(requestMissionReset, (result) => resolve('doMissionReset',result));
+                getService('doMissionReset').callService(requestMissionReset, (result) => {
+                    console.log('doMissionReset', "success");
+                    resolve('doMissionReset', result)
+                }
+                );
             })
         )
 
@@ -33,10 +37,12 @@ export const runSavedMissionPlan = () => {
                         const [x, y, z] = stage.stageParamsInput.split(',');
                         const offset = geoCalculations.getCoordinatesOffset(workingOrigin.coordinate, { x, y, z });
                         const offsetWithAngle = geoCalculations.calculateOffsetWithAngle(offset, -(workingOrigin.angle));
-                        payload = new window.ROSLIB.Message({
-                            x: parseFloat(offsetWithAngle.x),
-                            y: parseFloat(offsetWithAngle.y),
-                            z: parseFloat(offsetWithAngle.z)
+                        payload = new window.ROSLIB.ServiceRequest({
+                            coordinate: {
+                                x: offsetWithAngle.x,
+                                y: offsetWithAngle.y,
+                                z: 1 // z
+                            }
                         });
                         break;
 
@@ -50,11 +56,14 @@ export const runSavedMissionPlan = () => {
 
                 promises.push(
                     new Promise((resolve) => {
-                        getService(rossService).callService(payload, (result) => resolve(rossService,result));
+                        getService(rossService).callService(payload, (result) => {
+                            console.log(rossService, "success");
+                            resolve(rossService, result)
+                        });
                     })
                 )
             }
-         
+
 
         });
 
@@ -62,18 +71,21 @@ export const runSavedMissionPlan = () => {
         const requestMissionExecute = new window.ROSLIB.ServiceRequest({});
         promises.push(
             new Promise((resolve) => {
-                getService('doMissionExecute').callService(requestMissionExecute,  (result) => resolve("doMissionExecute", result));
+                getService('doMissionExecute').callService(requestMissionExecute, (result) => {
+                    console.log('doMissionExecute', "success");
+                    resolve("doMissionExecute", result)
+                });
             })
         )
-
+        
         promises.reduce((promiseChain, currentTask) => {
             return promiseChain.then(chainResults =>
                 currentTask.then(currentResult =>
-                    [ ...chainResults, currentResult ]
+                    [...chainResults, currentResult]
                 )
             );
         }, Promise.resolve([])).then(arrayOfResults => {
-            console.log("MissionResults",arrayOfResults)
+            console.log("MissionResults", arrayOfResults)
         }).catch(alert);
 
     };

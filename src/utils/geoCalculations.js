@@ -11,8 +11,8 @@ export function calculateOffsetWithAngle(offset, angle) {
     let y = offset.y;
     let z = offset.z;
     return {
-        x: x * Math.cos(radians) - y * Math.sin(radians),
-        y: x * Math.sin(radians) + y * Math.cos(radians),
+        x: - x * Math.sin(radians) - y * Math.cos(radians),
+        y: x * Math.cos(radians) - y * Math.sin(radians),
         z: z
     }
 }
@@ -29,9 +29,9 @@ export function addCoordinates(c1, c2) {
 export function getCoordinatesOffset(originCoordinate, coordinate) {
 
     return {
-        x: coordinate.x - originCoordinate.x,
-        y: coordinate.y - originCoordinate.y,
-        z: coordinate.z - originCoordinate.z
+        x: coordinate.y - originCoordinate.y,
+        y: -(coordinate.x - originCoordinate.x) ,
+        z: coordinate.z
     }
 }
 
