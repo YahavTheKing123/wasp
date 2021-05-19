@@ -8,52 +8,73 @@ import * as geoCalculations from '../../utils/geoCalculations';
 export const runSavedMissionPlan = () => {
     return (dispatch, getState) => {
         dispatch(showGlobalMessage({ text: `Starting to execute planned mission`, type: logSeverities.info, isRemoved: true }));
-
+        let promises = [];
+        let payload;
         // 1. reset
         const requestMissionReset = new window.ROSLIB.ServiceRequest({});
-        getService('doMissionReset').callService(requestMissionReset, function (result) { });
 
+
+        promises.push(
+            new Promise((resolve) => {
+                getService('doMissionReset').callService(requestMissionReset, (result) => resolve('doMissionReset',result));
+            })
+        )
 
         // 2. mission plan stages
         const missionStages = getState().planner.savedMissionPlan;
+        console.log("stages", missionStages);
         const workingOrigin = getState().map.workingOrigin;
-        missionStages.forEach(stage => {
 
+        missionStages.forEach(stage => {
             const { rossService } = stage.selectedStageType;
             if (rossService) {
                 switch (rossService) {
                     case 'addMissionWP':
-
                         const [x, y, z] = stage.stageParamsInput.split(',');
                         const offset = geoCalculations.getCoordinatesOffset(workingOrigin.coordinate, { x, y, z });
                         const offsetWithAngle = geoCalculations.calculateOffsetWithAngle(offset, -(workingOrigin.angle));
-                        debugger;
-
-                        const pointMessage = new window.ROSLIB.Message({
+                        payload = new window.ROSLIB.Message({
                             x: parseFloat(offsetWithAngle.x),
                             y: parseFloat(offsetWithAngle.y),
                             z: parseFloat(offsetWithAngle.z)
                         });
-
-                        getService(rossService).publish(pointMessage);
                         break;
 
                     case 'addMissionTakeoff':
-                        const stageRequest = new window.ROSLIB.ServiceRequest({});
-                        getService(rossService).callService(stageRequest, function (result) { });
+                        payload = new window.ROSLIB.ServiceRequest({});
                         break;
                     default:
+                        payload = null;
                         break;
                 }
+
+                promises.push(
+                    new Promise((resolve) => {
+                        getService(rossService).callService(payload, (result) => resolve(rossService,result));
+                    })
+                )
             }
+         
 
         });
 
         // 3. execute
         const requestMissionExecute = new window.ROSLIB.ServiceRequest({});
-        getService('doMissionExecute').callService(requestMissionExecute, function (result) { });
+        promises.push(
+            new Promise((resolve) => {
+                getService('doMissionExecute').callService(requestMissionExecute,  (result) => resolve("doMissionExecute", result));
+            })
+        )
 
-
+        promises.reduce((promiseChain, currentTask) => {
+            return promiseChain.then(chainResults =>
+                currentTask.then(currentResult =>
+                    [ ...chainResults, currentResult ]
+                )
+            );
+        }, Promise.resolve([])).then(arrayOfResults => {
+            console.log("MissionResults",arrayOfResults)
+        }).catch(alert);
 
     };
 };
