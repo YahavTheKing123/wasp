@@ -43,9 +43,9 @@ export const runSavedMissionPlan = () => {
                         const offsetWithAngle = geoCalculations.calculateOffsetWithAngle(offset, -(workingOrigin.angle));
                         serviceRequest = new window.ROSLIB.ServiceRequest({
                             coordinate: {
-                                x: offsetWithAngle.x,
-                                y: offsetWithAngle.y,
-                                z: 1 // z
+                                x: offsetWithAngle.y,
+                                y: offsetWithAngle.x,
+                                z: offsetWithAngle.z
                             }
                         });
                         break;
