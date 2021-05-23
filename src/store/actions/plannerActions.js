@@ -5,31 +5,35 @@ import axios from 'axios';
 import actionTypes from './actionTypes';
 import * as geoCalculations from '../../utils/geoCalculations';
 
+
+
+function asyncCallRossService(serviceName, params) {
+    console.log('starting calling service ', serviceName, 'with params:', params);
+    return new Promise((resolve, reject) => {
+        getService(serviceName).callService(params, result => {
+            // TODO - check how to get failure from the service and then call the reject() func.
+            console.log('finish calling service ', serviceName);
+            resolve(result);
+        })
+    })
+}
+
+
 export const runSavedMissionPlan = () => {
-    return (dispatch, getState) => {
+    return async (dispatch, getState) => {
         dispatch(showGlobalMessage({ text: `Starting to execute planned mission`, type: logSeverities.info, isRemoved: true }));
-        let promises = [];
-        let payload;
+
         // 1. reset
         const requestMissionReset = new window.ROSLIB.ServiceRequest({});
-
-
-        promises.push(
-            new Promise((resolve) => {
-                getService('doMissionReset').callService(requestMissionReset, (result) => {
-                    console.log('doMissionReset', "success");
-                    resolve('doMissionReset', result)
-                }
-                );
-            })
-        )
-
+        await asyncCallRossService('doMissionReset', requestMissionReset);        
+        
         // 2. mission plan stages
-        const missionStages = getState().planner.savedMissionPlan;
-        console.log("stages", missionStages);
+        const missionStages = getState().planner.savedMissionPlan;        
         const workingOrigin = getState().map.workingOrigin;
+        let serviceRequest;
 
-        missionStages.forEach(stage => {
+        for (const stage of missionStages) {
+            
             const { rossService } = stage.selectedStageType;
             if (rossService) {
                 switch (rossService) {
@@ -37,57 +41,29 @@ export const runSavedMissionPlan = () => {
                         const [x, y, z] = stage.stageParamsInput.split(',');
                         const offset = geoCalculations.getCoordinatesOffset(workingOrigin.coordinate, { x, y, z });
                         const offsetWithAngle = geoCalculations.calculateOffsetWithAngle(offset, -(workingOrigin.angle));
-                        payload = new window.ROSLIB.ServiceRequest({
+                        serviceRequest = new window.ROSLIB.ServiceRequest({
                             coordinate: {
-                                x: offsetWithAngle.x,
-                                y: offsetWithAngle.y,
-                                z: 1 // z
+                                x: offsetWithAngle.y,
+                                y: offsetWithAngle.x,
+                                z: offsetWithAngle.z
                             }
                         });
                         break;
 
                     case 'addMissionTakeoff':
-                        payload = new window.ROSLIB.ServiceRequest({});
+                        serviceRequest = new window.ROSLIB.ServiceRequest({});
                         break;
                     default:
-                        payload = null;
+                        serviceRequest = null;
                         break;
                 }
-
-                promises.push(
-                    new Promise((resolve) => {
-                        getService(rossService).callService(payload, (result) => {
-                            console.log(rossService, "success");
-                            resolve(rossService, result)
-                        });
-                    })
-                )
+                await asyncCallRossService(rossService, serviceRequest);
             }
-
-
-        });
+        };
 
         // 3. execute
         const requestMissionExecute = new window.ROSLIB.ServiceRequest({});
-        promises.push(
-            new Promise((resolve) => {
-                getService('doMissionExecute').callService(requestMissionExecute, (result) => {
-                    console.log('doMissionExecute', "success");
-                    resolve("doMissionExecute", result)
-                });
-            })
-        )
-        
-        promises.reduce((promiseChain, currentTask) => {
-            return promiseChain.then(chainResults =>
-                currentTask.then(currentResult =>
-                    [...chainResults, currentResult]
-                )
-            );
-        }, Promise.resolve([])).then(arrayOfResults => {
-            console.log("MissionResults", arrayOfResults)
-        }).catch(alert);
-
+        await asyncCallRossService('doMissionExecute', requestMissionExecute);
     };
 };
 
