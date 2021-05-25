@@ -9,6 +9,7 @@ export const subscribeToDroneData = () => {
 
         console.log("subscribe: getDronePosition");
         getService('getDronePosition').subscribe('base_link', function (response) {
+            console.log(response)
             dispatch({ type: actionTypes.GET_DRONE_POSITION_OFFSET, payload: { dronePositionOffset : response.translation } });
         });
 

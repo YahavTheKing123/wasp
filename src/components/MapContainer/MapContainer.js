@@ -122,7 +122,7 @@ class MapContainer extends PureComponent {
             this.selectMissionPointFromMap();
         }
 
-        if (this.props.enemyPositionOffset && !prevProps.enemyPositionOffset) {
+        if (this.props.enemyPositionOffset && this.props.enemyPositionOffset != prevProps.enemyPositionOffset) {
             this.UpdateEnemyPosition();
         }
 
@@ -178,7 +178,7 @@ class MapContainer extends PureComponent {
             }
             // create object
             let pObject = window.MapCore.IMcObject.Create(this.overlay, this.ScreenPictureScheme);
-            pObject.SetID(objectType);
+          //  pObject.SetID(objectType);
             // start EditMode action
             this.editMode.StartInitObject(pObject, pItem);
 
@@ -198,7 +198,7 @@ class MapContainer extends PureComponent {
     }
 
     UpdateEnemyPosition() {
-        const coordinateWithOffset = this.getMapCoordinate(this.props.enemyPositionOffset);
+        const coordinateWithOffset = geoCalculations.getMapCoordinate(this.props.workingOrigin , this.props.enemyPositionOffset);
         this.EnemyObject = window.MapCore.IMcObject.Create(this.overlay, this.ScreenPictureScheme, [coordinateWithOffset]);
         this.EnemyObject.SetTextureProperty(1, window.MapCore.IMcImageFileTexture.Create(window.MapCore.SMcFileSource("http:ObjectWorld/Images/enemy.png", false), false));
         this.EnemyObject.SetFloatProperty(2, 0.5);
@@ -213,11 +213,11 @@ class MapContainer extends PureComponent {
         this.DroneRouteObject = window.MapCore.IMcObject.Create(this.overlay, this.lineScheme, [originCoordinate]);
         this.DroneRouteObject.SetState([2])
     }
-    getMapCoordinate = (offset) => {
-        const offsetWithAngle = geoCalculations.calculateOffsetWithAngle(offset,  this.props.workingOrigin.angle);
-        const mapOffset = geoCalculations.convertMapOffsetToDroneOffset(offsetWithAngle);
-        return geoCalculations.addCoordinates(this.props.workingOrigin.coordinate, mapOffset);
-    }
+  // getMapCoordinate = (offset) => {
+  //     const offsetWithAngle = geoCalculations.calculateOffsetWithAngle(offset,  this.props.workingOrigin.angle);
+  //     const mapOffset = geoCalculations.convertMapOffsetToDroneOffset(offsetWithAngle);
+  //     return geoCalculations.addCoordinates(this.props.workingOrigin.coordinate, mapOffset);
+  // }
 
     MoveDrone = () => {
 
@@ -230,7 +230,7 @@ class MapContainer extends PureComponent {
             return;
         }
 
-        const coordinateWithOffset = this.getMapCoordinate(this.props.dronePositionOffset);
+        const coordinateWithOffset = geoCalculations.getMapCoordinate(this.props.workingOrigin , this.props.dronePositionOffset);
 
         if (this.DroneRouteCoordinates.length > 0) {
             let prevCoordinate = this.DroneRouteCoordinates[this.DroneRouteCoordinates.length - 1];
@@ -273,7 +273,7 @@ class MapContainer extends PureComponent {
             this.WorkingOrigin.SetTextureProperty(1, window.MapCore.IMcImageFileTexture.Create(window.MapCore.SMcFileSource("http:ObjectWorld/Images/location.png", false), false));
             this.WorkingOrigin.SetFloatProperty(2, 0.05);
             const originCoordinate = geoCalculations.roundCoordinate(this.WorkingOrigin.GetLocationPoints()[0], config.COORDINATE_DECIMALS_PRECISION);
-            this.props.saveOriginCoordinate(originCoordinate, this.TempOriginAngle);
+            this.props.saveOriginCoordinate(originCoordinate, 360 - this.TempOriginAngle);
             this.props.saveDroneLastCoordinate(originCoordinate);
         }
     }
@@ -878,6 +878,9 @@ class MapContainer extends PureComponent {
         this.nMousePrevY = EventPixel.y;
     }
 
+    
+
+
     mouseDownHandler = e => {
         if (this.editMode.IsEditingActive()) {
             // EditMode is active: don't change active viewport, but ignore click on non-active one
@@ -894,7 +897,7 @@ class MapContainer extends PureComponent {
             }
         }
         let EventPixel = window.MapCore.SMcPoint(e.offsetX, e.offsetY);
-        let ret = this.screenToWorld(e.offsetX, e.offsetY);
+       // let ret = this.screenToWorld(e.offsetX, e.offsetY);
 
         this.mouseDownButtons = e.buttons;
         if (e.buttons == 1) {
@@ -1460,6 +1463,12 @@ class MapContainer extends PureComponent {
             //     this.onLeftDoubleClick(e);
             // }
         }
+
+       // if (this.props.isPointSelectionMode || !this.props.workingOrigin || !this.props.workingOrigin.coordinate) {
+       //     this.mouseDownHandler(e);
+       // }
+       
+
 
         e.preventDefault();
         e.target.focus()

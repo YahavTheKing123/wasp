@@ -6,6 +6,18 @@
     "MAPCORE_LAYER_SERVER_URL": false,
 	"streamingLayers":[		
 		{
+			"groupName":"LegoRoom",
+			"coordSystemType":"IMcGridUTM",
+			"coordSystemParams":"36, MapCore.IMcGridCoordinateSystem.EDatumType.EDT_ED50_ISRAEL",
+			"InitialScale2D": 0.02,
+			"layers":[
+				{
+					"type":"IMcNativeRasterMapLayer",
+					"path":"Maps/Raster/LegoRoom"
+				}
+			]
+		},
+		{
 			"groupName":"Elbit Campus",
 			"coordSystemType":"IMcGridUTM",
 			"coordSystemParams":"36, MapCore.IMcGridCoordinateSystem.EDatumType.EDT_ED50_ISRAEL",
@@ -28,7 +40,7 @@
 					"path":"Maps/Raster/Adam"
 				}
 			]
-		},						
+		},							
 		{
 			"groupName":"Maccabim (UTM)",
 			"coordSystemType":"IMcGridUTM",
