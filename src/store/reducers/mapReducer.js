@@ -5,7 +5,8 @@ const initialState = {
     mapToShow: null,
     droneMoveOffset: [],
     lastPosition: {},
-    workingOrigin : null
+    workingOrigin: null,
+    enemyPositionOffset: null
 };
 
 const mapReducer = (state = initialState, action) => {
@@ -24,6 +25,11 @@ const mapReducer = (state = initialState, action) => {
             return {
                 ...state,
                 dronePositionOffset: action.payload.dronePositionOffset
+            }
+        case actionTypes.GET_ENEMY_POSITION:
+            return {
+                ...state,
+                enemyPositionOffset:  action.payload.enemyPosition
             }
         case actionTypes.SAVE_DRONE_LAST_POSITION:
             return {

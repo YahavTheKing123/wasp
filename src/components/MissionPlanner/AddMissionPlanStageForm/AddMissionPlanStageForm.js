@@ -121,7 +121,7 @@ export default class AddMissionPlanStageForm extends Component {
             <div className={cn.InnerInputWrapper}>
                 <Input
                     parentRef={this.inputRef}
-                    value={value || ""}
+                    value={value !== null && value !== undefined? value : ""}
                     onChange={e => this.onInputChange(e, subField)}
                     disabled={false}
                     type={selectedStageType.params.type || ""}

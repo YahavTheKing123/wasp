@@ -5,17 +5,41 @@ export function calculateDistanceBetween2Points(p1, p2) {
 
     return Math.sqrt(a * a + b * b + c * c);
 }
+
 export function calculateOffsetWithAngle(offset, angle) {
     const radians = angle * Math.PI / 180;
-    let x = offset.x;
-    let y = offset.y;
-    let z = offset.z;
+    const {x, y, z} = offset;
     return {
-        x: - x * Math.sin(radians) - y * Math.cos(radians),
-        y: x * Math.cos(radians) - y * Math.sin(radians),
+        x: x * Math.cos(radians) - y * Math.sin(radians),
+        y: x * Math.sin(radians) + y * Math.cos(radians),
         z: z
     }
+
 }
+
+export function convertMapOffsetToDroneOffset(offset) {
+    return {
+        x: -offset.y,
+        y: offset.x,
+        z: offset.z
+    }
+}
+export function convertDroneOffsetToMapOffset(offset) {
+    return {
+        x: offset.y,
+        y: -offset.x,
+        z: offset.z
+    }
+}
+export function mapCoordiantesToDroneCoordinates(coordinate) {
+    
+    return {
+        x: coordinate.y,
+        y: -coordinate.x,
+        z: coordinate.z
+    }
+}
+
 
 export function addCoordinates(c1, c2) {
 
@@ -29,8 +53,8 @@ export function addCoordinates(c1, c2) {
 export function getCoordinatesOffset(originCoordinate, coordinate) {
 
     return {
-        x: coordinate.y - originCoordinate.y,
-        y: -(coordinate.x - originCoordinate.x) ,
+        x: coordinate.x - originCoordinate.x,
+        y: coordinate.y - originCoordinate.y,
         z: coordinate.z
     }
 }
