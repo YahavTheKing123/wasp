@@ -99,7 +99,13 @@
   background-image: url(./assets/images/gpsFull.svg);
 }
 .PositionIcon {
+
   background-image: url(./assets/images/position.svg);
+}
+.CompassIcon {
+  height: 20px;
+  width: 20px;
+  background-image: url(./assets/images/compass.svg);
 }
 .WifiIcon {
   background-image: url(./assets/images/signal.svg);
@@ -192,4 +198,11 @@
     opacity: 0;
     height: 0;
     pointer-events: none;
+}
+
+.VersionText {
+ font-size: 11px;
+ display: flex;
+ justify-content: center;
+ color: silver;
 }

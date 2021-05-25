@@ -17,7 +17,6 @@ class MissionPlanStage extends Component {
 
     addOrEditMissionPlanStageFormPopupOkBtnClick = (isAddStage) => {
         const addOrEditStageFormState = this.getAddMissionPlanStageFormState();
-        debugger;
         if (addOrEditStageFormState.selectedStageType) {
             if (isAddStage) {
                 this.props.addNewStage(addOrEditStageFormState);
@@ -105,7 +104,7 @@ class MissionPlanStage extends Component {
         let params = stageParamsInput;
         if (selectedStageType.label == "Go To Waypoint") {
             const [x, y, z] = stageParamsInput.split(',');
-            params = `x: ${x}\ny: ${y}\nz: ${z}`
+            params = `x: ${x.split(".")[0]}\ny: ${y.split(".")[0]}\nz: ${z.split(".")[0]}`
         }
         return (
             <div className={cn.StageWrapper}>

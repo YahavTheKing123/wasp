@@ -6,13 +6,19 @@ export function calculateDistanceBetween2Points(p1, p2) {
     return Math.sqrt(a * a + b * b + c * c);
 }
 
+export function getMapCoordinate(workingOrigin , offset){
+    const offsetWithAngle = calculateOffsetWithAngle(offset,  workingOrigin.angle);
+    const mapOffset = convertMapOffsetToDroneOffset(offsetWithAngle);
+    return addCoordinates(workingOrigin.coordinate, mapOffset);
+}
+
 export function calculateOffsetWithAngle(offset, angle) {
     const radians = angle * Math.PI / 180;
     const {x, y, z} = offset;
     return {
         x: x * Math.cos(radians) - y * Math.sin(radians),
         y: x * Math.sin(radians) + y * Math.cos(radians),
-        z: z
+        z: parseInt(z)
     }
 
 }
