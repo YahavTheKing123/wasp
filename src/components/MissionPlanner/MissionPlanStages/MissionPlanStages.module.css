@@ -11,7 +11,7 @@
 
 .StageWrapper {
     background: #2c2c2c;
-    height: 75px;
+    height: auto;
     width: 200px;
     border-radius: 3px;
     position: relative;
@@ -110,7 +110,7 @@
 }
 
 .LabelsWrapper {
-
+    padding:12px;
 }
 .StageTypeLabel {
     font-size: 14px;
@@ -120,8 +120,9 @@
 }
 
 .StageParamsLabel {
-    margin-top: 8px;
+    margin-top: 4px;
     font-size: 14px;
     text-align: center;
     opacity: 0.55;
+    white-space: pre;
 }

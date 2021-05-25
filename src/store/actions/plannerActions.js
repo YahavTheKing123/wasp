@@ -25,7 +25,7 @@ export const runSavedMissionPlan = () => {
 
         // 1. reset
         const requestMissionReset = new window.ROSLIB.ServiceRequest({});
-        await asyncCallRossService('doMissionReset', requestMissionReset);        
+        //await asyncCallRossService('doMissionReset', requestMissionReset);        
         
         // 2. mission plan stages
         const missionStages = getState().planner.savedMissionPlan;        
@@ -41,12 +41,9 @@ export const runSavedMissionPlan = () => {
                         const [x, y, z] = stage.stageParamsInput.split(',');
                         const offset = geoCalculations.getCoordinatesOffset(workingOrigin.coordinate, { x, y, z });
                         const offsetWithAngle = geoCalculations.calculateOffsetWithAngle(offset, -(workingOrigin.angle));
+                        const mapOffset = geoCalculations.convertDroneOffsetToMapOffset(offsetWithAngle)
                         serviceRequest = new window.ROSLIB.ServiceRequest({
-                            coordinate: {
-                                x: offsetWithAngle.y,
-                                y: offsetWithAngle.x,
-                                z: offsetWithAngle.z
-                            }
+                            coordinate: mapOffset
                         });
                         break;
 

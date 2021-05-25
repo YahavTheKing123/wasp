@@ -102,13 +102,17 @@ class MissionPlanStage extends Component {
 
     render() {
         const { selectedStageType, stageParamsInput } = this.props.stage;
-
+        let params = stageParamsInput;
+        if (selectedStageType.label == "Go To Waypoint") {
+            const [x, y, z] = stageParamsInput.split(',');
+            params = `x: ${x}\ny: ${y}\nz: ${z}`
+        }
         return (
             <div className={cn.StageWrapper}>
                 {this.renderMenuBtn()}
                 <div className={cn.LabelsWrapper}>
                     <div className={cn.StageTypeLabel}>{selectedStageType.label}</div>
-                    <div className={cn.StageParamsLabel}>{stageParamsInput}</div>
+                    <div className={cn.StageParamsLabel}>{params}</div>
                 </div>
                 {this.renderAddNewStageBtn()}
             </div>
