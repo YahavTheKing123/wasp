@@ -48,14 +48,15 @@ class ContextMenu extends Component {
    }
 
 
-   onItemClick = (menuItem) => {     
-      menuItem.func(menuItem.task);
+   onItemClick = (menuItem) => {
+     menuItem.func && menuItem.func(menuItem.task);
       this.props.closeContextMenu();
    }
 
     render() {
       const closeClass = ((this.state.menuItems != null) && (this.state.menuItems.length > 0))  ?  '' : classNames.Close;
       const side = this.props.contextMenu.options && this.props.contextMenu.options.side ? classNames[this.props.contextMenu.options.side] : '';
+      
       let menuItems = "";
 
       if (this.state.menuItems && this.state.menuItems.length > 0) {
@@ -66,9 +67,10 @@ class ContextMenu extends Component {
                                         title={menuItem.title}
                                         className={classNames.menuItem} 
                                         onClick={() => this.onItemClick(menuItem)}
+                                        style={{cursor : menuItem.func ? "pointer" : "default"}}
                                     >
-                                        <span className={`${classNames.ContextMenuIcon} ${classNames[menuItem.iconCss]}`}></span>
-                                        <div>{menuItem.name}</div>
+                                       {menuItem.iconCss && <span className={`${classNames.ContextMenuIcon} ${classNames[menuItem.iconCss]}`}/>}
+                                        <div className={classNames.menuName}>{menuItem.name}</div>
                                     </li>
                          );
       }

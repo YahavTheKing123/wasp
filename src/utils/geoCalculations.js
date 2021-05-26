@@ -74,3 +74,10 @@ export function roundCoordinate(coordinate, precision) {
         z: Math.round(coordinate.z * multiplier) / multiplier,
     }
 }
+
+export function quaternionToYaw(q) {
+    if(q === null || q === undefined){
+        return 0;
+    }
+    return Math.atan2(2.0*(q.y*q.z + q.w*q.x), q.w*q.w - q.x*q.x - q.y*q.y + q.z*q.z);
+}

@@ -1,4 +1,5 @@
 import actionTypes from '../actions/actionTypes';
+import * as geoCalculations from '../../utils/geoCalculations';
 
 const initialState = {
     isMapCoreSDKLoaded: false,
@@ -22,14 +23,15 @@ const mapReducer = (state = initialState, action) => {
                 mapToShow: action.payload
             }
         case actionTypes.GET_DRONE_POSITION_OFFSET:
+            const angle =  geoCalculations.quaternionToYaw(action.payload.droneRotationQuaternion);
             return {
                 ...state,
-                dronePositionOffset: action.payload.dronePositionOffset
+                dronePositionOffset : { ...action.payload.dronePositionOffset, angle }
             }
         case actionTypes.GET_ENEMY_POSITION:
             return {
                 ...state,
-                enemyPositionOffset:  action.payload.enemyPosition
+                enemyPositionOffset: action.payload.enemyPosition
             }
         case actionTypes.SAVE_DRONE_LAST_POSITION:
             return {
