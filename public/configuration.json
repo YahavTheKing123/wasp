@@ -2,7 +2,7 @@
     "ROS_BE_PORT": 9090,
     "ROS_BE_PROTOCOL": "ws",
     "BE_PORT": 8081,
-    "BE_IP": "192.168.1.100",
+    "BE_IP": "192.168.1.115",
     "MAPCORE_LAYER_SERVER_URL": false,
 	"streamingLayers":[		
 		{

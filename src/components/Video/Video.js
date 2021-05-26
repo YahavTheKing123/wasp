@@ -33,9 +33,9 @@ class Video extends Component {
         const streamUrl = `//${BE_IP}:${BE_PORT}${config.urls.videoStream}`;
 
         if (this.props.isPaused) {
-            return process.env.NODE_ENV === 'development' ? devVideoSnapshotUrl : snapshotUrl;
+            return process.env.NODE_ENV === 'developments' ? devVideoSnapshotUrl : snapshotUrl;
         } else {
-            return process.env.NODE_ENV === 'development' ? devVideoStreamUrl : streamUrl;
+            return process.env.NODE_ENV === 'developments' ? devVideoStreamUrl : streamUrl;
         }
     }
 

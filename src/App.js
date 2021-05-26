@@ -73,7 +73,7 @@ class App extends Component {
             <header className={classNames.AppHeader}>
                 <div className={classNames.LogoWrapper} onClick={() => this.props.history.push('/')}>
                     <img src={logo} alt='logo' />
-                    <span className={classNames.VersionText}>version: 21.05.25 </span>
+                    <span className={classNames.VersionText}>version: 21.05.26 </span>
                 </div>
                 <div className={classNames.HeaderLeftWrapper}>
                     <span className={classNames.HeaderItem}>
