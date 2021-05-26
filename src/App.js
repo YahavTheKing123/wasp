@@ -76,10 +76,18 @@ class App extends Component {
                     <span className={classNames.VersionText}>version: 21.05.26 </span>
                 </div>
                 <div className={classNames.HeaderLeftWrapper}>
-                    <span className={classNames.HeaderItem}>
+                <span className={classNames.HeaderItem}>
                         <span className={`${classNames.Icon} ${classNames.DroneIcon}`}></span>
                         <span className={classNames.LongLatWrapper}>
                             <span className={classNames.MissionWrapper}>
+                                <span className={classNames.lonLatLabel}>IP:</span>
+                                <span className={classNames.lonLatValue}>{externalConfig.getConfiguration().BE_IP}</span>
+                            </span>
+                        </span>
+                    </span>
+                    <span className={classNames.HeaderItem}>
+                        <span className={classNames.LongLatWrapper}>
+                        <span className={classNames.MissionWrapper}>
                                 <span className={classNames.lonLatLabel}>Mission:</span>
                             </span>
                             <span className={classNames.MissionValueWrapper}>
