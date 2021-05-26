@@ -25,7 +25,7 @@ export const runSavedMissionPlan = () => {
 
         // 1. reset
         const requestMissionReset = new window.ROSLIB.ServiceRequest({});
-       // await asyncCallRossService('doMissionReset', requestMissionReset);        
+        await asyncCallRossService('doMissionReset', requestMissionReset);        
         
         // 2. mission plan stages
         const missionStages = getState().planner.savedMissionPlan;        
