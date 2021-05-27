@@ -103,6 +103,14 @@
     mask-image: url('../../assets/images/list.svg');
 }
 
+.PcIcon {
+    -webkit-mask-image: url('../../assets/images/pc.svg');
+    mask-image: url('../../assets/images/pc.svg');
+}
+.DroneIcon {
+    -webkit-mask-image: url('../../assets/images/drone.svg');
+    mask-image: url('../../assets/images/drone.svg');
+}
 .menuName{
     padding-left: 5px;
 }

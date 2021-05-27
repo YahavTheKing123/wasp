@@ -208,7 +208,7 @@ class MapContainer extends PureComponent {
         const originCoordinate = this.props.workingOrigin.coordinate;
         this.DroneRouteCoordinates.push(originCoordinate);
         this.DroneObject = window.MapCore.IMcObject.Create(this.overlay, this.ScreenPictureScheme, [originCoordinate]);
-        this.DroneObject.SetTextureProperty(1, window.MapCore.IMcImageFileTexture.Create(window.MapCore.SMcFileSource("http:ObjectWorld/Images/drone_arrow.png", false), false));
+        this.DroneObject.SetTextureProperty(1, window.MapCore.IMcImageFileTexture.Create(window.MapCore.SMcFileSource("http:ObjectWorld/Images/droneNew.png", false), false));
         this.DroneObject.SetFloatProperty(2, 0.9);
         this.DroneObject.SetFloatProperty(4, 360 - this.props.workingOrigin.angle);
         this.DroneRouteObject = window.MapCore.IMcObject.Create(this.overlay, this.lineScheme, [originCoordinate]);
@@ -898,16 +898,17 @@ class MapContainer extends PureComponent {
                 }
             }
         }
+
         const rect = e.target.getBoundingClientRect();
-        let EventPixel = e.type == 'touchend' ? window.MapCore.SMcPoint(e.changedTouches[0].pageX - rect.left, e.changedTouches[0].pageY - rect.top) : window.MapCore.SMcPoint(e.offsetX, e.offsetY);
-        // let ret = this.screenToWorld(e.offsetX, e.offsetY);
+        let EventPixel = e.type == 'touchend' ?
+            window.MapCore.SMcPoint(e.changedTouches[0].pageX - rect.left, e.changedTouches[0].pageY - rect.top) :
+            window.MapCore.SMcPoint(e.offsetX, e.offsetY);
 
         this.mouseDownButtons = e.buttons;
         if (e.type == 'touchend' || e.buttons == 1) {
             let bHandled = {};
             let eCursor = {};
             this.editMode.OnMouseEvent(window.MapCore.IMcEditMode.EMouseEvent.EME_BUTTON_PRESSED, EventPixel, e.ctrlKey, 0, bHandled, eCursor);
-
 
             if (this.props.isPointSelectionMode) {
                 this.OnEditClickMissionPoint();
@@ -999,7 +1000,7 @@ class MapContainer extends PureComponent {
             }
         }
 
-      
+
     }
 
     stopEvent = (e) => {

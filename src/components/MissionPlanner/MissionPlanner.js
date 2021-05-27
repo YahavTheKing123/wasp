@@ -10,6 +10,8 @@ import { viewerStates } from '../../store/reducers/plannerReducer';
 
 class MissionPlanner extends Component {
 
+    inputRef = React.createRef();
+
     addMissionPlanStageFormPopupOkBtnClick = () => {
         const addStageState = this.getAddMissionPlanStageFormState();
         if (addStageState && addStageState.selectedStageType) {
@@ -30,7 +32,7 @@ class MissionPlanner extends Component {
             },
             primayButton: {
                 title: 'Add',
-                disabled : false,
+                disabled: false,
                 callback: this.addMissionPlanStageFormPopupOkBtnClick
             },
             secondaryButton: {
@@ -98,9 +100,30 @@ class MissionPlanner extends Component {
         this.props.showGlobalMessage('Mission Plan Successfuly Removed');
     }
 
-    onLoadMissionBtnClick = () => {
-        this.props.importPlanFromFile();
+    onLoadMissionFromDroneBtnClick = () => {
+        this.props.importMissionFromDroneFile();
     }
+
+    onLoadMissionFromPcBtnClick = () => {
+        this.inputRef.current.click();
+
+    }
+
+    parseConfigurationFile = (e) => {
+        const fileReader = new FileReader();
+        if (e.target.files && e.target.files[0]) {
+            console.log("Reading file: " + e.target.files[0]);
+            fileReader.readAsText(e.target.files[0], "UTF-8");
+            fileReader.onload = e => {
+                const missionData = JSON.parse(e.target.result);
+                this.props.importMissionFromPcFile(missionData);
+            };
+            fileReader.onerror = e => {
+                console.log("parseConfigurationFile: error reading file");
+            };
+        }
+    }
+
 
     onExportMissionBtnClick = () => {
         const { draftMissionStages, savedMissionPlan, viewerState } = this.props;
@@ -108,15 +131,37 @@ class MissionPlanner extends Component {
         this.props.exportPlanToFile(plan, viewerState);
     }
 
+
+    onMenuBtnClick = e => {
+        e.preventDefault();
+        e.stopPropagation();
+
+        const menuItemsList = [
+            {
+                name: "Load From PC",
+                func: this.onLoadMissionFromPcBtnClick,
+                iconCss: "PcIcon"
+            },
+            {
+                name: "Load From Drone",
+                func: this.onLoadMissionFromDroneBtnClick,
+                iconCss: "DroneIcon"
+            },
+        ];
+
+        this.props.showContextMenu(e.clientX, e.clientY, { side: 'left' }, menuItemsList);
+    }
+
+
     renderDraftButtons(draftMissionStages) {
         const buttons = [];
 
         if (draftMissionStages.length > 0) {
-            buttons.push(<button title='Save Plan' className={`${cn.SideBarBtn} ${cn.Save}`} onClick={this.onSaveBtnClick}/>)
-            buttons.push(<button title='Clear Draft Stages' className={`${cn.SideBarBtn} ${cn.ClearStages}`} onClick={this.onClearDraftBtnClick}/>)
-            buttons.push(<button title='Download Draft' className={`${cn.SideBarBtn} ${cn.Export}`} onClick={this.onExportMissionBtnClick}/>)
+            buttons.push(<button title='Save Plan' className={`${cn.SideBarBtn} ${cn.Save}`} onClick={this.onSaveBtnClick} />)
+            buttons.push(<button title='Clear Draft Stages' className={`${cn.SideBarBtn} ${cn.ClearStages}`} onClick={this.onClearDraftBtnClick} />)
+            buttons.push(<button title='Download Draft' className={`${cn.SideBarBtn} ${cn.Export}`} onClick={this.onExportMissionBtnClick} />)
         }
-        buttons.push(<button title='Load Mission Plan From File' className={`${cn.SideBarBtn} ${cn.Import}`} onClick={this.onLoadMissionBtnClick}/>)
+        buttons.push(<button title='Load Mission Plan' className={`${cn.SideBarBtn} ${cn.Import}`} onClick={e => this.onMenuBtnClick(e)} />)
 
         return buttons;
     }
@@ -125,10 +170,10 @@ class MissionPlanner extends Component {
         const buttons = [];
 
         if (savedMissionPlan.length > 0) {
-            buttons.push(<button title='Remove Saved Plan' className={`${cn.SideBarBtn} ${cn.Remove}`} onClick={this.onRemoveSavedPlanBtnClick}/>)
-            buttons.push(<button title='Download Saved Plan' className={`${cn.SideBarBtn} ${cn.Export}`} onClick={this.onExportMissionBtnClick}/>)
+            buttons.push(<button title='Remove Saved Plan' className={`${cn.SideBarBtn} ${cn.Remove}`} onClick={this.onRemoveSavedPlanBtnClick} />)
+            buttons.push(<button title='Download Saved Plan' className={`${cn.SideBarBtn} ${cn.Export}`} onClick={this.onExportMissionBtnClick} />)
         }
-        buttons.push(<button title='Load Mission Plan From File' className={`${cn.SideBarBtn} ${cn.Import}`} onClick={this.onLoadMissionBtnClick}/>)
+        buttons.push(<button title='Load Mission Plan From File' className={`${cn.SideBarBtn} ${cn.Import}`} onClick={this.onLoadMissionBtnClick} />)
 
         return buttons;
     }
@@ -136,7 +181,7 @@ class MissionPlanner extends Component {
 
     renderSideBar() {
         const { draftMissionStages, savedMissionPlan, viewerState } = this.props;
-        let buttons = [<button title='Back to Main' className={`${cn.SideBarBtn} ${cn.ClosePlanner}`} onClick={this.onBackBtnClick}/>];
+        let buttons = [<button title='Back to Main' className={`${cn.SideBarBtn} ${cn.ClosePlanner}`} onClick={this.onBackBtnClick} />];
         ;
         if (viewerState === viewerStates.draft) {
             buttons.push(...this.renderDraftButtons(draftMissionStages));
@@ -179,6 +224,7 @@ class MissionPlanner extends Component {
         )
     }
 
+
     render() {
         const centerClass = !this.props.draftMissionStages.length ? cn.Center : '';
         return (
@@ -188,6 +234,7 @@ class MissionPlanner extends Component {
                     {this.renderHeader()}
                     {this.renderMissionPlanStages()}
                 </div>
+                <input type="file" style={{ display: 'none' }} accept={"application/json"} ref={this.inputRef} onChange={(e) => this.parseConfigurationFile(e)} />
             </>)
     }
 }
@@ -210,9 +257,11 @@ const mapDispachToProps = dispatch => {
         removeDraftPlan: () => dispatch({ type: actionTypes.REMOVE_DRAFT_MISSION_PLAN }),
         removeSavedPlan: () => dispatch({ type: actionTypes.REMOVE_SAVED_MISSION_PLAN }),
         toggleViewerState: () => dispatch({ type: actionTypes.TOGGLE_MISSION_PLAN_VIEWER_STATE }),
-        importPlanFromFile: () => dispatch(actions.importPlanFromFile()),
+        importMissionFromDroneFile: () => dispatch(actions.importMissionFromDroneFile()),
+        importMissionFromPcFile: (missionData) => dispatch(actions.importMissionFromPcFile(missionData)),
         exportPlanToFile: (plan, viewerState) => dispatch(actions.exportPlanToFile(plan, viewerState)),
-        togglePointSelectionMode: () => dispatch({ type: actionTypes.TOGGLE_POINT_SELECTION_MODE}),
+        togglePointSelectionMode: () => dispatch({ type: actionTypes.TOGGLE_POINT_SELECTION_MODE }),
+        showContextMenu: (x, y, options, items) => dispatch({ type: actionTypes.SHOW_CONTEXT_MENU, payload: { x, y, options, items } }),
     }
 }
 

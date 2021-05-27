@@ -22,7 +22,7 @@ function asyncCallRossService(serviceName, params) {
 export const runSavedMissionPlan = () => {
     return async (dispatch, getState) => {
         dispatch(showGlobalMessage({ text: `Starting to execute planned mission`, type: logSeverities.info, isRemoved: true }));
-
+debugger;
         // 1. reset
         const requestMissionReset = new window.ROSLIB.ServiceRequest({});
         await asyncCallRossService('doMissionReset', requestMissionReset);        
@@ -64,7 +64,7 @@ export const runSavedMissionPlan = () => {
     };
 };
 
-export const importPlanFromFile = () => {
+export const importMissionFromDroneFile = () => {
     return async (dispatch) => {
         try {
             const response = await axios.get(config.urls.loadMission);
@@ -77,7 +77,20 @@ export const importPlanFromFile = () => {
     };
 };
 
+export const importMissionFromPcFile = (missionData) => {
+    return async (dispatch) => {
+        try {
+            dispatch({ type: actionTypes.LOAD_DEFAULT_PLAN, payload: missionData });
+            dispatch(showGlobalMessage({ text: `Default plan loaded successfully`, type: logSeverities.success, isRemoved: true }));
+        } catch (e) {
+            dispatch(showGlobalMessage({ text: `Unable to load default plan`, type: logSeverities.error, isRemoved: true }));
+            console.log(e)
+        }
+    };
+};
+
 export const exportPlanToFile = (plan, viewerState) => {
+    
     return async (dispatch) => {
         try {
             const url = 'data:text/json;charset=utf8,' + encodeURIComponent(JSON.stringify(plan, null, 2));
