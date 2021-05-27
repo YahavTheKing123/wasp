@@ -92,7 +92,7 @@ const plannerReducer = (state = initialState, action) => {
             }            
         }
         case actionTypes.LOAD_DEFAULT_PLAN: {
-
+            debugger;
             if (state.viewerState === viewerStates.savedMission) {
                 return {
                     ...state,
