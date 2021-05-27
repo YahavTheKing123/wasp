@@ -90,16 +90,10 @@ const layoutReducer = (state = initialState, action) => {
                 imageSentToDroneData: action.payload
             }
         }
-        case actionTypes.SHOW_MISSION_PLANNER_SCREEN: {
+        case actionTypes.TOGGLE_MISSION_PLANNER_SCREEN: {
             return {
                 ...state,
-                isMissionPlanScreenHidden: false
-            }
-        }
-        case actionTypes.HIDE_MISSION_PLANNER_SCREEN: {
-            return {
-                ...state,
-                isMissionPlanScreenHidden: true
+                isMissionPlanScreenHidden: !state.isMissionPlanScreenHidden
             }
         }
         default:

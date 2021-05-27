@@ -83,7 +83,7 @@ class MissionPlanner extends Component {
     }
 
     onBackBtnClick = () => {
-        this.props.hideMissionPlannerScreen();
+        this.props.toggleMissionPlannerScreen();
     }
 
     onSaveBtnClick = () => {
@@ -132,7 +132,7 @@ class MissionPlanner extends Component {
     }
 
 
-    onMenuBtnClick = e => {
+    onLoadMissionBtnClick = e => {
         e.preventDefault();
         e.stopPropagation();
 
@@ -161,7 +161,7 @@ class MissionPlanner extends Component {
             buttons.push(<button title='Clear Draft Stages' className={`${cn.SideBarBtn} ${cn.ClearStages}`} onClick={this.onClearDraftBtnClick} />)
             buttons.push(<button title='Download Draft' className={`${cn.SideBarBtn} ${cn.Export}`} onClick={this.onExportMissionBtnClick} />)
         }
-        buttons.push(<button title='Load Mission Plan' className={`${cn.SideBarBtn} ${cn.Import}`} onClick={e => this.onMenuBtnClick(e)} />)
+        buttons.push(<button title='Load Mission Plan' className={`${cn.SideBarBtn} ${cn.Import}`} onClick={e => this.onLoadMissionBtnClick(e)} />)
 
         return buttons;
     }
@@ -252,7 +252,7 @@ const mapDispachToProps = dispatch => {
         showPopup: details => dispatch({ type: actionTypes.SHOW_POPUP, payload: details }),
         showGlobalMessage: text => dispatch(actions.showGlobalMessage({ text, type: logSeverities.success, isRemoved: true })),
         addNewStage: stage => dispatch({ type: actionTypes.ADD_NEW_MISSION_PLAN_STAGE, payload: stage }),
-        hideMissionPlannerScreen: () => dispatch({ type: actionTypes.HIDE_MISSION_PLANNER_SCREEN }),
+        toggleMissionPlannerScreen: () => dispatch({ type: actionTypes.TOGGLE_MISSION_PLANNER_SCREEN }),
         saveMissionPlan: () => dispatch({ type: actionTypes.SAVE_MISSION_PLAN }),
         removeDraftPlan: () => dispatch({ type: actionTypes.REMOVE_DRAFT_MISSION_PLAN }),
         removeSavedPlan: () => dispatch({ type: actionTypes.REMOVE_SAVED_MISSION_PLAN }),
