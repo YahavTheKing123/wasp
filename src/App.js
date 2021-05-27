@@ -135,28 +135,28 @@ class App extends Component {
                         <span className={classNames.BatteryValue}>59%</span>
                     </span>
                     <div className={classNames.HeaderItem}>{this.getClock()}</div>
-                    <button className={classNames.MenuBtn} onClick={this.onMoreActionsClick}>
-                        <span className={`${classNames.Icon} ${classNames.MenuIcon}`}></span>
+                    <button className={classNames.MenuBtn} onClick={this.props.workingOrigin ? this.props.toggleMissionPlannerScreen : () => alert("Need to select working origin first.")}>
+                        <span className={`${classNames.Icon} ${classNames.MissionPlannerIcon}`}></span>
                     </button>
                 </div>
             </header>
         );
     }
 
-    onMoreActionsClick = (e) => {
-        e.preventDefault();
-        e.stopPropagation();
+ //  onMoreActionsClick = (e) => {
+ //      e.preventDefault();
+ //      e.stopPropagation();
 
-        const menuItemsList = [
-            {
-                name: "Mission Planner Page",
-                func: this.props.showMissionPlannerScreen,
-                iconCss: "MissionPlannerIcon"
-            }
-        ];
+ //      const menuItemsList = [
+ //          {
+ //              name: "Mission Planner Page",
+ //              func: this.props.showMissionPlannerScreen,
+ //              iconCss: "MissionPlannerIcon"
+ //          }
+ //      ];
 
-        this.props.showContextMenu(e.clientX, e.clientY, menuItemsList);
-    }
+ //      this.props.showContextMenu(e.clientX, e.clientY, menuItemsList);
+ //  }
 
     render() {
 
@@ -190,6 +190,7 @@ const mapStateToProps = state => {
         lastPosition: state.map.lastPosition || {},
         isMissionPlanScreenHidden: state.layout.isMissionPlanScreenHidden,
         dronePositionOffset: state.map.dronePositionOffset,
+        workingOrigin:  state.map.workingOrigin
     }
 };
 
@@ -198,7 +199,7 @@ const mapDispachToProps = (dispatch) => {
         setMapCoreSDKLoadedFlag: () => dispatch({ type: actionTypes.SET_MAPCORE_SDK_LOADED_FLAG }),
         setMapToShow: groupNode => dispatch({ type: actionTypes.SET_MAP_TO_SHOW, payload: groupNode }),
         showContextMenu: (x, y, items) => dispatch({ type: actionTypes.SHOW_CONTEXT_MENU, payload: { x, y, items } }),
-        showMissionPlannerScreen: () => dispatch({ type: actionTypes.SHOW_MISSION_PLANNER_SCREEN }),
+        toggleMissionPlannerScreen: () => dispatch({ type: actionTypes.TOGGLE_MISSION_PLANNER_SCREEN }),
     };
 };
 
