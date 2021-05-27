@@ -178,7 +178,7 @@ class MapContainer extends PureComponent {
             }
             // create object
             let pObject = window.MapCore.IMcObject.Create(this.overlay, this.ScreenPictureScheme);
-            ID && pObject.SetID(ID);
+            ID !== null && ID !== undefined && pObject.SetID(ID);
             // start EditMode action
             this.editMode.StartInitObject(pObject, pItem);
 
@@ -190,11 +190,15 @@ class MapContainer extends PureComponent {
 
     selectMissionPointFromMap = () => {
         this.SelectedMissionPointObject = this.StartEditMode(this.MissionPointsObjects.length + 1);
+        this.SelectedMissionPointObject.SetTextureProperty(1, window.MapCore.IMcImageFileTexture.Create(window.MapCore.SMcFileSource("http:ObjectWorld/Images/pinPoint.png", false), false));
+
     }
 
     SetWorkingOrigin = () => {
         this.RemoveDroneData();
         this.WorkingOrigin = this.StartEditMode(0);
+        this.WorkingOrigin.SetTextureProperty(1, window.MapCore.IMcImageFileTexture.Create(window.MapCore.SMcFileSource("http:ObjectWorld/Images/location4.png", false), false));
+            
     }
 
     UpdateEnemyPosition() {
@@ -272,8 +276,7 @@ class MapContainer extends PureComponent {
     OnEditClickWorkingOrigin = () => {
         if (this.WorkingOrigin && this.WorkingOrigin.GetLocationPoints().length > 0) {
             this.setState({ workingOriginSelected: true })
-            this.WorkingOrigin.SetTextureProperty(1, window.MapCore.IMcImageFileTexture.Create(window.MapCore.SMcFileSource("http:ObjectWorld/Images/location4.png", false), false));
-            //    this.WorkingOrigin.SetFloatProperty(2, 1);
+          //    this.WorkingOrigin.SetFloatProperty(2, 1);
             const originCoordinate = geoCalculations.roundCoordinate(this.WorkingOrigin.GetLocationPoints()[0], config.COORDINATE_DECIMALS_PRECISION);
             this.props.saveOriginCoordinate(originCoordinate, 360 - this.TempOriginAngle);
             this.props.saveDroneLastCoordinate(originCoordinate);
@@ -282,7 +285,6 @@ class MapContainer extends PureComponent {
     OnEditClickMissionPoint = () => {
         if (this.SelectedMissionPointObject && this.SelectedMissionPointObject.GetLocationPoints().length > 0) {
             this.props.togglePointSelectionMode();
-            this.SelectedMissionPointObject.SetTextureProperty(1, window.MapCore.IMcImageFileTexture.Create(window.MapCore.SMcFileSource("http:ObjectWorld/Images/pinPoint.png", false), false));
             //this.SelectedMissionPointObject.SetFloatProperty(2, 0.8);
             let locationPoints = this.SelectedMissionPointObject.GetLocationPoints()[0];
             locationPoints.z = config.DEFAULT_MISSION_POINT_HEIGHT;
@@ -909,7 +911,6 @@ class MapContainer extends PureComponent {
             let bHandled = {};
             let eCursor = {};
             this.editMode.OnMouseEvent(window.MapCore.IMcEditMode.EMouseEvent.EME_BUTTON_PRESSED, EventPixel, e.ctrlKey, 0, bHandled, eCursor);
-
             if (this.props.isPointSelectionMode) {
                 this.OnEditClickMissionPoint();
             }
@@ -994,8 +995,8 @@ class MapContainer extends PureComponent {
         }
         for (let i = 0; i < aTargets.length; ++i) {
             if (aTargets[i].eTargetType == window.MapCore.IMcSpatialQueries.EIntersectionTargetType.EITT_OVERLAY_MANAGER_OBJECT) {
-                const ID = aTargets[i].ObjectItemData.pObject.getID();
-                ID && this.props.showContextMenu(EventPixel.x + 5, EventPixel.y + 5, [{ name: ID == 0 ? "Working Origin" : "WayPoint" + ID }]);
+                const ID = aTargets[i].ObjectItemData.pObject.GetID();
+                ID !== null && ID !== undefined && this.props.showContextMenu(EventPixel.x + 5, EventPixel.y + 5, [{ name: ID == 0 ? "Working Origin" : "WayPoint " + ID }]);
                 break;
             }
         }
