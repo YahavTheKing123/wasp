@@ -7,6 +7,9 @@ export function calculateDistanceBetween2Points(p1, p2) {
 }
 
 export function getMapCoordinate(workingOrigin , offset){
+    if (!workingOrigin) {
+        return;
+    }
     const offsetWithAngle = calculateOffsetWithAngle(offset,  workingOrigin.angle);
     const mapOffset = convertMapOffsetToDroneOffset(offsetWithAngle);
     return addCoordinates(workingOrigin.coordinate, mapOffset);

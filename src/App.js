@@ -68,14 +68,10 @@ class App extends Component {
         return Math.round(value);
     }
     renderDroneSelect() {
-        const options = [
-            { label: '115' },
-            { label: '116' },
-            { label: '117' },
-        ]
-
+        const droneList = externalConfig.getConfiguration().DRONES_DATA.dronesList; 
+        const options = droneList.map(number => ({label: number}))
         const dropDownData = {
-            defaultValue: { label: "115", value: "115" },
+            defaultValue: {label: droneList[0]},
             options,
             onChange: droneNumber => this.handleTypeChange(droneNumber)
         };
