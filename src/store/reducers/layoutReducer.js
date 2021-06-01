@@ -1,4 +1,5 @@
 import actionTypes from '../actions/actionTypes';
+import externalConfig from '../../ExternalConfigurationHandler';
 
 const initialState = {
     appGlobalMessage: null,
@@ -7,7 +8,7 @@ const initialState = {
     popupDetails: null,
     imageSentToDroneData: null,
     isMissionPlanScreenHidden: true,
-    isPointSelectionMode: false
+    isPointSelectionMode: false,
 };
 
 const layoutReducer = (state = initialState, action) => {
@@ -96,6 +97,8 @@ const layoutReducer = (state = initialState, action) => {
                 isMissionPlanScreenHidden: !state.isMissionPlanScreenHidden
             }
         }
+
+        
         default:
             return state;
     }

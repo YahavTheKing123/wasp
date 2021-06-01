@@ -39,7 +39,7 @@ axios.get(config.urls.configuration)
 function renderAplication() {
     
     initInterceptor(store);
-    rosWebsocketInstance.register(store);
+    rosWebsocketInstance.registerAll(store);
 
     ReactDOM.render(
         <React.StrictMode>

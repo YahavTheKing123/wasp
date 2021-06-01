@@ -51,9 +51,9 @@ export default class AddMissionPlanStageForm extends Component {
 
     renderStageType() {
         const options = [
+            { label: 'Takeoff', params: { label: 'Height:', placeHolder: "meters" }, rossService: 'addMissionTakeoff' },
             { label: 'Go To Waypoint', isMultiInputs: true, params: { label: 'Waypoint Coordinate:', }, rossService: 'addMissionWP' },
             { label: 'Pause', params: { label: 'Pause for:', placeHolder: "seconds" } },
-            { label: 'Takeoff', params: { label: 'Height:', placeHolder: "meters" }, rossService: 'addMissionTakeoff' },
             { label: 'Set Speed', params: { label: 'Speed Value:', placeHolder: "km/h" } },
             { label: 'Set Waypoint Radius', params: { label: 'Radius Value:', placeHolder: "meters" } },
         ]

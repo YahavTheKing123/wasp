@@ -8,6 +8,7 @@ import actionTypes from '../../store/actions/actionTypes';
 import actions from '../../store/actions';
 import SwitchMapForm from '../SwitchMapForm/SwitchMapForm';
 import * as geoCalculations from '../../utils/geoCalculations';
+import { viewerStates } from '../../store/reducers/plannerReducer';
 
 class SLayerGroup {
     constructor(coordSystemString, bShowGeoInMetricProportion, bSetTerrainBoxByStaticLayerOnly, InitialScale2D) {
@@ -44,7 +45,7 @@ class MapContainer extends PureComponent {
         isDTMClicked: false,
         is3DClicked: false,
         isSwitchMapFormOpen: false,
-        workingOriginSelected: false
+        isOriginSelectionMode: false
     }
 
     mapTerrains = new Map;
@@ -83,13 +84,27 @@ class MapContainer extends PureComponent {
     ScreenPictureScheme = null;
 
     TempOriginAngle = 0;
-    WorkingOrigin = null;
-    DroneRouteCoordinates = [];
-    DroneObject = null;
-    DroneRouteObject = null;
+
+    MapObjects = {
+        "115": {
+            WorkingOrigin: null,
+            Drone: null,
+            Route: null
+        },
+        "116": {
+            WorkingOrigin: null,
+            Drone: null,
+            Route: null
+        },
+        "117": {
+            WorkingOrigin: null,
+            Drone: null,
+            Route: null
+        }
+    }
+
     SelectedMissionPointObject = null;
     MissionPointsObjects = [];
-    MapObjectType = Object.freeze({ "ORIGIN": 1, "MISSION": 2, "ENEMY": 3 });
 
     componentDidMount() {
         window.addEventListener('resize', this.resizeCanvases);
@@ -112,11 +127,18 @@ class MapContainer extends PureComponent {
             this.CreateMapcoreObjects();
             this.RemoveDroneData();
         }
-        if (this.state.workingOriginSelected &&
-            this.props.dronePositionOffset &&
-            (prevProps.dronePositionOffset != this.props.dronePositionOffset)) {
-            this.MoveDrone();
+
+        const dronesPositions = this.props.dronesPositions;
+        if (dronesPositions &&
+            (prevProps.dronesPositions != dronesPositions)) {
+            Object.keys(dronesPositions).forEach(droneNumber => {
+                if (dronesPositions[droneNumber] && dronesPositions[droneNumber].offset &&
+                    dronesPositions[droneNumber] != prevProps.dronesPositions[droneNumber]) {
+                    this.MoveDrone(droneNumber);
+                }
+            })
         }
+
 
         if (this.props.isPointSelectionMode && !prevProps.isPointSelectionMode && !this.SelectedMissionPointObject) {
             this.selectMissionPointFromMap();
@@ -126,27 +148,49 @@ class MapContainer extends PureComponent {
             this.UpdateEnemyPosition();
         }
 
+        if (this.props.selectedDrone != prevProps.selectedDrone) {
+            Object.keys(dronesPositions).forEach(droneNumber => {
+                this.SetOpacityToDroneObjects(droneNumber , droneNumber == this.props.selectedDrone);
+            })
+
+        }
+
+        const { viewerState, savedMissionPlan, draftMissionStages } = this.props;
+
+        if (viewerState == viewerStates.savedMission &&
+            (viewerState != prevProps.viewerState || savedMissionPlan != prevProps.savedMissionPlan)) {
+            this.DrawMissionWayPoints(savedMissionPlan);
+        }
+        else if (viewerState == viewerStates.draft &&
+            (viewerState != prevProps.viewerState || draftMissionStages != prevProps.draftMissionStages)) {
+            this.DrawMissionWayPoints(draftMissionStages);
+        }
+
+
+
+
     }
 
-    RemoveDroneData = () => {
-        if (this.WorkingOrigin) {
-            this.WorkingOrigin.Remove();
-            this.WorkingOrigin = null;
-            this.props.saveOriginCoordinate(null);
+    RemoveDroneData = (droneNumber) => {
+        if (this.MapObjects[droneNumber]) {
+            if (this.MapObjects[droneNumber].WorkingOrigin) {
+                this.MapObjects[droneNumber].WorkingOrigin.Remove();
+                this.MapObjects[droneNumber].WorkingOrigin = null;
+                this.props.deleteDronePosition();
+            }
+            if (this.MapObjects[droneNumber].Drone) {
+                this.MapObjects[droneNumber].Drone.Remove();
+                this.MapObjects[droneNumber].Drone = null;
+            }
+            if (this.MapObjects[droneNumber].Route) {
+                this.MapObjects[droneNumber].Route.Remove();
+                this.MapObjects[droneNumber].Route = null;
+            }
         }
-        if (this.DroneObject) {
-            this.DroneObject.Remove();
-            this.DroneObject = null;
-        }
-        if (this.DroneRouteObject) {
-            this.DroneRouteObject.Remove();
-            this.DroneRouteObject = null;
-        }
-        this.DroneRouteCoordinates = [];
     }
 
     CreateMapcoreObjects = () => {
-        this.LoadMapcoreObject("lineScheme", "LineScheme.m");
+        this.LoadMapcoreObject("lineScheme", "LineScheme.json");
         this.LoadMapcoreObject("droneScheme", "Drone.m");
         this.LoadMapcoreObject("locationScheme", "Location.m");
         this.LoadMapcoreObject("pinPointScheme", "PinPoint.m");
@@ -178,7 +222,7 @@ class MapContainer extends PureComponent {
             }
             // create object
             let pObject = window.MapCore.IMcObject.Create(this.overlay, this.ScreenPictureScheme);
-            ID !== null && ID !== undefined && pObject.SetID(ID);
+            // ID !== null && ID !== undefined && pObject.SetID(ID);
             // start EditMode action
             this.editMode.StartInitObject(pObject, pItem);
 
@@ -188,67 +232,115 @@ class MapContainer extends PureComponent {
         return null;
     }
 
+
+
+    DrawMissionWayPoints = (missionStages) => {
+        let index = 1;
+        this.MissionPointsObjects.forEach(wayPoint => wayPoint.Remove());
+        this.MissionPointsObjects = [];
+        for (const stage of missionStages) {
+
+            const { rossService } = stage.selectedStageType;
+
+            if (rossService && rossService == 'addMissionWP') {
+                const [x, y, z] = stage.stageParamsInput.split(',');
+                let wayPoint = window.MapCore.IMcObject.Create(this.overlay, this.ScreenPictureScheme, [{ x: parseFloat(x), y: parseFloat(y), z: parseFloat(z) }]);
+                wayPoint.SetTextureProperty(1, window.MapCore.IMcImageFileTexture.Create(window.MapCore.SMcFileSource("http:ObjectWorld/Images/pinPoint.png", false), false));
+                if (this.props.viewerState == viewerStates.draft) {
+                    wayPoint.SetBColorProperty(3, new window.MapCore.SMcBColor(255, 255, 255, 100));
+                }
+                this.MissionPointsObjects.push(wayPoint);
+
+                index++;
+            }
+        }
+    }
+
     selectMissionPointFromMap = () => {
-        this.SelectedMissionPointObject = this.StartEditMode(this.MissionPointsObjects.length + 1);
-        this.SelectedMissionPointObject.SetTextureProperty(1, window.MapCore.IMcImageFileTexture.Create(window.MapCore.SMcFileSource("http:ObjectWorld/Images/pinPoint.png", false), false));
-
+        this.SelectedMissionPointObject = this.StartEditMode();
     }
 
-    SetWorkingOrigin = () => {
-        this.RemoveDroneData();
-        this.WorkingOrigin = this.StartEditMode(0);
-        this.WorkingOrigin.SetTextureProperty(1, window.MapCore.IMcImageFileTexture.Create(window.MapCore.SMcFileSource("http:ObjectWorld/Images/location4.png", false), false));
-            
+    SetWorkingOrigin = (droneNumber) => {
+        this.RemoveDroneData(droneNumber);
+        this.MapObjects[droneNumber].WorkingOrigin = this.StartEditMode();
+        this.MapObjects[droneNumber].WorkingOrigin.SetTextureProperty(1, window.MapCore.IMcImageFileTexture.Create(window.MapCore.SMcFileSource("http:ObjectWorld/Images/location4.png", false), false));
+        this.setState({ isOriginSelectionMode: true });
     }
+
+
+    DrawDroneMapImage = () => {
+        // const { DRONES_DATA } = externalConfig.getConfiguration();
+        // const ip = `//${DRONES_DATA.segment}.${this.props.selectedDrone}:${DRONES_DATA.port}`;
+        // const mapImageStream = `${ip}${config.urls.mapImageStream}`;
+
+        // if (this.DroneMapImage) {
+        //     this.DroneMapImage.GetTextureProperty(1).SetImageFile(window.MapCore.SMcFileSource(mapImageStream, true));
+        // }
+        // else {
+        //     this.DroneMapImage = window.MapCore.IMcObject.Create(this.overlay, this.WorldPictureScheme, [this.MapObjects[droneNumber].WorkingOrigin.GetLocationPoints()[0]]);
+        //     this.DroneMapImage.SetTextureProperty(1, window.MapCore.IMcImageFileTexture.Create(window.MapCore.SMcFileSource(mapImageStream, true), false));
+        //     this.DroneMapImage.SetFloatProperty(2, 5);
+        //     this.DroneMapImage.SetFloatProperty(3, 5);
+        // }
+
+        // setTimeout(this.DrawDroneMapImage, 3000);
+    }
+
 
     UpdateEnemyPosition() {
-        const coordinateWithOffset = geoCalculations.getMapCoordinate(this.props.workingOrigin, this.props.enemyPositionOffset);
-        this.EnemyObject = window.MapCore.IMcObject.Create(this.overlay, this.ScreenPictureScheme, [coordinateWithOffset]);
-        this.EnemyObject.SetTextureProperty(1, window.MapCore.IMcImageFileTexture.Create(window.MapCore.SMcFileSource("http:ObjectWorld/Images/enemy.png", false), false));
-        this.EnemyObject.SetFloatProperty(2, 0.5);
+        //  const coordinateWithOffset = geoCalculations.getMapCoordinate(this.props.workingOrigin, this.props.enemyPositionOffset);
+        //  this.EnemyObject = window.MapCore.IMcObject.Create(this.overlay, this.ScreenPictureScheme, [coordinateWithOffset]);
+        //  this.EnemyObject.SetTextureProperty(1, window.MapCore.IMcImageFileTexture.Create(window.MapCore.SMcFileSource("http:ObjectWorld/Images/enemy.png", false), false));
+        //  this.EnemyObject.SetFloatProperty(2, 0.5);
     }
 
-    DrawDroneObjects() {
-        const originCoordinate = this.props.workingOrigin.coordinate;
-        this.DroneRouteCoordinates.push(originCoordinate);
-        this.DroneObject = window.MapCore.IMcObject.Create(this.overlay, this.ScreenPictureScheme, [originCoordinate]);
-        this.DroneObject.SetTextureProperty(1, window.MapCore.IMcImageFileTexture.Create(window.MapCore.SMcFileSource("http:ObjectWorld/Images/droneNew.png", false), false));
-        this.DroneObject.SetFloatProperty(2, 0.9);
-        this.DroneObject.SetFloatProperty(4, 360 - this.props.workingOrigin.angle);
-        this.DroneRouteObject = window.MapCore.IMcObject.Create(this.overlay, this.lineScheme, [originCoordinate]);
-        this.DroneRouteObject.SetState([2])
+    DrawDroneObjects(droneNumber) {
+        const originCoordinate = this.MapObjects[droneNumber].WorkingOrigin.GetLocationPoints()[0];
+        this.MapObjects[droneNumber].Drone = window.MapCore.IMcObject.Create(this.overlay, this.ScreenPictureScheme, [originCoordinate]);
+        this.MapObjects[droneNumber].Drone.SetTextureProperty(1, window.MapCore.IMcImageFileTexture.Create(window.MapCore.SMcFileSource("http:ObjectWorld/Images/droneNew.png", false), false));
+        this.MapObjects[droneNumber].Drone.SetFloatProperty(2, 0.9);
+        this.MapObjects[droneNumber].Drone.SetFloatProperty(4, 360 - this.props.dronesPositions[droneNumber].workingOrigin.angle);
+
+        this.MapObjects[droneNumber].Route = window.MapCore.IMcObject.Create(this.overlay, this.lineScheme, [originCoordinate]);
+        this.MapObjects[droneNumber].Route.SetFloatProperty(2,2);
+
+        this.SetOpacityToDroneObjects(droneNumber , droneNumber == this.props.selectedDrone);
+
     }
-    // getMapCoordinate = (offset) => {
-    //     const offsetWithAngle = geoCalculations.calculateOffsetWithAngle(offset,  this.props.workingOrigin.angle);
-    //     const mapOffset = geoCalculations.convertMapOffsetToDroneOffset(offsetWithAngle);
-    //     return geoCalculations.addCoordinates(this.props.workingOrigin.coordinate, mapOffset);
-    // }
 
-    MoveDrone = () => {
+    SetOpacityToDroneObjects = (droneNumber , isSelected) => {
+        this.MapObjects[droneNumber].WorkingOrigin && this.MapObjects[droneNumber].WorkingOrigin.SetBColorProperty(3, new window.MapCore.SMcBColor(255, 255, 255,isSelected ? 255 : 100));
+        this.MapObjects[droneNumber].Drone && this.MapObjects[droneNumber].Drone.SetBColorProperty(3, new window.MapCore.SMcBColor(255, 255, 255, isSelected ? 255: 100));
+        this.MapObjects[droneNumber].Route && this.MapObjects[droneNumber].Route.SetBColorProperty(1, new window.MapCore.SMcBColor(0, 0, 0, isSelected ? 255: 100));
+    }
 
-        if (!this.WorkingOrigin || !this.state.workingOriginSelected) {
+    MoveDrone = (droneNumber) => {
+        if (!this.MapObjects[droneNumber].WorkingOrigin) {
             console.log("No Working Origin Selected!!");
             return;
         }
-        if (!this.DroneObject || !this.DroneRouteObject) {
-            this.DrawDroneObjects();
+        debugger;
+
+        if (!this.MapObjects[droneNumber].Drone || !this.MapObjects[droneNumber].Route) {
+            this.DrawDroneObjects(droneNumber);
             return;
         }
 
-        const coordinateWithOffset = geoCalculations.getMapCoordinate(this.props.workingOrigin, this.props.dronePositionOffset);
-
-        if (this.DroneRouteCoordinates.length > 0) {
-            let prevCoordinate = this.DroneRouteCoordinates[this.DroneRouteCoordinates.length - 1];
+        const coordinateWithOffset = geoCalculations.getMapCoordinate(this.props.dronesPositions[droneNumber].workingOrigin, this.props.dronesPositions[droneNumber].offset);
+        let routeCoordinates = this.MapObjects[droneNumber].Route.GetLocationPoints();
+        if (routeCoordinates.length > 0) {
+            let prevCoordinate = routeCoordinates[routeCoordinates.length - 1];
             if (geoCalculations.calculateDistanceBetween2Points(prevCoordinate, coordinateWithOffset) < config.MIN_DRONE_DISTANCE_MOVE) { //too small distance , not importent
                 return;
             }
         }
+        this.MapObjects[droneNumber].Drone.UpdateLocationPoints([coordinateWithOffset]);
+        this.MapObjects[droneNumber].Drone.SetFloatProperty(4, this.props.dronesPositions[droneNumber].workingOrigin.angle - this.props.dronesPositions[droneNumber].angle);
+        
 
-        this.DroneRouteCoordinates.push(coordinateWithOffset);
-        this.DroneObject.UpdateLocationPoints([coordinateWithOffset]);
-        this.DroneObject.SetFloatProperty(4, this.props.workingOrigin.angle - this.props.dronePositionOffset.angle);
-        this.DroneRouteObject.SetLocationPoints(this.DroneRouteCoordinates);
-        this.props.saveDroneLastCoordinate(coordinateWithOffset);
+        routeCoordinates.push(coordinateWithOffset);
+        this.MapObjects[droneNumber].Route.SetLocationPoints(routeCoordinates);
+        this.SetOpacityToDroneObjects(droneNumber , droneNumber == this.props.selectedDrone);
     }
 
 
@@ -273,14 +365,15 @@ class MapContainer extends PureComponent {
             );
     }
 
-    OnEditClickWorkingOrigin = () => {
-        if (this.WorkingOrigin && this.WorkingOrigin.GetLocationPoints().length > 0) {
-            this.setState({ workingOriginSelected: true })
-          //    this.WorkingOrigin.SetFloatProperty(2, 1);
-            const originCoordinate = geoCalculations.roundCoordinate(this.WorkingOrigin.GetLocationPoints()[0], config.COORDINATE_DECIMALS_PRECISION);
+    OnEditClickWorkingOrigin = (droneNumber) => {
+
+        if (this.MapObjects[droneNumber].WorkingOrigin && this.MapObjects[droneNumber].WorkingOrigin.GetLocationPoints().length > 0) {
+            //    this.WorkingOrigin.SetFloatProperty(2, 1);
+            const originCoordinate = geoCalculations.roundCoordinate(this.MapObjects[droneNumber].WorkingOrigin.GetLocationPoints()[0], config.COORDINATE_DECIMALS_PRECISION);
             this.props.saveOriginCoordinate(originCoordinate, 360 - this.TempOriginAngle);
-            this.props.saveDroneLastCoordinate(originCoordinate);
+            //   this.DrawDroneMapImage();
         }
+        this.setState({ isOriginSelectionMode: false });
     }
     OnEditClickMissionPoint = () => {
         if (this.SelectedMissionPointObject && this.SelectedMissionPointObject.GetLocationPoints().length > 0) {
@@ -289,7 +382,7 @@ class MapContainer extends PureComponent {
             let locationPoints = this.SelectedMissionPointObject.GetLocationPoints()[0];
             locationPoints.z = config.DEFAULT_MISSION_POINT_HEIGHT;
             this.props.selectPointFromMap(geoCalculations.roundCoordinate(locationPoints, config.COORDINATE_DECIMALS_PRECISION));
-            this.MissionPointsObjects.push(this.SelectedMissionPointObject);
+            this.SelectedMissionPointObject.Remove();
         }
 
         this.SelectedMissionPointObject = null;
@@ -914,8 +1007,8 @@ class MapContainer extends PureComponent {
             if (this.props.isPointSelectionMode) {
                 this.OnEditClickMissionPoint();
             }
-            else if (!this.props.workingOrigin || !this.props.workingOrigin.coordinate) {
-                this.OnEditClickWorkingOrigin();
+            else if (this.state.isOriginSelectionMode) {
+                this.OnEditClickWorkingOrigin(this.props.selectedDrone);
             }
 
 
@@ -1291,7 +1384,6 @@ class MapContainer extends PureComponent {
 
         // Update context with new position
         // const point = new geo.coordinate(x, y, height);
-        // this.lastPositionChanged = point;
         // this.mapMngr.notifyGeneralEvent('mappositionchanged', point, this.elementId);
     }
 
@@ -1479,7 +1571,7 @@ class MapContainer extends PureComponent {
             // }
         }
 
-        // if (this.props.isPointSelectionMode || !this.props.workingOrigin || !this.props.workingOrigin.coordinate) {
+        // if (this.props.isPointSelectionMode || !this.props.workingOrigin || !this.MapObjects[droneNumber].WorkingOrigin.GetLocationPoints()[0]) {
         //     this.mouseDownHandler(e);
         // }
         e.preventDefault();
@@ -1893,7 +1985,7 @@ class MapContainer extends PureComponent {
             },
             primayButton: {
                 title: 'Set Origin',
-                callback: this.SetWorkingOrigin()
+                callback: () => this.SetWorkingOrigin(this.props.selectedDrone)
             },
             secondaryButton: {
                 title: 'Cancel',
@@ -1988,10 +2080,13 @@ const mapStateToProps = (state) => {
     return {
         isMapCoreSDKLoaded: state.map.isMapCoreSDKLoaded,
         mapToShow: state.map.mapToShow,
-        dronePositionOffset: state.map.dronePositionOffset,
-        workingOrigin: state.map.workingOrigin,
+        dronesPositions: state.map.dronesPositions,
         isPointSelectionMode: state.layout.isPointSelectionMode,
         enemyPositionOffset: state.map.enemyPositionOffset,
+        savedMissionPlan: state.planner.savedMissionPlan,
+        draftMissionStages: state.planner.draftMissionStages,
+        viewerState: state.planner.viewerState,
+        selectedDrone: state.map.selectedDrone
     };
 };
 
@@ -1999,10 +2094,9 @@ const mapDispachToProps = (dispatch) => {
     return {
         showContextMenu: (x, y, items) => dispatch({ type: actionTypes.SHOW_CONTEXT_MENU, payload: { x, y, items } }),
         closeContextMenu: () => dispatch({ type: actionTypes.CLOSE_CONTEXT_MENU }),
-        subscribeToDroneData: () => dispatch(actions.subscribeToDroneData()),
         showPopup: details => dispatch({ type: actionTypes.SHOW_POPUP, payload: details }),
         saveOriginCoordinate: (coordinate, angle) => dispatch({ type: actionTypes.SAVE_ORIGIN_COORDINATE, payload: { coordinate, angle } }),
-        saveDroneLastCoordinate: (lastPosition) => dispatch({ type: actionTypes.SAVE_DRONE_LAST_POSITION, payload: { lastPosition } }),
+        deleteDronePosition: () => dispatch({ type: actionTypes.DELETE_DRONE_POSITION }),
         togglePointSelectionMode: () => dispatch({ type: actionTypes.TOGGLE_POINT_SELECTION_MODE }),
         selectPointFromMap: (pointFromMap) => dispatch({ type: actionTypes.SELECT_POINT_FROM_MAP, payload: { pointFromMap } }),
     };

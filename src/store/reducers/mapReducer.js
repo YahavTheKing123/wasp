@@ -4,10 +4,10 @@ import * as geoCalculations from '../../utils/geoCalculations';
 const initialState = {
     isMapCoreSDKLoaded: false,
     mapToShow: null,
-    droneMoveOffset: [],
-    lastPosition: {},
     workingOrigin: null,
-    enemyPositionOffset: null
+    enemyPositionOffset: null,
+    dronesPositions: {},
+    selectedDrone: "115" //externalConfig.getConfiguration().DRONES_DATA.selectedDrone
 };
 
 const mapReducer = (state = initialState, action) => {
@@ -23,30 +23,51 @@ const mapReducer = (state = initialState, action) => {
                 mapToShow: action.payload
             }
         case actionTypes.GET_DRONE_POSITION_OFFSET:
-            const angle =  geoCalculations.quaternionToYaw(action.payload.droneRotationQuaternion);
+            let dronePosition = { ...state.dronesPositions[action.payload.droneNumber] };
+            dronePosition.angle = geoCalculations.quaternionToYaw(action.payload.droneRotationQuaternion);
+            dronePosition.offset = action.payload.dronePositionOffset;
             return {
                 ...state,
-                dronePositionOffset : { ...action.payload.dronePositionOffset, angle }
+                dronesPositions: {
+                    ...state.dronesPositions,
+                    [action.payload.droneNumber]: dronePosition
+                },
             }
         case actionTypes.GET_ENEMY_POSITION:
             return {
                 ...state,
                 enemyPositionOffset: action.payload.enemyPosition
             }
-        case actionTypes.SAVE_DRONE_LAST_POSITION:
+        case actionTypes.SELECT_DRONE: {
             return {
                 ...state,
-                lastPosition: action.payload.lastPosition
+                selectedDrone: action.payload.droneNumber
             }
-        case actionTypes.SAVE_ORIGIN_COORDINATE:
+        }
+        case actionTypes.DELETE_DRONE_POSITION:{
             return {
                 ...state,
-                workingOrigin: {
-                    coordinate: action.payload.coordinate,
-                    angle: action.payload.angle
-                }
+                dronesPositions: {
+                    ...state.dronesPositions,
+                    [state.selectedDrone]: null
+                },
             }
+        }
+        case actionTypes.SAVE_ORIGIN_COORDINATE:{
+            let droneData = { ...state.dronesPositions[state.selectedDrone] };
+            droneData.workingOrigin = {
+                coordinate: action.payload.coordinate,
+                angle: action.payload.angle
+            };
 
+            return {
+                ...state,
+                dronesPositions: {
+                    ...state.dronesPositions,
+                    [state.selectedDrone]: droneData
+                },
+            }
+        }
         default:
             return state;
     }

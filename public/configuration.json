@@ -1,65 +1,73 @@
 {
-    "ROS_BE_PORT": 9090,
-    "ROS_BE_PROTOCOL": "ws",
-    "BE_PORT": 8081,
-    "BE_IP": "192.168.1.115",
-    "MAPCORE_LAYER_SERVER_URL": false,
-	"streamingLayers":[		
+	"ROS_BE_PORT": 9090,
+	"ROS_BE_PROTOCOL": "ws",
+	"DRONES_DATA": {
+		"segment": "192.168.1",
+		"port": 8081,
+		"selectedDrone": 116,
+		"dronesList": [
+			"115",
+			"116",
+	      	"117"
+		]
+	},
+	"MAPCORE_LAYER_SERVER_URL": false,
+	"streamingLayers": [
 		{
-			"groupName":"LegoRoom",
-			"coordSystemType":"IMcGridUTM",
-			"coordSystemParams":"36, MapCore.IMcGridCoordinateSystem.EDatumType.EDT_ED50_ISRAEL",
+			"groupName": "LegoRoom",
+			"coordSystemType": "IMcGridUTM",
+			"coordSystemParams": "36, MapCore.IMcGridCoordinateSystem.EDatumType.EDT_ED50_ISRAEL",
 			"InitialScale2D": 0.02,
-			"layers":[
+			"layers": [
 				{
-					"type":"IMcNativeRasterMapLayer",
-					"path":"Maps/Raster/LegoRoom"
+					"type": "IMcNativeRasterMapLayer",
+					"path": "Maps/Raster/LegoRoom"
 				}
 			]
 		},
 		{
-			"groupName":"Elbit Campus",
-			"coordSystemType":"IMcGridUTM",
-			"coordSystemParams":"36, MapCore.IMcGridCoordinateSystem.EDatumType.EDT_ED50_ISRAEL",
-			"InitialScale2D":0.2,
-			"layers":[
+			"groupName": "Elbit Campus",
+			"coordSystemType": "IMcGridUTM",
+			"coordSystemParams": "36, MapCore.IMcGridCoordinateSystem.EDatumType.EDT_ED50_ISRAEL",
+			"InitialScale2D": 0.2,
+			"layers": [
 				{
-					"type":"IMcNative3DModelMapLayer",
-					"path":"Maps/StaticObjects/Elbit-Campus"
+					"type": "IMcNative3DModelMapLayer",
+					"path": "Maps/StaticObjects/Elbit-Campus"
 				}
 			]
-		},		
+		},
 		{
-			"groupName":"Adam",
-			"coordSystemType":"IMcGridUTM",
-			"coordSystemParams":"36, MapCore.IMcGridCoordinateSystem.EDatumType.EDT_ED50_ISRAEL",
+			"groupName": "Adam",
+			"coordSystemType": "IMcGridUTM",
+			"coordSystemParams": "36, MapCore.IMcGridCoordinateSystem.EDatumType.EDT_ED50_ISRAEL",
 			"InitialScale2D": 5,
-			"layers":[
+			"layers": [
 				{
-					"type":"IMcNativeRasterMapLayer",
-					"path":"Maps/Raster/Adam"
+					"type": "IMcNativeRasterMapLayer",
+					"path": "Maps/Raster/Adam"
 				}
 			]
-		},							
+		},
 		{
-			"groupName":"Maccabim (UTM)",
-			"coordSystemType":"IMcGridUTM",
-			"coordSystemParams":"36, MapCore.IMcGridCoordinateSystem.EDatumType.EDT_ED50_ISRAEL",
-			"InitialScale2D":8,
-			"layers":[
+			"groupName": "Maccabim (UTM)",
+			"coordSystemType": "IMcGridUTM",
+			"coordSystemParams": "36, MapCore.IMcGridCoordinateSystem.EDatumType.EDT_ED50_ISRAEL",
+			"InitialScale2D": 8,
+			"layers": [
 				{
-					"type":"IMcNativeRasterMapLayer",
-					"path":"Maps/Raster/Maccabim-UTM-Streaming"
+					"type": "IMcNativeRasterMapLayer",
+					"path": "Maps/Raster/Maccabim-UTM-Streaming"
 				},
 				{
-					"type":"IMcNativeDtmMapLayer",
-					"path":"Maps/DTM/MaccabimDTM-UTM-Streaming"
-				},			
+					"type": "IMcNativeDtmMapLayer",
+					"path": "Maps/DTM/MaccabimDTM-UTM-Streaming"
+				},
 				{
-					"type":"IMcNativeVectorMapLayer",
-					"path":"Maps/Vector/MaccabimRoads-UTM"
+					"type": "IMcNativeVectorMapLayer",
+					"path": "Maps/Vector/MaccabimRoads-UTM"
 				}
 			]
-		}	
-	]  
+		}
+	]
 }

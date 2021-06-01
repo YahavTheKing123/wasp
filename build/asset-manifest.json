@@ -1,17 +1,17 @@
 {
   "files": {
-    "main.css": "./static/css/main.16ebe7ab.chunk.css",
-    "main.js": "./static/js/main.8fde1d3f.chunk.js",
-    "main.js.map": "./static/js/main.8fde1d3f.chunk.js.map",
+    "main.css": "./static/css/main.2bf0cabf.chunk.css",
+    "main.js": "./static/js/main.149383fb.chunk.js",
+    "main.js.map": "./static/js/main.149383fb.chunk.js.map",
     "runtime-main.js": "./static/js/runtime-main.9ccae98e.js",
     "runtime-main.js.map": "./static/js/runtime-main.9ccae98e.js.map",
     "static/css/2.65aa3b33.chunk.css": "./static/css/2.65aa3b33.chunk.css",
-    "static/js/2.932c175a.chunk.js": "./static/js/2.932c175a.chunk.js",
-    "static/js/2.932c175a.chunk.js.map": "./static/js/2.932c175a.chunk.js.map",
+    "static/js/2.adcc42df.chunk.js": "./static/js/2.adcc42df.chunk.js",
+    "static/js/2.adcc42df.chunk.js.map": "./static/js/2.adcc42df.chunk.js.map",
     "index.html": "./index.html",
     "static/css/2.65aa3b33.chunk.css.map": "./static/css/2.65aa3b33.chunk.css.map",
-    "static/css/main.16ebe7ab.chunk.css.map": "./static/css/main.16ebe7ab.chunk.css.map",
-    "static/js/2.932c175a.chunk.js.LICENSE.txt": "./static/js/2.932c175a.chunk.js.LICENSE.txt",
+    "static/css/main.2bf0cabf.chunk.css.map": "./static/css/main.2bf0cabf.chunk.css.map",
+    "static/js/2.adcc42df.chunk.js.LICENSE.txt": "./static/js/2.adcc42df.chunk.js.LICENSE.txt",
     "static/media/EnemySpotted.efd0437a.mp3": "./static/media/EnemySpotted.efd0437a.mp3",
     "static/media/WeaponDetection.758e844f.png": "./static/media/WeaponDetection.758e844f.png",
     "static/media/ActionButtons.module.css": "./static/media/refresh1.85f1dc2b.svg",
@@ -33,8 +33,8 @@
   "entrypoints": [
     "static/js/runtime-main.9ccae98e.js",
     "static/css/2.65aa3b33.chunk.css",
-    "static/js/2.932c175a.chunk.js",
-    "static/css/main.16ebe7ab.chunk.css",
-    "static/js/main.8fde1d3f.chunk.js"
+    "static/js/2.adcc42df.chunk.js",
+    "static/css/main.2bf0cabf.chunk.css",
+    "static/js/main.149383fb.chunk.js"
   ]
 }

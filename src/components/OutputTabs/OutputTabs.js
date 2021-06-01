@@ -162,10 +162,10 @@ class OutputTabs extends Component {
     }
 
     getWindowDetectionVideoSrc() {
-        const { BE_PORT, BE_IP } = externalConfig.getConfiguration();
-
-        const snapshotUrl = `//${BE_IP}:${BE_PORT}${config.urls.windowDetectionSnapshot}`;
-        const streamUrl = `//${BE_IP}:${BE_PORT}${config.urls.windowDetectionStream}`;
+        const {DRONES_DATA} = externalConfig.getConfiguration();
+        const ip = `//${DRONES_DATA.segment}.${this.props.selectedDrone}:${DRONES_DATA.port}`;
+        const snapshotUrl = `${ip}${config.urls.windowDetectionSnapshot}`;
+        const streamUrl =`${ip}${config.urls.windowDetectionStream}`;
 
         if (this.props.isPaused) {
             return process.env.NODE_ENV === 'developments' ? devVideoSnapshotUrl : snapshotUrl;
@@ -174,10 +174,10 @@ class OutputTabs extends Component {
         }
     }
     getSkeletonVideoSrc() {
-        const { BE_PORT, BE_IP } = externalConfig.getConfiguration();
-
-        const snapshotUrl = `//${BE_IP}:${BE_PORT}${config.urls.skeletonSnapshot}`;
-        const streamUrl = `//${BE_IP}:${BE_PORT}${config.urls.skeletonStream}`;
+        const {DRONES_DATA} = externalConfig.getConfiguration();
+        const ip = `//${DRONES_DATA.segment}.${this.props.selectedDrone}:${DRONES_DATA.port}`;
+        const snapshotUrl = `${ip}${config.urls.skeletonSnapshot}`;
+        const streamUrl =`${ip}${config.urls.skeletonStream}`;
 
         if (this.props.isPaused) {
             return process.env.NODE_ENV === 'developments' ? devVideoSnapshotUrl : snapshotUrl;
@@ -217,7 +217,8 @@ const mapStateToProps = (state) => {
         imageSentToDroneData: state.layout.imageSentToDroneData,
         skeletonRange: state.output.skeletonRange,
         weaponDetected :  state.output.weaponDetected,
-        indoorExplorationFlag: state.output.indoorExplorationFlag
+        indoorExplorationFlag: state.output.indoorExplorationFlag,
+        selectedDrone: state.map.selectedDrone
     };
 };
 

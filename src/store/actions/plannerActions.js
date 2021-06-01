@@ -22,14 +22,18 @@ function asyncCallRossService(serviceName, params) {
 export const runSavedMissionPlan = () => {
     return async (dispatch, getState) => {
         dispatch(showGlobalMessage({ text: `Starting to execute planned mission`, type: logSeverities.info, isRemoved: true }));
-debugger;
         // 1. reset
         const requestMissionReset = new window.ROSLIB.ServiceRequest({});
         await asyncCallRossService('doMissionReset', requestMissionReset);        
         
         // 2. mission plan stages
         const missionStages = getState().planner.savedMissionPlan;        
-        const workingOrigin = getState().map.workingOrigin;
+        const selectedDrone = getState().map.selectedDrone;
+        const workingOrigin = getState().map.dronesPositions[selectedDrone] && getState().map.dronesPositions[selectedDrone].workingOrigin;
+        if(!workingOrigin){
+            alert("select working origin first");
+            return;
+        }
         let serviceRequest;
 
         for (const stage of missionStages) {

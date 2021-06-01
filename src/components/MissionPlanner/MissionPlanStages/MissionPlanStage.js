@@ -107,7 +107,7 @@ class MissionPlanStage extends Component {
             params = `x: ${x.split(".")[0]}\ny: ${y.split(".")[0]}\nz: ${z.split(".")[0]}`
         }
         return (
-            <div className={cn.StageWrapper}>
+            <div className={cn.StageWrapper} style={this.props.isShowMenu ? {opacity: 0.6} : {}}>
                 {this.renderMenuBtn()}
                 <div className={cn.LabelsWrapper}>
                     <div className={cn.StageTypeLabel}>{selectedStageType.label}</div>
