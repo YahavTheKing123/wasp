@@ -27,6 +27,7 @@ class Video extends Component {
     }
 
     getVideoSrc() {
+        console.log("render video",this.props.selectedDrone );
         const {DRONES_DATA} = externalConfig.getConfiguration();
         const ip = `//${DRONES_DATA.segment}.${this.props.selectedDrone}:${DRONES_DATA.port}`;
         const snapshotUrl = `${ip}${config.urls.videoSnapshot}`;
@@ -188,9 +189,9 @@ class Video extends Component {
                 }
 
                 <img
+                    key={this.props.selectedDrone}
                     crossOrigin="anonymous"
                     onLoad={this.onVideoLoaded}
-                    onError={this.onVideoError}
                     className={cn.VideoImage}
                     src={this.getVideoSrc()}
                     id='droneImage'

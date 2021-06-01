@@ -133,6 +133,7 @@ class OutputTabs extends Component {
         let weaponDetectedClass = this.props.weaponDetected ?  cn.WeaponDetected : undefined;
         return (<div className={`${cn.SkeletonTab} ${weaponDetectedClass}`} >
             <img
+             key={"skeleton" +this.props.selectedDrone}
                 crossOrigin="anonymous"
                 //    onLoad={this.onVideoLoaded}
                 //   onError={this.onVideoError}
@@ -149,6 +150,7 @@ class OutputTabs extends Component {
     getWindowDetectionTab() {
         return (<div className={`${cn.WindowTab}`} >
             <img
+              key={"window" + this.props.selectedDrone}
                 crossOrigin="anonymous"
                 //    onLoad={this.onVideoLoaded}
                 //   onError={this.onVideoError}
