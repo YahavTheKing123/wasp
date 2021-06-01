@@ -27,10 +27,10 @@ class Video extends Component {
     }
 
     getVideoSrc() {
-        const { BE_PORT, BE_IP } = externalConfig.getConfiguration();
-
-        const snapshotUrl = `//${BE_IP}:${BE_PORT}${config.urls.videoSnapshot}`;
-        const streamUrl = `//${BE_IP}:${BE_PORT}${config.urls.videoStream}`;
+        const {DRONES_DATA} = externalConfig.getConfiguration();
+        const ip = `//${DRONES_DATA.segment}.${this.props.selectedDrone}:${DRONES_DATA.port}`;
+        const snapshotUrl = `${ip}${config.urls.videoSnapshot}`;
+        const streamUrl =`${ip}${config.urls.videoStream}`;
 
         if (this.props.isPaused) {
             return process.env.NODE_ENV === 'developments' ? devVideoSnapshotUrl : snapshotUrl;
@@ -216,6 +216,7 @@ const mapStateToProps = (state) => {
     return {
         isPaused: state.video.isPaused,
         weaponDetected: state.output.weaponDetected,
+        selectedDrone: state.map.selectedDrone
     };
 };
 

@@ -5,9 +5,11 @@ const config = {
       loadMission: 'defaultMission.json',
       videoStream: '/stream?topic=/d415/color/image_raw',
       videoSnapshot: '/snapshot?topic=/d415/color/image_raw',
-
       skeletonStream: '/stream?topic=/SkeletonDetector/Image',
       skeletonSnapshot: '/snapshot?topic=/SkeletonDetector/Image',
+      
+      mapImageStream: '/stream?topic=/map_image/full',
+      mapImageSnapshot: '/snapshot?topic=/map_image/full',
 
       windowDetectionStream: '/stream?topic=/seeker/detectionImage',
       windowDetectionSnapshot: '/snapshot?topic=/seeker/detectionImage',

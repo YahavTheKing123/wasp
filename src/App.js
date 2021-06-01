@@ -3,6 +3,7 @@ import logo from '../src/assets/images/newLogo.svg';
 import classNames from './App.module.css';
 import Loader from './components/LoaderAlt/LoaderAlt';
 import Clock from './components/Clock/Clock';
+import Select from './components/controls/Select/Select';
 import Popup from './components/Popup/Popup';
 import Error from './components/Error/Error';
 import GlobalMessage from './components/GlobalMessage/GlobalMessage';
@@ -66,9 +67,40 @@ class App extends Component {
         if (value === null || value === undefined) return null;
         return Math.round(value);
     }
+    renderDroneSelect() {
+        const options = [
+            { label: '115' },
+            { label: '116' },
+            { label: '117' },
+        ]
+
+        const dropDownData = {
+            defaultValue: { label: "115", value: "115" },
+            options,
+            onChange: droneNumber => this.handleTypeChange(droneNumber)
+        };
+
+        return (
+            <div className={classNames.Row}>
+                <Select {...dropDownData} />
+            </div>
+        )
+    }
+
+
+    handleTypeChange = (droneNumber) => {
+        this.props.selectDrone(droneNumber.label);
+    }
 
     getMainHeader() {
-        const droneOffset = this.props.dronePositionOffset? geoCalculations.roundCoordinate(this.props.dronePositionOffset) : {} ;
+        debugger;
+        const dronePosition = this.props.dronesPositions[this.props.selectedDrone];
+        let droneOffset = null;
+        let coordinateWithOffset = null;
+        if(dronePosition && dronePosition.offset){
+            droneOffset = dronePosition.offset;
+            coordinateWithOffset = geoCalculations.getMapCoordinate(dronePosition.workingOrigin , dronePosition.offset);
+        }
         return (
             <header className={classNames.AppHeader}>
                 <div className={classNames.LogoWrapper} onClick={() => this.props.history.push('/')}>
@@ -76,18 +108,15 @@ class App extends Component {
                     <span className={classNames.VersionText}>version: 21.05.26 </span>
                 </div>
                 <div className={classNames.HeaderLeftWrapper}>
-                <span className={classNames.HeaderItem}>
+                    <span className={classNames.HeaderItem}>
                         <span className={`${classNames.Icon} ${classNames.DroneIcon}`}></span>
-                        <span className={classNames.LongLatWrapper}>
-                            <span className={classNames.MissionWrapper}>
-                                <span className={classNames.lonLatLabel}>IP:</span>
-                                <span className={classNames.lonLatValue}>{externalConfig.getConfiguration().BE_IP}</span>
-                            </span>
+                        <span className={classNames.DroneSelectionWrapper}>
+                            {this.renderDroneSelect()}
                         </span>
                     </span>
                     <span className={classNames.HeaderItem}>
                         <span className={classNames.LongLatWrapper}>
-                        <span className={classNames.MissionWrapper}>
+                            <span className={classNames.MissionWrapper}>
                                 <span className={classNames.lonLatLabel}>Mission:</span>
                             </span>
                             <span className={classNames.MissionValueWrapper}>
@@ -100,15 +129,15 @@ class App extends Component {
                         <span className={classNames.LongLatWrapper}>
                             <span>
                                 <span className={classNames.lonLatLabel}>X:</span>
-                                <span className={classNames.lonLatValue}>{this.formatPosition(this.props.lastPosition.x) || "N/A"}</span>
+                                <span className={classNames.lonLatValue}>{coordinateWithOffset ? this.formatPosition(coordinateWithOffset.x) : "N/A"}</span>
                             </span>
                             <span>
                                 <span className={classNames.lonLatLabel}>Y:</span>
-                                <span className={classNames.lonLatValue}>{this.formatPosition(this.props.lastPosition.y) || "N/A"}</span>
+                                <span className={classNames.lonLatValue}>{coordinateWithOffset ? this.formatPosition(coordinateWithOffset.y) : "N/A"}</span>
                             </span>
                             <span>
                                 <span className={classNames.lonLatLabel}>Z:</span>
-                                <span className={classNames.lonLatValue}>{this.formatPosition(this.props.lastPosition.z) || "N/A"}</span>
+                                <span className={classNames.lonLatValue}>{coordinateWithOffset ? this.formatPosition(coordinateWithOffset.z) : "N/A"}</span>
                             </span>
                         </span>
                     </span>
@@ -117,15 +146,15 @@ class App extends Component {
                         <span className={classNames.LongLatWrapper}>
                             <span>
                                 <span className={classNames.lonLatLabel}>X:</span>
-                                <span className={classNames.lonLatValue}>{droneOffset.x}</span>
+                                <span className={classNames.lonLatValue}>{droneOffset ? droneOffset.x : "N/A"}</span>
                             </span>
                             <span>
                                 <span className={classNames.lonLatLabel}>Y:</span>
-                                <span className={classNames.lonLatValue}>{droneOffset.y}</span>
+                                <span className={classNames.lonLatValue}>{droneOffset ? droneOffset.y : "N/A"}</span>
                             </span>
                             <span>
                                 <span className={classNames.lonLatLabel}>Z:</span>
-                                <span className={classNames.lonLatValue}>{droneOffset.z}</span>
+                                <span className={classNames.lonLatValue}>{droneOffset ? droneOffset.z : "N/A"}</span>
                             </span>
                         </span>
                     </span>
@@ -135,7 +164,11 @@ class App extends Component {
                         <span className={classNames.BatteryValue}>59%</span>
                     </span>
                     <div className={classNames.HeaderItem}>{this.getClock()}</div>
-                    <button className={classNames.MenuBtn} onClick={this.props.workingOrigin ? this.props.toggleMissionPlannerScreen : () => alert("Need to select working origin first.")}>
+                    <button className={classNames.MenuBtn}
+                        onClick={this.props.dronesPositions[this.props.selectedDrone] &&
+                            this.props.dronesPositions[this.props.selectedDrone].workingOrigin ?
+                            this.props.toggleMissionPlannerScreen :
+                            () => alert("Need to select working origin first.")}>
                         <span className={`${classNames.Icon} ${classNames.MissionPlannerIcon}`}></span>
                     </button>
                 </div>
@@ -143,20 +176,20 @@ class App extends Component {
         );
     }
 
- //  onMoreActionsClick = (e) => {
- //      e.preventDefault();
- //      e.stopPropagation();
+    //  onMoreActionsClick = (e) => {
+    //      e.preventDefault();
+    //      e.stopPropagation();
 
- //      const menuItemsList = [
- //          {
- //              name: "Mission Planner Page",
- //              func: this.props.showMissionPlannerScreen,
- //              iconCss: "MissionPlannerIcon"
- //          }
- //      ];
+    //      const menuItemsList = [
+    //          {
+    //              name: "Mission Planner Page",
+    //              func: this.props.showMissionPlannerScreen,
+    //              iconCss: "MissionPlannerIcon"
+    //          }
+    //      ];
 
- //      this.props.showContextMenu(e.clientX, e.clientY, menuItemsList);
- //  }
+    //      this.props.showContextMenu(e.clientX, e.clientY, menuItemsList);
+    //  }
 
     render() {
 
@@ -187,10 +220,9 @@ const mapStateToProps = state => {
         contextMenu: state.layout.contextMenu,
         popupDetails: state.layout.popupDetails,
         missionState: state.output.missionState || 'N/A',
-        lastPosition: state.map.lastPosition || {},
         isMissionPlanScreenHidden: state.layout.isMissionPlanScreenHidden,
-        dronePositionOffset: state.map.dronePositionOffset,
-        workingOrigin:  state.map.workingOrigin
+        dronesPositions: state.map.dronesPositions,
+        selectedDrone: state.map.selectedDrone
     }
 };
 
@@ -200,6 +232,7 @@ const mapDispachToProps = (dispatch) => {
         setMapToShow: groupNode => dispatch({ type: actionTypes.SET_MAP_TO_SHOW, payload: groupNode }),
         showContextMenu: (x, y, items) => dispatch({ type: actionTypes.SHOW_CONTEXT_MENU, payload: { x, y, items } }),
         toggleMissionPlannerScreen: () => dispatch({ type: actionTypes.TOGGLE_MISSION_PLANNER_SCREEN }),
+        selectDrone: (droneNumber) => dispatch({ type: actionTypes.SELECT_DRONE, payload: { droneNumber } }),
     };
 };
 

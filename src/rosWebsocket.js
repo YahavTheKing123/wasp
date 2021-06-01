@@ -2,59 +2,70 @@ import { logSeverities } from './config';
 import actionTypes from './store/actions/actionTypes';
 import actions from './store/actions';
 import externalConfig from './ExternalConfigurationHandler';
-import {store} from './index';
+import { store } from './index';
 
 
 class RosWebSocket {
 
     rosWebSocket = null;
+    rosWebSockets = {};
+
     RECONNECT_TIMEOUT = 2000;
 
 
-    register() {
+    register(droneNumber) {
         try {
-            const { ROS_BE_PROTOCOL, BE_IP, ROS_BE_PORT } = externalConfig.getConfiguration();
-            const url =  `${ROS_BE_PROTOCOL}://${BE_IP}:${ROS_BE_PORT}`;
-            store.dispatch({type: actionTypes.SHOW_GLOBAL_MESSAGE, payload: {text: `Trying to connect ros websocket on: ${url}`, type:logSeverities.info}})
-            store.dispatch(actions.showGlobalMessage({text: `Trying to connect ros websocket on: ${url}`, type:logSeverities.info}))
+            const { ROS_BE_PORT, ROS_BE_PROTOCOL, DRONES_DATA } = externalConfig.getConfiguration();
+            const url = `${ROS_BE_PROTOCOL}://${DRONES_DATA.segment}.${droneNumber}:${ROS_BE_PORT}`;
+            store.dispatch({ type: actionTypes.SHOW_GLOBAL_MESSAGE, payload: { text: `Trying to connect ros websocket on: ${url}`, type: logSeverities.info } })
+            store.dispatch(actions.showGlobalMessage({ text: `Trying to connect ros websocket on: ${url}`, type: logSeverities.info }))
             console.log("Trying to connect ros websocket");
-            this.rosWebSocket = new window.ROSLIB.Ros({url});
-    
-            this.rosWebSocket.on('connection', () => {
-                store.dispatch(actions.showGlobalMessage({text: `Connected successfuly to ros websocket`, type:logSeverities.success, isRemoved: true}))                
-                store.dispatch({type: actionTypes.ROSS_WEBSOCKET_CONNECTION_SUCCESS});
+            this.rosWebSockets[droneNumber] = new window.ROSLIB.Ros({ url });
 
-                store.dispatch(actions.subscribeToDroneData());
-                store.dispatch(actions.subscribeToSkeletonRange());
-                store.dispatch(actions.subscribeToWeaponDetection());
+            this.rosWebSockets[droneNumber].on('connection', () => {
+                store.dispatch(actions.showGlobalMessage({ text: `Connected successfuly to ros websocket`, type: logSeverities.success, isRemoved: true }))
+                store.dispatch({ type: actionTypes.ROSS_WEBSOCKET_CONNECTION_SUCCESS });
+
+                store.dispatch(actions.subscribeToDroneData(droneNumber));
+                store.dispatch(actions.subscribeToSkeletonRange(droneNumber));
+                store.dispatch(actions.subscribeToWeaponDetection(droneNumber));
 
             });
-    
-            this.rosWebSocket.on('error', error => {                
-                store.dispatch(actions.showGlobalMessage({text: `Failed to connect ros websocket on: ${url}`, type:logSeverities.error}));
-                store.dispatch({type: actionTypes.ROSS_WEBSOCKET_CONNECTION_FAILED});
+
+            this.rosWebSockets[droneNumber].on('error', error => {
+                store.dispatch(actions.showGlobalMessage({ text: `Failed to connect ros websocket on: ${url}`, type: logSeverities.error }));
+                store.dispatch({ type: actionTypes.ROSS_WEBSOCKET_CONNECTION_FAILED });
                 console.log(error);
             });
-    
-            this.rosWebSocket.on('close', () => {
-                store.dispatch(actions.showGlobalMessage({text: `Connection to ros websocket on: ${url} closed`, type:logSeverities.error}))
-                store.dispatch({type: actionTypes.ROSS_WEBSOCKET_CONNECTION_CLOSED});
-                this.reRegister();
+
+            this.rosWebSockets[droneNumber].on('close', () => {
+                store.dispatch(actions.showGlobalMessage({ text: `Connection to ros websocket on: ${url} closed`, type: logSeverities.error }))
+                store.dispatch({ type: actionTypes.ROSS_WEBSOCKET_CONNECTION_CLOSED });
+                this.reRegister(droneNumber);
             });
         } catch (e) {
             console.log("RosWebSocket.register() Exception:" + e);
         }
     }
 
-    reRegister = () => {
-        setTimeout( () => this.register() , this.RECONNECT_TIMEOUT);
+
+    registerAll = () => {
+        const { DRONES_DATA } = externalConfig.getConfiguration();
+        for (const droneNumber of DRONES_DATA.dronesList) {
+            this.register(droneNumber);
+        }
     }
 
-    getRosWebsocketObject() {
-        if (this.rosWebSocket == null) {
-            this.register();
+
+    reRegister = (droneNumber) => {
+        setTimeout(() => this.register(droneNumber), this.RECONNECT_TIMEOUT);
+    }
+
+    getRosWebsocketObject(droneNumber = externalConfig.getConfiguration().selectedDrone) {
+        if (this.rosWebSockets[droneNumber] == null) {
+            this.register(droneNumber);
         }
-        return this.rosWebSocket;
+        return this.rosWebSockets[droneNumber];
     }
 }
 

@@ -189,10 +189,10 @@ export const setExposure = (exposureVal) => {
 };
 
 
-export const subscribeToSkeletonRange = () => {
+export const subscribeToSkeletonRange = (droneNumber) => {
     return (dispatch) => {
         console.log("subscribe: getSkeletonRange");
-        getService('getSkeletonRange').subscribe(function (response) {
+        getService('getSkeletonRange', droneNumber).subscribe(function (response) {
             let range = 0;
             try {
                 if (response.data) {
@@ -207,10 +207,10 @@ export const subscribeToSkeletonRange = () => {
     };
 };
 
-export const subscribeToWeaponDetection = () => {
+export const subscribeToWeaponDetection = (droneNumber) => {
     return (dispatch) => {
         console.log("subscribe: getDroneExploreState");
-        getService('getDroneExploreState').subscribe(function (response) {
+        getService('getDroneExploreState',droneNumber).subscribe(function (response) {
             
             //const WEAPON_ID = 1;
             const INDOOR_EXPLORATION = "INDOOR_EXPLORATION";

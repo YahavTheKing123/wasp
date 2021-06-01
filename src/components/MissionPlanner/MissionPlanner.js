@@ -88,6 +88,7 @@ class MissionPlanner extends Component {
 
     onSaveBtnClick = () => {
         this.props.saveMissionPlan();
+        this.props.toggleViewerState();
         this.props.showGlobalMessage('Draft Successfuly Saved');
     }
 

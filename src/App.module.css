@@ -215,3 +215,8 @@
  justify-content: center;
  color: silver;
 }
+
+.DroneSelectionWrapper{
+  width: 100%;
+  margin-left: 5px;
+}
