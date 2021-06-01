@@ -86,21 +86,7 @@ class MapContainer extends PureComponent {
     TempOriginAngle = 0;
 
     MapObjects = {
-        "115": {
-            WorkingOrigin: null,
-            Drone: null,
-            Route: null
-        },
-        "116": {
-            WorkingOrigin: null,
-            Drone: null,
-            Route: null
-        },
-        "117": {
-            WorkingOrigin: null,
-            Drone: null,
-            Route: null
-        }
+  
     }
 
     SelectedMissionPointObject = null;
@@ -150,7 +136,9 @@ class MapContainer extends PureComponent {
 
         if (this.props.selectedDrone != prevProps.selectedDrone) {
             Object.keys(dronesPositions).forEach(droneNumber => {
-                this.SetOpacityToDroneObjects(droneNumber , droneNumber == this.props.selectedDrone);
+                if (this.MapObjects[droneNumber] && this.MapObjects[droneNumber].WorkingOrigin) {
+                    this.SetOpacityToDroneObjects(droneNumber, droneNumber == this.props.selectedDrone);
+                }
             })
 
         }
@@ -260,10 +248,18 @@ class MapContainer extends PureComponent {
         this.SelectedMissionPointObject = this.StartEditMode();
     }
 
-    SetWorkingOrigin = (droneNumber) => {
-        this.RemoveDroneData(droneNumber);
-        this.MapObjects[droneNumber].WorkingOrigin = this.StartEditMode();
-        this.MapObjects[droneNumber].WorkingOrigin.SetTextureProperty(1, window.MapCore.IMcImageFileTexture.Create(window.MapCore.SMcFileSource("http:ObjectWorld/Images/location4.png", false), false));
+    SetWorkingOrigin = () => {
+        this.RemoveDroneData(this.props.selectedDrone);
+        if(!this.MapObjects[this.props.selectedDrone]){
+            this.MapObjects[this.props.selectedDrone] = {
+                WorkingOrigin: null,
+                Drone: null,
+                Route: null
+            };
+        }
+        this.MapObjects[this.props.selectedDrone].WorkingOrigin = this.StartEditMode();
+
+        this.MapObjects[this.props.selectedDrone].WorkingOrigin.SetTextureProperty(1, window.MapCore.IMcImageFileTexture.Create(window.MapCore.SMcFileSource("http:ObjectWorld/Images/location4.png", false), false));
         this.setState({ isOriginSelectionMode: true });
     }
 
@@ -302,20 +298,20 @@ class MapContainer extends PureComponent {
         this.MapObjects[droneNumber].Drone.SetFloatProperty(4, 360 - this.props.dronesPositions[droneNumber].workingOrigin.angle);
 
         this.MapObjects[droneNumber].Route = window.MapCore.IMcObject.Create(this.overlay, this.lineScheme, [originCoordinate]);
-        this.MapObjects[droneNumber].Route.SetFloatProperty(2,2);
+        this.MapObjects[droneNumber].Route.SetFloatProperty(2, 2);
 
-        this.SetOpacityToDroneObjects(droneNumber , droneNumber == this.props.selectedDrone);
+        this.SetOpacityToDroneObjects(droneNumber, droneNumber == this.props.selectedDrone);
 
     }
 
-    SetOpacityToDroneObjects = (droneNumber , isSelected) => {
-        this.MapObjects[droneNumber].WorkingOrigin && this.MapObjects[droneNumber].WorkingOrigin.SetBColorProperty(3, new window.MapCore.SMcBColor(255, 255, 255,isSelected ? 255 : 100));
-        this.MapObjects[droneNumber].Drone && this.MapObjects[droneNumber].Drone.SetBColorProperty(3, new window.MapCore.SMcBColor(255, 255, 255, isSelected ? 255: 100));
-        this.MapObjects[droneNumber].Route && this.MapObjects[droneNumber].Route.SetBColorProperty(1, new window.MapCore.SMcBColor(0, 0, 0, isSelected ? 255: 100));
+    SetOpacityToDroneObjects = (droneNumber, isSelected) => {
+        this.MapObjects[droneNumber].WorkingOrigin && this.MapObjects[droneNumber].WorkingOrigin.SetBColorProperty(3, new window.MapCore.SMcBColor(255, 255, 255, isSelected ? 255 : 100));
+        this.MapObjects[droneNumber].Drone && this.MapObjects[droneNumber].Drone.SetBColorProperty(3, new window.MapCore.SMcBColor(255, 255, 255, isSelected ? 255 : 100));
+        this.MapObjects[droneNumber].Route && this.MapObjects[droneNumber].Route.SetBColorProperty(1, new window.MapCore.SMcBColor(0, 0, 0, isSelected ? 255 : 100));
     }
 
     MoveDrone = (droneNumber) => {
-        if (!this.MapObjects[droneNumber].WorkingOrigin) {
+        if (!this.MapObjects[droneNumber] || !this.MapObjects[droneNumber].WorkingOrigin) {
             console.log("No Working Origin Selected!!");
             return;
         }
@@ -336,11 +332,11 @@ class MapContainer extends PureComponent {
         }
         this.MapObjects[droneNumber].Drone.UpdateLocationPoints([coordinateWithOffset]);
         this.MapObjects[droneNumber].Drone.SetFloatProperty(4, this.props.dronesPositions[droneNumber].workingOrigin.angle - this.props.dronesPositions[droneNumber].angle);
-        
+
 
         routeCoordinates.push(coordinateWithOffset);
         this.MapObjects[droneNumber].Route.SetLocationPoints(routeCoordinates);
-        this.SetOpacityToDroneObjects(droneNumber , droneNumber == this.props.selectedDrone);
+        this.SetOpacityToDroneObjects(droneNumber, droneNumber == this.props.selectedDrone);
     }
 
 
@@ -1985,7 +1981,7 @@ class MapContainer extends PureComponent {
             },
             primayButton: {
                 title: 'Set Origin',
-                callback: () => this.SetWorkingOrigin(this.props.selectedDrone)
+                callback: () => this.SetWorkingOrigin()
             },
             secondaryButton: {
                 title: 'Cancel',

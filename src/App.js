@@ -89,12 +89,11 @@ class App extends Component {
     }
 
     getMainHeader() {
-        debugger;
         const dronePosition = this.props.dronesPositions[this.props.selectedDrone];
         let droneOffset = null;
         let coordinateWithOffset = null;
         if(dronePosition && dronePosition.offset){
-            droneOffset = dronePosition.offset;
+            droneOffset = geoCalculations.roundCoordinate(dronePosition.offset);
             coordinateWithOffset = geoCalculations.getMapCoordinate(dronePosition.workingOrigin , dronePosition.offset);
         }
         return (
