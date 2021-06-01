@@ -6,9 +6,7 @@
 		"port": 8081,
 		"selectedDrone": 116,
 		"dronesList": [
-			"115",
-			"116",
-	      	"117"
+			"116"
 		]
 	},
 	"MAPCORE_LAYER_SERVER_URL": false,
