@@ -1,13 +1,13 @@
 import actionTypes from '../actions/actionTypes';
 import * as geoCalculations from '../../utils/geoCalculations';
-
+import externalConfig from '../../ExternalConfigurationHandler';
 const initialState = {
     isMapCoreSDKLoaded: false,
     mapToShow: null,
     workingOrigin: null,
     enemyPositionOffset: null,
     dronesPositions: {},
-    selectedDrone: "115" //externalConfig.getConfiguration().DRONES_DATA.selectedDrone
+    selectedDrone: null
 };
 
 const mapReducer = (state = initialState, action) => {

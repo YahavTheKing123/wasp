@@ -14,11 +14,10 @@ import Loader from './components/LoaderAlt/LoaderAlt';
 import axios from 'axios';
 import config from './config';
 import {BrowserRouter} from 'react-router-dom';
+import actionTypes from './store/actions/actionTypes';
 
 const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
 export const store = createStore(rootReducer, composeEnhancers(applyMiddleware(reduxThunk)));
-
-
 
 ReactDOM.render(
     <React.StrictMode>
@@ -30,6 +29,7 @@ ReactDOM.render(
 axios.get(config.urls.configuration)
       .then((res) => {
         externalConfig.setConfiguration(res.data);
+        store.dispatch({type: actionTypes.SELECT_DRONE, payload: {droneNumber: res.data.DRONES_DATA.dronesList[0]}})
         renderAplication();
       })
       .catch((e) => {
