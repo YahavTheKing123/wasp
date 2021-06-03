@@ -3,40 +3,48 @@
   "FileVersion":91,
   "Schemes":{
     "Scheme0":{
-      "TerrainItemsConsistency":true,
       "Properties":{
         "EPT_FLOAT":[
           {
             "ID":2,
-            "Value":3.0
+            "Value":1.0
           }
         ],
         "EPT_BCOLOR":[
           {
-            "ID":1,
+            "ID":3,
             "Value":{
-              "r":0,
-              "g":0,
-              "b":0,
+              "r":255,
+              "g":255,
+              "b":255,
               "a":255
             }
+          }
+        ],
+        "EPT_TEXTURE":[
+          {
+            "ID":1,
+            "Value":"<null>"
           }
         ]
       },
       "Nodes":{
         "Location0":{
           "Type":"IMcObjectLocation",
+          "RelativeToDTM":true,
           "Index":0
         },
-        "Line1":{
+        "Picture1":{
           "Parents":[
             "Location0"
           ],
-          "Type":"IMcLineItem",
+          "Type":"IMcPictureItem",
           "ID":1000,
-          "ItemSubType":"IMcObjectSchemeItem.EItemSubTypeFlags.EISTF_SCREEN|IMcObjectSchemeItem.EItemSubTypeFlags.EISTF_ATTACHED_TO_TERRAIN",
-          "LineWidth_ID":2,
-          "LineColor_ID":1
+          "Texture_ID":1,
+          "TextureColor_ID":3,
+          "Width_ID":2,
+          "Height_ID":2,
+          "RectAlignment":"IMcSymbolicItem.EBoundingBoxPointFlags.EBBPF_BOTTOM_MIDDLE"
         }
       }
     }

@@ -3,6 +3,7 @@
   "FileVersion":91,
   "Schemes":{
     "Scheme0":{
+      "TerrainItemsConsistency":true,
       "Properties":{
         "EPT_FLOAT":[
           {

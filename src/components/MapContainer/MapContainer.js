@@ -80,9 +80,6 @@ class MapContainer extends PureComponent {
     locationScheme = null;
     pinPointScheme = null;
 
-    WorldPictureScheme = null;
-    ScreenPictureScheme = null;
-
     TempOriginAngle = 0;
 
     MapObjects = {
@@ -182,7 +179,8 @@ class MapContainer extends PureComponent {
         this.LoadMapcoreObject("droneScheme", "Drone.m");
         this.LoadMapcoreObject("locationScheme", "Location.m");
         this.LoadMapcoreObject("pinPointScheme", "PinPoint.m");
-        this.LoadMapcoreObject("ScreenPictureScheme", "ScreenPicture2.json");
+        this.LoadMapcoreObject("ScreenPictureClick", "ScreenPictureClick.json");
+        this.LoadMapcoreObject("ScreenPictureDrone", "ScreenPictureDrone.json");
         this.LoadMapcoreObject("WorldPictureScheme", "WorldPicture2.json");
         this.LoadMapcoreObject("textScheme", "TextScheme.m");
     }
@@ -201,15 +199,15 @@ class MapContainer extends PureComponent {
     }
 
     StartEditMode = (ID) => {
-        if (this.ScreenPictureScheme != null) {
+        if (this.ScreenPictureClick != null) {
             // find item marked for editing (e.g. by setting ID = 1000)
-            let pItem = this.ScreenPictureScheme.GetNodeByID(1000);
+            let pItem = this.ScreenPictureClick.GetNodeByID(1000);
             if (pItem == null) {
                 alert("There is no item marked for editing (with ID = 1000)");
                 return null;
             }
             // create object
-            let pObject = window.MapCore.IMcObject.Create(this.overlay, this.ScreenPictureScheme);
+            let pObject = window.MapCore.IMcObject.Create(this.overlay, this.ScreenPictureClick);
             // ID !== null && ID !== undefined && pObject.SetID(ID);
             // start EditMode action
             this.editMode.StartInitObject(pObject, pItem);
@@ -232,7 +230,7 @@ class MapContainer extends PureComponent {
 
             if (rossService && rossService == 'addMissionWP') {
                 const [x, y, z] = stage.stageParamsInput.split(',');
-                let wayPoint = window.MapCore.IMcObject.Create(this.overlay, this.ScreenPictureScheme, [{ x: parseFloat(x), y: parseFloat(y), z: parseFloat(z) }]);
+                let wayPoint = window.MapCore.IMcObject.Create(this.overlay, this.ScreenPictureClick, [{ x: parseFloat(x), y: parseFloat(y), z: parseFloat(z) }]);
                 wayPoint.SetTextureProperty(1, window.MapCore.IMcImageFileTexture.Create(window.MapCore.SMcFileSource("http:ObjectWorld/Images/pinPoint.png", false), false));
                 if (this.props.viewerState == viewerStates.draft) {
                     wayPoint.SetBColorProperty(3, new window.MapCore.SMcBColor(255, 255, 255, 100));
@@ -285,20 +283,21 @@ class MapContainer extends PureComponent {
 
     UpdateEnemyPosition() {
         //  const coordinateWithOffset = geoCalculations.getMapCoordinate(this.props.workingOrigin, this.props.enemyPositionOffset);
-        //  this.EnemyObject = window.MapCore.IMcObject.Create(this.overlay, this.ScreenPictureScheme, [coordinateWithOffset]);
+        //  this.EnemyObject = window.MapCore.IMcObject.Create(this.overlay, this.ScreenPictureClick, [coordinateWithOffset]);
         //  this.EnemyObject.SetTextureProperty(1, window.MapCore.IMcImageFileTexture.Create(window.MapCore.SMcFileSource("http:ObjectWorld/Images/enemy.png", false), false));
         //  this.EnemyObject.SetFloatProperty(2, 0.5);
     }
 
     DrawDroneObjects(droneNumber) {
         const originCoordinate = this.MapObjects[droneNumber].WorkingOrigin.GetLocationPoints()[0];
-        this.MapObjects[droneNumber].Drone = window.MapCore.IMcObject.Create(this.overlay, this.ScreenPictureScheme, [originCoordinate]);
+        this.MapObjects[droneNumber].Drone = window.MapCore.IMcObject.Create(this.overlay, this.ScreenPictureDrone, [originCoordinate]);
         this.MapObjects[droneNumber].Drone.SetTextureProperty(1, window.MapCore.IMcImageFileTexture.Create(window.MapCore.SMcFileSource("http:ObjectWorld/Images/droneNew.png", false), false));
         this.MapObjects[droneNumber].Drone.SetFloatProperty(2, 0.9);
         this.MapObjects[droneNumber].Drone.SetFloatProperty(4, 360 - this.props.dronesPositions[droneNumber].workingOrigin.angle);
 
         this.MapObjects[droneNumber].Route = window.MapCore.IMcObject.Create(this.overlay, this.lineScheme, [originCoordinate]);
-        this.MapObjects[droneNumber].Route.SetFloatProperty(2, 2);
+        this.MapObjects[droneNumber].Route.SetFloatProperty(2, 3);
+        this.MapObjects[droneNumber].Route.SetDrawPriority(-1);
 
         this.SetOpacityToDroneObjects(droneNumber, droneNumber == this.props.selectedDrone);
 
