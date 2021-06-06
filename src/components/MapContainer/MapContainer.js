@@ -82,9 +82,9 @@ class MapContainer extends PureComponent {
 
     TempOriginAngle = 0;
 
-    MapObjects = {
-  
-    }
+    MapObjects = {};
+
+    EnemyPositions = [];
 
     SelectedMissionPointObject = null;
     MissionPointsObjects = [];
@@ -115,20 +115,20 @@ class MapContainer extends PureComponent {
         if (dronesPositions &&
             (prevProps.dronesPositions != dronesPositions)) {
             Object.keys(dronesPositions).forEach(droneNumber => {
-                if (dronesPositions[droneNumber] && dronesPositions[droneNumber].offset &&
-                    dronesPositions[droneNumber] != prevProps.dronesPositions[droneNumber]) {
-                    this.MoveDrone(droneNumber);
+                if (dronesPositions[droneNumber] && dronesPositions[droneNumber].offset) {
+                    if (!prevProps.dronesPositions[droneNumber] ||  // first position
+                        (dronesPositions[droneNumber].offset != prevProps.dronesPositions[droneNumber].offset)) {  // cahnged position
+                        this.MoveDrone(droneNumber);
+                    }
+                    else if (dronesPositions[droneNumber].enemyOffsets != prevProps.dronesPositions[droneNumber].enemyOffsets) {
+                        this.UpdateEnemyPosition(droneNumber);
+                    }
                 }
             })
         }
 
-
         if (this.props.isPointSelectionMode && !prevProps.isPointSelectionMode && !this.SelectedMissionPointObject) {
             this.selectMissionPointFromMap();
-        }
-
-        if (this.props.enemyPositionOffset && this.props.enemyPositionOffset != prevProps.enemyPositionOffset) {
-            this.UpdateEnemyPosition();
         }
 
         if (this.props.selectedDrone != prevProps.selectedDrone) {
@@ -248,7 +248,7 @@ class MapContainer extends PureComponent {
 
     SetWorkingOrigin = () => {
         this.RemoveDroneData(this.props.selectedDrone);
-        if(!this.MapObjects[this.props.selectedDrone]){
+        if (!this.MapObjects[this.props.selectedDrone]) {
             this.MapObjects[this.props.selectedDrone] = {
                 WorkingOrigin: null,
                 Drone: null,
@@ -258,6 +258,7 @@ class MapContainer extends PureComponent {
         this.MapObjects[this.props.selectedDrone].WorkingOrigin = this.StartEditMode();
 
         this.MapObjects[this.props.selectedDrone].WorkingOrigin.SetTextureProperty(1, window.MapCore.IMcImageFileTexture.Create(window.MapCore.SMcFileSource("http:ObjectWorld/Images/location4.png", false), false));
+        this.MapObjects[this.props.selectedDrone].WorkingOrigin.SetDrawPriority(1);
         this.setState({ isOriginSelectionMode: true });
     }
 
@@ -281,11 +282,12 @@ class MapContainer extends PureComponent {
     }
 
 
-    UpdateEnemyPosition() {
-        //  const coordinateWithOffset = geoCalculations.getMapCoordinate(this.props.workingOrigin, this.props.enemyPositionOffset);
-        //  this.EnemyObject = window.MapCore.IMcObject.Create(this.overlay, this.ScreenPictureClick, [coordinateWithOffset]);
-        //  this.EnemyObject.SetTextureProperty(1, window.MapCore.IMcImageFileTexture.Create(window.MapCore.SMcFileSource("http:ObjectWorld/Images/enemy.png", false), false));
-        //  this.EnemyObject.SetFloatProperty(2, 0.5);
+    UpdateEnemyPosition(droneNumber) {
+        let dronePosition = this.props.dronesPositions[droneNumber];
+        const coordinateWithOffset = geoCalculations.getMapCoordinate(dronePosition.workingOrigin, dronePosition.enemyOffsets[dronePosition.enemyOffsets.length - 1]);
+        this.EnemyObject = window.MapCore.IMcObject.Create(this.overlay, this.ScreenPictureClick, [coordinateWithOffset]);
+        this.EnemyObject.SetTextureProperty(1, window.MapCore.IMcImageFileTexture.Create(window.MapCore.SMcFileSource("http:ObjectWorld/Images/enemy.png", false), false));
+        this.EnemyObject.SetFloatProperty(2, 0.5);
     }
 
     DrawDroneObjects(droneNumber) {
@@ -293,11 +295,12 @@ class MapContainer extends PureComponent {
         this.MapObjects[droneNumber].Drone = window.MapCore.IMcObject.Create(this.overlay, this.ScreenPictureDrone, [originCoordinate]);
         this.MapObjects[droneNumber].Drone.SetTextureProperty(1, window.MapCore.IMcImageFileTexture.Create(window.MapCore.SMcFileSource("http:ObjectWorld/Images/droneNew.png", false), false));
         this.MapObjects[droneNumber].Drone.SetFloatProperty(2, 0.9);
-        this.MapObjects[droneNumber].Drone.SetFloatProperty(4, 360 - this.props.dronesPositions[droneNumber].workingOrigin.angle);
+        this.MapObjects[droneNumber].Drone.SetFloatProperty(4, this.props.dronesPositions[droneNumber].workingOrigin.angle);
+        this.MapObjects[droneNumber].Drone.SetDrawPriority(2);
 
         this.MapObjects[droneNumber].Route = window.MapCore.IMcObject.Create(this.overlay, this.lineScheme, [originCoordinate]);
         this.MapObjects[droneNumber].Route.SetFloatProperty(2, 3);
-        this.MapObjects[droneNumber].Route.SetDrawPriority(-1);
+
 
         this.SetOpacityToDroneObjects(droneNumber, droneNumber == this.props.selectedDrone);
 
@@ -314,7 +317,6 @@ class MapContainer extends PureComponent {
             console.log("No Working Origin Selected!!");
             return;
         }
-        debugger;
 
         if (!this.MapObjects[droneNumber].Drone || !this.MapObjects[droneNumber].Route) {
             this.DrawDroneObjects(droneNumber);
@@ -330,7 +332,7 @@ class MapContainer extends PureComponent {
             }
         }
         this.MapObjects[droneNumber].Drone.UpdateLocationPoints([coordinateWithOffset]);
-        this.MapObjects[droneNumber].Drone.SetFloatProperty(4, this.props.dronesPositions[droneNumber].workingOrigin.angle - this.props.dronesPositions[droneNumber].angle);
+        this.MapObjects[droneNumber].Drone.SetFloatProperty(4, this.props.dronesPositions[droneNumber].workingOrigin.angle + this.props.dronesPositions[droneNumber].angle);
 
 
         routeCoordinates.push(coordinateWithOffset);
@@ -1779,6 +1781,7 @@ class MapContainer extends PureComponent {
                 const layer = eval(group.aLayerCreateStrings[i]);
                 this.aLastTerrainLayers.push(layer);
                 if (layer instanceof window.MapCore.IMc3DModelMapLayer) {
+
                     layer.SetDisplayingItemsAttachedToTerrain(true);
                     layer.SetDisplayingDtmVisualization(true);
                 }
@@ -2077,7 +2080,6 @@ const mapStateToProps = (state) => {
         mapToShow: state.map.mapToShow,
         dronesPositions: state.map.dronesPositions,
         isPointSelectionMode: state.layout.isPointSelectionMode,
-        enemyPositionOffset: state.map.enemyPositionOffset,
         savedMissionPlan: state.planner.savedMissionPlan,
         draftMissionStages: state.planner.draftMissionStages,
         viewerState: state.planner.viewerState,
