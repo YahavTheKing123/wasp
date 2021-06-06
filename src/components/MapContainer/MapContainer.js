@@ -74,11 +74,8 @@ class MapContainer extends PureComponent {
     requestAnimationFrameId = -1;
     aPositions = [];
     aObjects = [];
-    droneScheme = null;
     lineScheme = null;
     textScheme = null;
-    locationScheme = null;
-    pinPointScheme = null;
 
     TempOriginAngle = 0;
 
@@ -176,12 +173,9 @@ class MapContainer extends PureComponent {
 
     CreateMapcoreObjects = () => {
         this.LoadMapcoreObject("lineScheme", "LineScheme.json");
-        this.LoadMapcoreObject("droneScheme", "Drone.m");
-        this.LoadMapcoreObject("locationScheme", "Location.m");
-        this.LoadMapcoreObject("pinPointScheme", "PinPoint.m");
         this.LoadMapcoreObject("ScreenPictureClick", "ScreenPictureClick.json");
         this.LoadMapcoreObject("ScreenPictureDrone", "ScreenPictureDrone.json");
-        this.LoadMapcoreObject("WorldPictureScheme", "WorldPicture2.json");
+        this.LoadMapcoreObject("WorldPictureScheme", "WorldPicture3.json");
         this.LoadMapcoreObject("textScheme", "TextScheme.m");
     }
 
@@ -264,21 +258,20 @@ class MapContainer extends PureComponent {
 
 
     DrawDroneMapImage = () => {
-        // const { DRONES_DATA } = externalConfig.getConfiguration();
-        // const ip = `//${DRONES_DATA.segment}.${this.props.selectedDrone}:${DRONES_DATA.port}`;
-        // const mapImageStream = `${ip}${config.urls.mapImageStream}`;
+        const { DRONES_DATA } = externalConfig.getConfiguration();
+        const ip = `//${DRONES_DATA.segment}.${this.props.selectedDrone}:${DRONES_DATA.port}`;
+        const mapImageStream = `${ip}${config.urls.mapImageStream}`;
 
-        // if (this.DroneMapImage) {
-        //     this.DroneMapImage.GetTextureProperty(1).SetImageFile(window.MapCore.SMcFileSource(mapImageStream, true));
-        // }
-        // else {
-        //     this.DroneMapImage = window.MapCore.IMcObject.Create(this.overlay, this.WorldPictureScheme, [this.MapObjects[droneNumber].WorkingOrigin.GetLocationPoints()[0]]);
-        //     this.DroneMapImage.SetTextureProperty(1, window.MapCore.IMcImageFileTexture.Create(window.MapCore.SMcFileSource(mapImageStream, true), false));
-        //     this.DroneMapImage.SetFloatProperty(2, 5);
-        //     this.DroneMapImage.SetFloatProperty(3, 5);
-        // }
+        if (this.DroneMapImage) {
+            this.DroneMapImage.GetTextureProperty(1).SetImageFile(window.MapCore.SMcFileSource(mapImageStream, true));
+        }
+        else {
+            this.DroneMapImage = window.MapCore.IMcObject.Create(this.overlay, this.WorldPictureScheme, [this.MapObjects[this.props.selectedDrone].WorkingOrigin.GetLocationPoints()[0]]);
+            this.DroneMapImage.SetTextureProperty(1, window.MapCore.IMcImageFileTexture.Create(window.MapCore.SMcFileSource(mapImageStream, true), false));
+            this.DroneMapImage.SetBColorProperty(4, new window.MapCore.SMcBColor(255, 255, 255, 100));
+        }
 
-        // setTimeout(this.DrawDroneMapImage, 3000);
+      //  setTimeout(this.DrawDroneMapImage, 3000);
     }
 
 
@@ -291,15 +284,26 @@ class MapContainer extends PureComponent {
     }
 
     DrawDroneObjects(droneNumber) {
+        const droneList = externalConfig.getConfiguration().DRONES_DATA.dronesList; 
         const originCoordinate = this.MapObjects[droneNumber].WorkingOrigin.GetLocationPoints()[0];
         this.MapObjects[droneNumber].Drone = window.MapCore.IMcObject.Create(this.overlay, this.ScreenPictureDrone, [originCoordinate]);
-        this.MapObjects[droneNumber].Drone.SetTextureProperty(1, window.MapCore.IMcImageFileTexture.Create(window.MapCore.SMcFileSource("http:ObjectWorld/Images/droneNew.png", false), false));
+        this.MapObjects[droneNumber].Drone.SetTextureProperty(1, window.MapCore.IMcImageFileTexture.Create(window.MapCore.SMcFileSource(`http:ObjectWorld/Images/droneNew${droneList.indexOf(droneNumber)+1}.png`, false), false));
         this.MapObjects[droneNumber].Drone.SetFloatProperty(2, 0.9);
         this.MapObjects[droneNumber].Drone.SetFloatProperty(4, this.props.dronesPositions[droneNumber].workingOrigin.angle);
         this.MapObjects[droneNumber].Drone.SetDrawPriority(2);
 
         this.MapObjects[droneNumber].Route = window.MapCore.IMcObject.Create(this.overlay, this.lineScheme, [originCoordinate]);
         this.MapObjects[droneNumber].Route.SetFloatProperty(2, 3);
+
+        let lineColor = new window.MapCore.SMcBColor(44, 229, 246, 255);
+        if(droneList.indexOf(this.props.selectedDrone) == 1){
+            lineColor = new window.MapCore.SMcBColor(0, 128, 0, 255);
+        }
+        else if (droneList.indexOf(this.props.selectedDrone) == 2){
+            lineColor = new window.MapCore.SMcBColor(255,165,0, 255)
+        }
+
+        this.MapObjects[droneNumber].Route.SetBColorProperty(1, lineColor);
 
 
         this.SetOpacityToDroneObjects(droneNumber, droneNumber == this.props.selectedDrone);
@@ -308,8 +312,8 @@ class MapContainer extends PureComponent {
 
     SetOpacityToDroneObjects = (droneNumber, isSelected) => {
         this.MapObjects[droneNumber].WorkingOrigin && this.MapObjects[droneNumber].WorkingOrigin.SetBColorProperty(3, new window.MapCore.SMcBColor(255, 255, 255, isSelected ? 255 : 100));
-        this.MapObjects[droneNumber].Drone && this.MapObjects[droneNumber].Drone.SetBColorProperty(3, new window.MapCore.SMcBColor(255, 255, 255, isSelected ? 255 : 100));
-        this.MapObjects[droneNumber].Route && this.MapObjects[droneNumber].Route.SetBColorProperty(1, new window.MapCore.SMcBColor(0, 0, 0, isSelected ? 255 : 100));
+        this.MapObjects[droneNumber].Drone && this.MapObjects[droneNumber].Drone.SetBColorProperty(3, new window.MapCore.SMcBColor(255, 255, 255, isSelected ? 255 : 150));
+       // this.MapObjects[droneNumber].Route && this.MapObjects[droneNumber].Route.SetBColorProperty(1, new window.MapCore.SMcBColor(255, 255, 255, isSelected ? 255 : 100));
     }
 
     MoveDrone = (droneNumber) => {
@@ -368,7 +372,6 @@ class MapContainer extends PureComponent {
             //    this.WorkingOrigin.SetFloatProperty(2, 1);
             const originCoordinate = geoCalculations.roundCoordinate(this.MapObjects[droneNumber].WorkingOrigin.GetLocationPoints()[0], config.COORDINATE_DECIMALS_PRECISION);
             this.props.saveOriginCoordinate(originCoordinate, 360 - this.TempOriginAngle);
-            //   this.DrawDroneMapImage();
         }
         this.setState({ isOriginSelectionMode: false });
     }

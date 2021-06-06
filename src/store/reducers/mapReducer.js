@@ -1,6 +1,7 @@
 import actionTypes from '../actions/actionTypes';
 import * as geoCalculations from '../../utils/geoCalculations';
 import externalConfig from '../../ExternalConfigurationHandler';
+import config from '../../config';
 const initialState = {
     isMapCoreSDKLoaded: false,
     mapToShow: null,
@@ -48,7 +49,7 @@ const mapReducer = (state = initialState, action) => {
             let dronePosition = { ...state.dronesPositions[action.payload.droneNumber] };
 
             if (dronePosition.enemyOffsets &&
-                dronePosition.enemyOffsets.some(offset => (geoCalculations.calculateDistanceBetween2Points(offset, enemyOffset) < 0.5))) {
+                dronePosition.enemyOffsets.some(offset => (geoCalculations.calculateDistanceBetween2Points(offset, enemyOffset) < config.MIN_ENEMY_RADIUS))) {
                 //enemy already exists in this radius
                 return state;
             }
