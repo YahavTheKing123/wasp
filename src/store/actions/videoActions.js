@@ -117,7 +117,7 @@ export const reset = () => {
 
 export const takeoff = () => {
     return async (dispatch) => {
-        dispatch({ type: actionTypes.TAKE_OFF_START });        
+        dispatch({ type: actionTypes.TAKE_OFF_START });
         dispatch(showGlobalMessage({ text: `Taking off...`, type: logSeverities.info, isRemoved: true }));
         const requestTakeoff = new window.ROSLIB.ServiceRequest({});
 
@@ -164,7 +164,7 @@ export const goToLocation = (location) => {
 
 export const setExposure = (exposureVal) => {
     return async (dispatch) => {
-        dispatch({ type: actionTypes.SET_EXPOSURE_START });        
+        dispatch({ type: actionTypes.SET_EXPOSURE_START });
         dispatch(showGlobalMessage({ text: `Setting Exposure...`, type: logSeverities.info, isRemoved: true }));
         const setExposure = new window.ROSLIB.ServiceRequest({
             config: {
@@ -175,7 +175,7 @@ export const setExposure = (exposureVal) => {
 
             }
         });
-        
+
         getService('setExposure').callService(setExposure, result => {
             if (result.isSuccess) {
                 dispatch({ type: actionTypes.SET_EXPOSURE_SUCCESS });
@@ -190,14 +190,18 @@ export const setExposure = (exposureVal) => {
 
 
 export const subscribeToSkeletonRange = (droneNumber) => {
-    return (dispatch) => {
+    return (dispatch,getState) => {
         console.log("subscribe: getSkeletonRange");
         getService('getSkeletonRange', droneNumber).subscribe(function (response) {
             let range = 0;
             try {
                 if (response.data) {
-                    range = (response.data / 100).toFixed(1)
-
+                    range = (response.data / 100).toFixed(1);
+                    const INDOOR_EXPLORATION = "INDOOR_EXPLORATION";
+                    if(getState().output.missionState.startsWith(INDOOR_EXPLORATION)){
+                        dispatch({ type: actionTypes.GET_ENEMY_POSITION, payload: { range: response.data , droneNumber } });
+                    } 
+                    
                 }
             } catch {
 
@@ -210,26 +214,26 @@ export const subscribeToSkeletonRange = (droneNumber) => {
 export const subscribeToWeaponDetection = (droneNumber) => {
     return (dispatch) => {
         console.log("subscribe: getDroneExploreState");
-        getService('getDroneExploreState',droneNumber).subscribe(function (response) {
-            
+        getService('getDroneExploreState', droneNumber).subscribe(function (response) {
+
             //const WEAPON_ID = 1;
             const INDOOR_EXPLORATION = "INDOOR_EXPLORATION";
             const INDOOR_EXPLORATION_THREAT = "INDOOR_EXPLORATION_THREAT";
 
             console.log(response);
-            
-            if(response && response.data) {
-                dispatch({ type: actionTypes.SET_MISSION_STATE, payload: { missionState: response.data } });
 
-                if (response.data &&  response.data.startsWith(INDOOR_EXPLORATION)) {
+            if (response && response.data) {
+            
+
+                if (response.data && response.data.startsWith(INDOOR_EXPLORATION)) {
                     dispatch({ type: actionTypes.SET_INDOOR_EXPLORATION_FLAG });
-                    dispatch({ type: actionTypes.SET_WEAPON_DETECTION, payload: { weaponDetected: true } });                
-                    dispatch(showGlobalMessage({ text: `Threat Detected`, type: logSeverities.warn, isRemoved: true }));                    
+                    //    dispatch({ type: actionTypes.SET_WEAPON_DETECTION, payload: { weaponDetected: true } });                
+                    //   dispatch(showGlobalMessage({ text: `Threat Detected`, type: logSeverities.warn, isRemoved: true }));                    
                 } else if (response.data === INDOOR_EXPLORATION_THREAT) {
-                    // dispatch({ type: actionTypes.SET_WEAPON_DETECTION, payload: { weaponDetected: true } });                
-                    // dispatch(showGlobalMessage({ text: `Threat Detected`, type: logSeverities.warn, isRemoved: true }));
+                    dispatch({ type: actionTypes.SET_WEAPON_DETECTION, payload: { weaponDetected: true } });
+                    dispatch(showGlobalMessage({ text: `Threat Detected`, type: logSeverities.warn, isRemoved: true }));
                 }
-                                
+
             }
         });
     };

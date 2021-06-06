@@ -82,7 +82,7 @@ export function quaternionToYaw(q) {
     if(q === null || q === undefined){
         return 0;
     }
-    const yawRadians = Math.atan2(2.0*(q.y*q.z + q.w*q.x), q.w*q.w - q.x*q.x - q.y*q.y + q.z*q.z);
+    const yawRadians = Math.atan2(2*q.x*q.y - 2*q.w*q.z, 2*q.w*q.w + 2*q.x*q.x - 1);
     const angle = yawRadians * 180 / Math.PI;
     return angle;
 }

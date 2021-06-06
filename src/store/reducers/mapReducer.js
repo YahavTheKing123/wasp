@@ -4,7 +4,6 @@ import externalConfig from '../../ExternalConfigurationHandler';
 const initialState = {
     isMapCoreSDKLoaded: false,
     mapToShow: null,
-    workingOrigin: null,
     enemyPositionOffset: null,
     dronesPositions: {},
     selectedDrone: null
@@ -22,7 +21,7 @@ const mapReducer = (state = initialState, action) => {
                 ...state,
                 mapToShow: action.payload
             }
-        case actionTypes.GET_DRONE_POSITION_OFFSET:
+        case actionTypes.GET_DRONE_POSITION_OFFSET: {
             let dronePosition = { ...state.dronesPositions[action.payload.droneNumber] };
             dronePosition.angle = geoCalculations.quaternionToYaw(action.payload.droneRotationQuaternion);
             dronePosition.offset = action.payload.dronePositionOffset;
@@ -33,18 +32,43 @@ const mapReducer = (state = initialState, action) => {
                     [action.payload.droneNumber]: dronePosition
                 },
             }
-        case actionTypes.GET_ENEMY_POSITION:
+        }
+        case actionTypes.GET_ENEMY_POSITION: {
+            let range = action.payload.range;
+            let droneNumber = action.payload.droneNumber;
+            let droneAngle = state.dronesPositions[droneNumber].angle;
+
+            let enemyOffsetFromDrone = {
+                x: range * Math.sin(360 - droneAngle),
+                y: - range * Math.cos(360 - droneAngle),
+                z: 0
+            }
+            let enemyOffset = geoCalculations.addCoordinates(state.dronesPositions[droneNumber].offset, enemyOffsetFromDrone);
+
+            let dronePosition = { ...state.dronesPositions[action.payload.droneNumber] };
+
+            if (dronePosition.enemyOffsets &&
+                dronePosition.enemyOffsets.some(offset => (geoCalculations.calculateDistanceBetween2Points(offset, enemyOffset) < 0.5))) {
+                //enemy already exists in this radius
+                return state;
+            }
+            dronePosition.enemyOffsets = dronePosition.enemyOffsets ? [...dronePosition.enemyOffsets, enemyOffset] : [enemyOffset];
+
             return {
                 ...state,
-                enemyPositionOffset: action.payload.enemyPosition
+                dronesPositions: {
+                    ...state.dronesPositions,
+                    [action.payload.droneNumber]: dronePosition
+                },
             }
+        }
         case actionTypes.SELECT_DRONE: {
             return {
                 ...state,
                 selectedDrone: action.payload.droneNumber
             }
         }
-        case actionTypes.DELETE_DRONE_POSITION:{
+        case actionTypes.DELETE_DRONE_POSITION: {
             return {
                 ...state,
                 dronesPositions: {
@@ -53,7 +77,7 @@ const mapReducer = (state = initialState, action) => {
                 },
             }
         }
-        case actionTypes.SAVE_ORIGIN_COORDINATE:{
+        case actionTypes.SAVE_ORIGIN_COORDINATE: {
             let droneData = { ...state.dronesPositions[state.selectedDrone] };
             droneData.workingOrigin = {
                 coordinate: action.payload.coordinate,
