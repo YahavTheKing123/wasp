@@ -96,15 +96,24 @@ class App extends Component {
             droneOffset = geoCalculations.roundCoordinate(dronePosition.offset);
             coordinateWithOffset = geoCalculations.getMapCoordinate(dronePosition.workingOrigin , dronePosition.offset);
         }
+
+        let droneColor = "#2ce5f6";
+        const droneList = externalConfig.getConfiguration().DRONES_DATA.dronesList; 
+        if(droneList.indexOf(this.props.selectedDrone) == 1){
+            droneColor = "green";
+        }
+        else if (droneList.indexOf(this.props.selectedDrone) == 2){
+            droneColor = "orange";
+        }
         return (
-            <header className={classNames.AppHeader}>
+            <header className={classNames.AppHeader} style={{borderBottomColor : droneColor }} >
                 <div className={classNames.LogoWrapper} onClick={() => this.props.history.push('/')}>
                     <img src={logo} alt='logo' />
                     <span className={classNames.VersionText}>version: 21.05.26 </span>
                 </div>
                 <div className={classNames.HeaderLeftWrapper}>
                     <span className={classNames.HeaderItem}>
-                        <span className={`${classNames.Icon} ${classNames.DroneIcon}`}></span>
+                        <span style={{backgroundColor : droneColor }} className={`${classNames.Icon} ${classNames.DroneIcon}`}></span>
                         <span className={classNames.DroneSelectionWrapper}>
                             {this.renderDroneSelect()}
                         </span>
