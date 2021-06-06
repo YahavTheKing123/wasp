@@ -36,11 +36,11 @@ const mapReducer = (state = initialState, action) => {
         case actionTypes.GET_ENEMY_POSITION: {
             let range = action.payload.range;
             let droneNumber = action.payload.droneNumber;
-            let droneAngle = state.dronesPositions[droneNumber].angle;
+            const droneAngleRadians = (360 - state.dronesPositions[droneNumber].angle) * Math.PI / 180;
 
             let enemyOffsetFromDrone = {
-                x: range * Math.sin(360 - droneAngle),
-                y: - range * Math.cos(360 - droneAngle),
+                x: range * Math.cos(droneAngleRadians) ,
+                y: range * Math.sin(droneAngleRadians) ,
                 z: 0
             }
             let enemyOffset = geoCalculations.addCoordinates(state.dronesPositions[droneNumber].offset, enemyOffsetFromDrone);
