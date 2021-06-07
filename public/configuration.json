@@ -12,7 +12,7 @@
 		]
 	},
 	"MAPCORE_LAYER_SERVER_URL": false,
-	"streamingLayers": [
+	"streamingLayers": [		
 		{
 			"groupName": "LegoRoom",
 			"coordSystemType": "IMcGridUTM",
@@ -22,6 +22,18 @@
 				{
 					"type": "IMcNativeRasterMapLayer",
 					"path": "Maps/Raster/LegoRoom"
+				}
+			]
+		},
+		{
+			"groupName": "Zeelim",
+			"coordSystemType": "IMcGridUTM",
+			"coordSystemParams": "36, MapCore.IMcGridCoordinateSystem.EDatumType.EDT_ED50_ISRAEL",
+			"InitialScale2D": 0.02,
+			"layers": [
+				{
+					"type": "IMcNativeDtmMapLayer",
+					"path": "Maps/DTM/Tzeelim-DTM-Web"
 				}
 			]
 		},
