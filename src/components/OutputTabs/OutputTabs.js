@@ -27,7 +27,7 @@ class OutputTabs extends Component {
         window.removeEventListener('resize', this.onImageLoaded())
     }
 
-      onImageLoaded = (e) => {
+    onImageLoaded = (e) => {
         if (!this.props.imageSentToDroneData || !this.props.imageSentToDroneData.point) {
             console.log("Error, this.props.imageSentToDroneData.point as it is undefined");
             return;
@@ -53,7 +53,7 @@ class OutputTabs extends Component {
             const img = document.createElement('img');
             img.onload = this.onImageLoaded;
             img.src = this.props.imageSentToDroneData.image;
-            window.addEventListener('resize', () => this.onImageLoaded({target: img}))
+            window.addEventListener('resize', () => this.onImageLoaded({ target: img }))
         }
 
         if (prevProps.weaponDetected !== this.props.weaponDetected) {
@@ -61,7 +61,7 @@ class OutputTabs extends Component {
             this.onToggleTabClick("Skeleton");
         }
 
-        if ((prevProps.skeletonRange === 'N/A' && this.props.skeletonRange !== 'N/A') || 
+        if ((prevProps.skeletonRange === 'N/A' && this.props.skeletonRange !== 'N/A') ||
             (!prevProps.indoorExplorationFlag && this.props.indoorExplorationFlag)) {
             this.onToggleTabClick("Skeleton");
         }
@@ -90,26 +90,29 @@ class OutputTabs extends Component {
     }
 
     onToggleTabClick = (selectedTab) => {
-              this.setState({ selectedTab });
+        this.setState({ selectedTab });
     }
 
     renderTabsToggle = () => {
         const selectedTab = this.state.selectedTab;
         return (<>
-
             <div className={cn.tabslidernav} >
                 <ul className={cn.tabslidertabs} >
-                    <li className={`${cn.tabslidertrigger} ${ selectedTab == "Capture" ? cn.TabSelected : ""}`}
+                    <li className={`${cn.tabslidertrigger} ${selectedTab == "Capture" ? cn.TabSelected : ""}`}
                         onClick={() => this.onToggleTabClick("Capture")}>
                         Capture
                     </li>
-                    <li className={`${cn.tabslidertrigger} ${selectedTab == "Skeleton"  ? cn.TabSelected : ""}`}
+                    <li className={`${cn.tabslidertrigger} ${selectedTab == "Skeleton" ? cn.TabSelected : ""}`}
                         onClick={() => this.onToggleTabClick("Skeleton")}>
                         Skeleton
                     </li>
-                    <li className={`${cn.tabslidertrigger} ${selectedTab == "WindowDetection"  ? cn.TabSelected : ""}`}
+                    <li className={`${cn.tabslidertrigger} ${selectedTab == "WindowDetection" ? cn.TabSelected : ""}`}
                         onClick={() => this.onToggleTabClick("WindowDetection")}>
                         Window
+                    </li>
+                    <li className={`${cn.tabslidertrigger} ${selectedTab == "Occupancy" ? cn.TabSelected : ""}`}
+                        onClick={() => this.onToggleTabClick("Occupancy")}>
+                        Occupancy
                     </li>
                 </ul>
             </div>
@@ -130,10 +133,10 @@ class OutputTabs extends Component {
     }
 
     getSkeletonTab() {
-        let weaponDetectedClass = this.props.weaponDetected ?  cn.WeaponDetected : undefined;
+        let weaponDetectedClass = this.props.weaponDetected ? cn.WeaponDetected : undefined;
         return (<div className={`${cn.SkeletonTab} ${weaponDetectedClass}`} >
             <img
-             key={"skeleton" +this.props.selectedDrone}
+                key={"skeleton" + this.props.selectedDrone}
                 crossOrigin="anonymous"
                 //    onLoad={this.onVideoLoaded}
                 //   onError={this.onVideoError}
@@ -142,7 +145,7 @@ class OutputTabs extends Component {
                 id='droneImage'
             //    onClick={this.props.pointVideoImage}
             />
-            {this.props.weaponDetected &&  <img  className={`${cn.AlertIcon}`} src={ArmedRed} />}
+            {this.props.weaponDetected && <img className={`${cn.AlertIcon}`} src={ArmedRed} />}
             { this.props.skeletonRange && <span className={`${cn.SkeletonRange}`} > {this.getSkeletonRange()} </span>}
         </div>)
     }
@@ -150,7 +153,7 @@ class OutputTabs extends Component {
     getWindowDetectionTab() {
         return (<div className={`${cn.WindowTab}`} >
             <img
-              key={"window" + this.props.selectedDrone}
+                key={"window" + this.props.selectedDrone}
                 crossOrigin="anonymous"
                 //    onLoad={this.onVideoLoaded}
                 //   onError={this.onVideoError}
@@ -159,15 +162,21 @@ class OutputTabs extends Component {
                 id='droneImage'
             //    onClick={this.props.pointVideoImage}
             />
-            <span className={`${cn.AlertIcon}`} />            
+            <span className={`${cn.AlertIcon}`} />
         </div>)
     }
 
+    getOccupancyTab() {
+        return (<div id="occupancyTab"/>);
+    }
+
+    
+
     getWindowDetectionVideoSrc() {
-        const {DRONES_DATA} = externalConfig.getConfiguration();
+        const { DRONES_DATA } = externalConfig.getConfiguration();
         const ip = `//${DRONES_DATA.segment}.${this.props.selectedDrone}:${DRONES_DATA.port}`;
         const snapshotUrl = `${ip}${config.urls.windowDetectionSnapshot}`;
-        const streamUrl =`${ip}${config.urls.windowDetectionStream}`;
+        const streamUrl = `${ip}${config.urls.windowDetectionStream}`;
 
         if (this.props.isPaused) {
             return process.env.NODE_ENV === 'developments' ? devVideoSnapshotUrl : snapshotUrl;
@@ -176,10 +185,10 @@ class OutputTabs extends Component {
         }
     }
     getSkeletonVideoSrc() {
-        const {DRONES_DATA} = externalConfig.getConfiguration();
+        const { DRONES_DATA } = externalConfig.getConfiguration();
         const ip = `//${DRONES_DATA.segment}.${this.props.selectedDrone}:${DRONES_DATA.port}`;
         const snapshotUrl = `${ip}${config.urls.skeletonSnapshot}`;
-        const streamUrl =`${ip}${config.urls.skeletonStream}`;
+        const streamUrl = `${ip}${config.urls.skeletonStream}`;
 
         if (this.props.isPaused) {
             return process.env.NODE_ENV === 'developments' ? devVideoSnapshotUrl : snapshotUrl;
@@ -187,12 +196,15 @@ class OutputTabs extends Component {
             return process.env.NODE_ENV === 'developments' ? devVideoStreamUrl : streamUrl;
         }
     }
+
     getSelectedTab() {
         switch (this.state.selectedTab) {
             case "Capture":
                 return this.getCaptureTab();
             case "Skeleton":
                 return this.getSkeletonTab();
+            case "Occupancy":
+                return this.getOccupancyTab();
             case "WindowDetection":
                 return this.getWindowDetectionTab();
             default:
@@ -218,7 +230,7 @@ const mapStateToProps = (state) => {
         tabs: state.video.tabs,
         imageSentToDroneData: state.layout.imageSentToDroneData,
         skeletonRange: state.output.skeletonRange,
-        weaponDetected :  state.output.weaponDetected,
+        weaponDetected: state.output.weaponDetected,
         indoorExplorationFlag: state.output.indoorExplorationFlag,
         selectedDrone: state.map.selectedDrone
     };
@@ -226,7 +238,7 @@ const mapStateToProps = (state) => {
 
 const mapDispachToProps = (dispatch) => {
     return {
-      
+
     };
 };
 

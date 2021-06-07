@@ -1625,6 +1625,7 @@ class MapContainer extends PureComponent {
         if (this.viewport.GetMapType() == window.MapCore.IMcMapCamera.EMapType.EMT_3D) {
             this.viewport.SetScreenSizeTerrainObjectsFactor(1.5);
             this.viewport.SetCameraRelativeHeightLimits(3, 10000, true);
+            this.viewport.SetDtmTransparencyWithoutRaster(true);
         }
         else {
             this.viewport.SetStaticObjectsVisibilityMaxScale(50);
