@@ -29,6 +29,20 @@ class RosWebSocket {
                 store.dispatch(actions.subscribeToDroneData(droneNumber));
                 store.dispatch(actions.subscribeToSkeletonRange(droneNumber));
                 store.dispatch(actions.subscribeToWeaponDetection(droneNumber));
+                var viewer = new window.ROSLIB.Viewer({
+                    divID: 'occupancyTab',
+                    width: 600,
+                    height: 500
+                });
+                var gridClient =  new window.ROSLIB.OccupancyGridClient({
+                    ros: this.rosWebSockets[droneNumber],
+                    rootObject: viewer.scene
+                });
+                gridClient.on('change', function () {
+                    viewer.scaleToDimensions(gridClient.currentGrid.width, gridClient.currentGrid.height);
+                });
+
+
 
             });
 
