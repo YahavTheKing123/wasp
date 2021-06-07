@@ -1,6 +1,7 @@
 import actionTypes from '../actions/actionTypes';
 import * as geoCalculations from '../../utils/geoCalculations';
 import externalConfig from '../../ExternalConfigurationHandler';
+import config from '../../config';
 const initialState = {
     isMapCoreSDKLoaded: false,
     mapToShow: null,
@@ -36,11 +37,11 @@ const mapReducer = (state = initialState, action) => {
         case actionTypes.GET_ENEMY_POSITION: {
             let range = action.payload.range;
             let droneNumber = action.payload.droneNumber;
-            let droneAngle = state.dronesPositions[droneNumber].angle;
+            const droneAngleRadians = (360 - state.dronesPositions[droneNumber].angle) * Math.PI / 180;
 
             let enemyOffsetFromDrone = {
-                x: range * Math.sin(360 - droneAngle),
-                y: - range * Math.cos(360 - droneAngle),
+                x: range * Math.cos(droneAngleRadians) ,
+                y: range * Math.sin(droneAngleRadians) ,
                 z: 0
             }
             let enemyOffset = geoCalculations.addCoordinates(state.dronesPositions[droneNumber].offset, enemyOffsetFromDrone);
@@ -48,7 +49,7 @@ const mapReducer = (state = initialState, action) => {
             let dronePosition = { ...state.dronesPositions[action.payload.droneNumber] };
 
             if (dronePosition.enemyOffsets &&
-                dronePosition.enemyOffsets.some(offset => (geoCalculations.calculateDistanceBetween2Points(offset, enemyOffset) < 0.5))) {
+                dronePosition.enemyOffsets.some(offset => (geoCalculations.calculateDistanceBetween2Points(offset, enemyOffset) < config.MIN_ENEMY_RADIUS))) {
                 //enemy already exists in this radius
                 return state;
             }
