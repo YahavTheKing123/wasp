@@ -16,7 +16,7 @@ class FlightTelemetry extends Component {
             <div className={cn.Wrapper}>
                 <span className={cn.TelemetryWrapper}>
                     <span>Altitude:</span>
-                    <span>{this.getAltitue(dronePosition)}<span className={cn.Units}>m</span></span>
+                    <span>{this.getAltitue(dronePosition && dronePosition.offset)}<span className={cn.Units}>m</span></span>
                 </span>
                 <span className={cn.TelemetryWrapper}>
                     <span>Speed:</span>

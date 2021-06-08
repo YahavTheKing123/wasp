@@ -19,7 +19,7 @@ class RosWebSocket {
         if (droneNum !== selectedDrone) return;
 
         dispatch(
-            actions.showGlobalMessage({ text: message, type: severity, isRemoved: false })
+            actions.showGlobalMessage({ text: message, type: severity, isRemoved })
         );
     }
 
