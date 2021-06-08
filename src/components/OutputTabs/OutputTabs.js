@@ -17,7 +17,8 @@ class OutputTabs extends Component {
         this.state = {
             pointPosition: null,
             showCapture: true,
-            selectedTab: "WindowDetection"
+            selectedTab: "WindowDetection",
+            random: Math.random()
         }
         this.EnemySpotted = new Audio(EnemySpottedSound);
 
@@ -151,10 +152,13 @@ class OutputTabs extends Component {
         let weaponDetectedClass = this.props.weaponDetected ? cn.WeaponDetected : undefined;
         return (<div className={`${cn.SkeletonTab} ${weaponDetectedClass}`} >
             <img
-                key={"skeleton" + this.props.selectedDrone}
+                key={"skeleton" + this.props.selectedDrone +  this.state.randomKey}
                 crossOrigin="anonymous"
                 //    onLoad={this.onVideoLoaded}
-                //   onError={this.onVideoError}
+                onError={() => setTimeout(() => {
+                    this.setState({randomKey :  Math.random()})
+                }, 3000)
+                }
                 className={cn.VideoImage}
                 src={this.getSkeletonVideoSrc()}
                 id='droneImage'
@@ -168,10 +172,13 @@ class OutputTabs extends Component {
     getWindowDetectionTab() {
         return (<div className={`${cn.WindowTab}`} >
             <img
-                key={"window" + this.props.selectedDrone}
+                key={"window" +this.props.selectedDrone +  this.state.randomKey}
                 crossOrigin="anonymous"
                 //    onLoad={this.onVideoLoaded}
-                //   onError={this.onVideoError}
+                onError={() => setTimeout(() => {
+                    this.setState({randomKey :  Math.random()})
+                }, 3000)
+                }
                 className={cn.VideoImage}
                 src={this.getWindowDetectionVideoSrc()}
                 id='droneImage'

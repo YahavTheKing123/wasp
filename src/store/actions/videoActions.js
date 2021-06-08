@@ -191,15 +191,16 @@ export const setExposure = (exposureVal) => {
 
 export const subscribeToSkeletonRange = (droneNumber) => {
     return (dispatch,getState) => {
-        console.log("subscribe: getSkeletonRange");
+      
         getService('getSkeletonRange', droneNumber).subscribe(function (response) {
+            console.log("subscribe: getSkeletonRange");
             let range = 0;
             try {
                 if (response.data) {
-                    range = (response.data / 100).toFixed(1);
+                    range = (response.data / 1000);
                     const INDOOR_EXPLORATION = "INDOOR_EXPLORATION";
                   //  if(getState().output.missionState.startsWith(INDOOR_EXPLORATION)){
-                        dispatch({ type: actionTypes.GET_ENEMY_POSITION, payload: { range: response.data , droneNumber } });
+                        dispatch({ type: actionTypes.GET_ENEMY_POSITION, payload: { range , droneNumber } });
                    // } 
                     
                 }
@@ -207,7 +208,7 @@ export const subscribeToSkeletonRange = (droneNumber) => {
 
             }
             if(getState().map.selectedDrone == droneNumber){
-                dispatch({ type: actionTypes.UPDATE_SKELETON_RANGE, payload: { skeletonRange: range } });
+                dispatch({ type: actionTypes.UPDATE_SKELETON_RANGE, payload: { skeletonRange: range.toFixed(1)} });
             }
         });
     };
