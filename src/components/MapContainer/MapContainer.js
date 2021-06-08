@@ -1624,8 +1624,7 @@ class MapContainer extends PureComponent {
 
         if (this.viewport.GetMapType() == window.MapCore.IMcMapCamera.EMapType.EMT_3D) {
             this.viewport.SetScreenSizeTerrainObjectsFactor(1.5);
-            this.viewport.SetCameraRelativeHeightLimits(3, 10000, true);
-            this.viewport.SetDtmTransparencyWithoutRaster(true);
+            this.viewport.SetCameraRelativeHeightLimits(3, 10000, true);            
         }
         else {
             this.viewport.SetStaticObjectsVisibilityMaxScale(50);
@@ -1749,13 +1748,14 @@ class MapContainer extends PureComponent {
                 this.createViewport(terrain, window.MapCore.IMcMapCamera.EMapType.EMT_2D);
                 break;
             case "3D":
-                this.createViewport(terrain, window.MapCore.IMcMapCamera.EMapType.EMT_3D);
+                this.createViewport(terrain, window.MapCore.IMcMapCamera.EMapType.EMT_3D);                                
                 break;
         }
 
         // example of try-catch MapCoreError
         try {
             // MapCore API function call
+            this.viewport.SetDtmTransparencyWithoutRaster(true);
         }
         catch (ex) {
             if (ex instanceof window.MapCoreError) {
@@ -1788,6 +1788,7 @@ class MapContainer extends PureComponent {
 
                     layer.SetDisplayingItemsAttachedToTerrain(true);
                     layer.SetDisplayingDtmVisualization(true);
+                    layer.SetResolvingConflictsWithDtmAndRaster(true);
                 }
             }
             this.lastCoordSys.AddRef();

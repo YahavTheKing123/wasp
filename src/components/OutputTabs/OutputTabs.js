@@ -7,7 +7,7 @@ import config, { devVideoSnapshotUrl, devVideoStreamUrl } from '../../config';
 import { connect } from 'react-redux';
 import EnemySpottedSound from '../../assets/EnemySpotted.mp3';
 import ArmedRed from '../../assets/images/armedRed.svg';
-
+import rosWebSocket from '../../rosWebsocket';
 
 class OutputTabs extends Component {
 
@@ -64,6 +64,21 @@ class OutputTabs extends Component {
         if ((prevProps.skeletonRange === 'N/A' && this.props.skeletonRange !== 'N/A') ||
             (!prevProps.indoorExplorationFlag && this.props.indoorExplorationFlag)) {
             this.onToggleTabClick("Skeleton");
+        }
+
+        if (this.props.selectedTab === 'Occupancy' && this.props.selectedDrone !== prevProps.selectedDrone) {
+            /*const viewer = new window.ROS2D.Viewer({
+                divID: 'occupancyTab',
+                width: 600,
+                height: 500
+            });
+            const gridClient =  new window.ROS2D.OccupancyGridClient({
+                ros: rosWebSocket.getRosWebsocketObject(this.props.selectedDrone),
+                rootObject: viewer.scene
+            });
+            gridClient.on('change', function () {
+                viewer.scaleToDimensions(gridClient.currentGrid.width, gridClient.currentGrid.height);
+            });*/
         }
     }
 
