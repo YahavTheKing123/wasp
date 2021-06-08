@@ -32,6 +32,10 @@
 			"InitialScale2D": 0.02,
 			"layers": [
 				{
+					"type": "IMcNative3DModelMapLayer",
+					"path": "Maps/StaticObjects/ZahelimMapCoreUTM-ED50"
+				},
+				{
 					"type": "IMcNativeDtmMapLayer",
 					"path": "Maps/DTM/Tzeelim-DTM-Web"
 				}
