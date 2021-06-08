@@ -112,7 +112,7 @@ class MapContainer extends PureComponent {
         if (dronesPositions &&
             (prevProps.dronesPositions != dronesPositions)) {
             Object.keys(dronesPositions).forEach(droneNumber => {
-                if (dronesPositions[droneNumber] && dronesPositions[droneNumber].offset) {
+                if (dronesPositions[droneNumber] && dronesPositions[droneNumber].offset && dronesPositions[droneNumber].workingOrigin) {
                     if (!prevProps.dronesPositions[droneNumber] ||  // first position
                         (dronesPositions[droneNumber].offset != prevProps.dronesPositions[droneNumber].offset)) {  // cahnged position
                         this.MoveDrone(droneNumber);
@@ -276,6 +276,7 @@ class MapContainer extends PureComponent {
 
 
     DrawEnemyObject(droneNumber) {
+        debugger;
         let dronePosition = this.props.dronesPositions[droneNumber];
         const coordinateWithOffset = geoCalculations.getMapCoordinate(dronePosition.workingOrigin, dronePosition.enemyOffsets[dronePosition.enemyOffsets.length - 1]);
         this.EnemyObject = window.MapCore.IMcObject.Create(this.overlay, this.ScreenPictureClick, [coordinateWithOffset]);
@@ -342,6 +343,7 @@ class MapContainer extends PureComponent {
         routeCoordinates.push(coordinateWithOffset);
         this.MapObjects[droneNumber].Route.SetLocationPoints(routeCoordinates);
         this.SetOpacityToDroneObjects(droneNumber, droneNumber == this.props.selectedDrone);
+        //this.DrawDroneMapImage();
     }
 
 
@@ -1007,10 +1009,6 @@ class MapContainer extends PureComponent {
             if (this.props.isPointSelectionMode) {
                 this.OnEditClickMissionPoint();
             }
-            else if (this.state.isOriginSelectionMode) {
-                this.OnEditClickWorkingOrigin(this.props.selectedDrone);
-            }
-
 
             if (bHandled.Value) {
                 e.preventDefault();
@@ -2010,14 +2008,19 @@ class MapContainer extends PureComponent {
         }
 
         const addStageState = this.getAddMissionPlanStageFormState();
+        let selectedOriginData =  addStageState.multiParamsInput;
+        let selectedOrigin = {
+            x: parseFloat(selectedOriginData.x),
+            y: parseFloat(selectedOriginData.y),
+            z: parseFloat(selectedOriginData.z),
+        }
         if (addStageState.multiParamsInput) {
-            this.MapObjects[this.props.selectedDrone].WorkingOrigin = window.MapCore.IMcObject.Create(this.overlay, this.ScreenPictureClick, [addStageState.multiParamsInput]);
+            this.MapObjects[this.props.selectedDrone].WorkingOrigin = window.MapCore.IMcObject.Create(this.overlay, this.ScreenPictureClick, [selectedOrigin]);
             this.MapObjects[this.props.selectedDrone].WorkingOrigin.SetTextureProperty(1, window.MapCore.IMcImageFileTexture.Create(window.MapCore.SMcFileSource("http:ObjectWorld/Images/location4.png", false), false));
             this.MapObjects[this.props.selectedDrone].WorkingOrigin.SetDrawPriority(1);
 
             const originCoordinate = geoCalculations.roundCoordinate(this.MapObjects[this.props.selectedDrone].WorkingOrigin.GetLocationPoints()[0], config.COORDINATE_DECIMALS_PRECISION);
-            this.props.saveOriginCoordinate(originCoordinate, 360 - parseFloat(addStageState.multiParamsInput.angle));
-            this.setState({ isOriginSelectionMode: false });
+            this.props.saveOriginCoordinate(originCoordinate, 360 - parseFloat(selectedOriginData.angle || 0));
         }
     }
 

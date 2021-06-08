@@ -11,12 +11,12 @@ class FlightTelemetry extends Component {
     }
 
     render() {
-        const {dronePositionOffset} = this.props;
+        const dronePosition = this.props.dronesPositions && this.props.dronesPositions[this.props.selectedDrone];
         return (
             <div className={cn.Wrapper}>
                 <span className={cn.TelemetryWrapper}>
                     <span>Altitude:</span>
-                    <span>{this.getAltitue(dronePositionOffset)}<span className={cn.Units}>m</span></span>
+                    <span>{this.getAltitue(dronePosition)}<span className={cn.Units}>m</span></span>
                 </span>
                 <span className={cn.TelemetryWrapper}>
                     <span>Speed:</span>
@@ -31,7 +31,8 @@ class FlightTelemetry extends Component {
 
 const mapStateToProps = (state) => {
     return {
-        dronePositionOffset: state.map.dronePositionOffset
+        dronesPositions: state.map.dronesPositions,
+        selectedDrone: state.map.selectedDrone
     };
 };
 

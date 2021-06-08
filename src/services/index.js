@@ -85,8 +85,8 @@ export function getService(serviceName,droneNumber = store.getState().map.select
         }),
         getSkeletonRange: new window.ROSLIB.Topic({
             ros: rosWebSocket.getRosWebsocketObject(droneNumber),
-            name: '/seeker/SkeletonPos',
-            messageType: 'std_msgs/Vector3Stamped'
+            name: '/SkeletonDetector/Range',
+            messageType: 'std_msgs/Float32'
         }),
         // Mission Plan Execute - state
         doMissionReset: new window.ROSLIB.Service({
