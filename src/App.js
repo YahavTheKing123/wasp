@@ -16,6 +16,88 @@ import Main from './components/Main/Main';
 import MissionPlanner from './components/MissionPlanner/MissionPlanner';
 import * as geoCalculations from './utils/geoCalculations';
 
+
+const dropDownStyles = {
+   
+    container: (provided, state) => ({
+      ...provided,
+      cursor: state.isDisabled ? "not-allowed" : "pointer",
+      width: '100%',      
+    }),
+    option: (provided, state) => ({
+        ...provided,      
+        '&:hover': {
+          backgroundColor:'var(--app-select-hover-color)',
+        },
+        color: state.data.color,
+        fontSize: 'var(--app-font-size)',
+        whiteSpace: 'nowrap',
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
+        backgroundColor: 'transparent',
+        border: state.isSelected ? '1px solid var(--app-select-selected-border-color)' : 'none',
+        cursor: state.isDisabled ? "not-allowed" : "pointer",
+    }),
+    control: (provided , state) => ({
+      // none of react-select's styles are passed to <Control />
+      ...provided,
+      borderRadius: '2px',
+      backgroundColor: 'transparent',
+      minHeight: 'unset',
+      borderColor: "transparent",
+      color:'var(--app-font-color)' ,
+      boxShadow: state.isFocused ? 0 : 0,
+      '&:hover': {
+        //borderColor: '#7f7f7f'
+      },
+      cursor: state.isDisabled ? "not-allowed" : "pointer",
+    }),
+    menu: (provided) => ({
+        ...provided,
+       backgroundColor: 'var(--app-bg-color-alt)',
+    }),
+    valueContainer: (provided) => ({
+        ...provided,
+        fontSize: 'var(--app-font-size)',
+        
+    }),
+    indicatorSeparator: (provided) => ({
+        ...provided,
+        display: 'none'
+    }),
+    dropdownIndicator: defaultStyles => ({
+        ...defaultStyles,
+        color: 'black' // your changes to the arrow
+    }),
+    singleValue: (provided, {data}) => ({        
+        ...provided,
+        fontSize: '18px',
+        fontWeight: 500,
+        color: data.color,
+    }),
+    placeholder: (provided) => ({
+        ...provided,
+        fontWeight: 500,
+        color: 'var(--app-font-color)'        
+    }),    
+    noOptionsMessage: (provided) => ({
+        ...provided,
+        fontWeight: 400,
+        color: 'var(--app-font-color)',
+        fontSize: 'var(--app-font-size)',  
+    }),
+    input: (provided) => ({
+        ...provided,
+        color: 'var(--app-font-color)',        
+    })    
+  }
+
+  const colors = [
+      'aqua',
+      'green',
+      'orange'
+  ];
+
 class App extends Component {
 
     disableZoomInTouchScreen = e => {
@@ -67,11 +149,12 @@ class App extends Component {
         if (value === null || value === undefined) return null;
         return Math.round(value);
     }
-    renderDroneSelect() {
+    renderDroneSelect() {    
         const droneList = externalConfig.getConfiguration().DRONES_DATA.dronesList; 
-        const options = droneList.map(number => ({label: number}))
+        const options = droneList.map((number,i) => ({label: number, color: colors[i]}))
         const dropDownData = {
-            defaultValue: {label: droneList[0]},
+            styles: dropDownStyles,
+            defaultValue: options[0],
             options,
             onChange: droneNumber => this.handleTypeChange(droneNumber)
         };
@@ -97,13 +180,13 @@ class App extends Component {
             coordinateWithOffset = geoCalculations.getMapCoordinate(dronePosition.workingOrigin , dronePosition.offset);
         }
 
-        let droneColor = "#2ce5f6";
+        let droneColor = colors[0];
         const droneList = externalConfig.getConfiguration().DRONES_DATA.dronesList; 
         if(droneList.indexOf(this.props.selectedDrone) == 1){
-            droneColor = "green";
+            droneColor = colors[1];
         }
         else if (droneList.indexOf(this.props.selectedDrone) == 2){
-            droneColor = "orange";
+            droneColor = colors[2];
         }
         return (
             <header className={classNames.AppHeader} style={{borderBottomColor : droneColor }} >
@@ -112,7 +195,7 @@ class App extends Component {
                     <span className={classNames.VersionText}>version: 21.05.26 </span>
                 </div>
                 <div className={classNames.HeaderLeftWrapper}>
-                    <span className={classNames.HeaderItem}>
+                    <span className={`${classNames.HeaderItem} ${classNames.DroneSelectItem}`} style={{borderRightColor : droneColor, borderLeftColor : droneColor}}>
                         <span style={{backgroundColor : droneColor }} className={`${classNames.Icon} ${classNames.DroneIcon}`}></span>
                         <span className={classNames.DroneSelectionWrapper}>
                             {this.renderDroneSelect()}
