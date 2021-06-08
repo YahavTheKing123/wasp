@@ -198,15 +198,17 @@ export const subscribeToSkeletonRange = (droneNumber) => {
                 if (response.data) {
                     range = (response.data / 100).toFixed(1);
                     const INDOOR_EXPLORATION = "INDOOR_EXPLORATION";
-                    if(getState().output.missionState.startsWith(INDOOR_EXPLORATION)){
+                  //  if(getState().output.missionState.startsWith(INDOOR_EXPLORATION)){
                         dispatch({ type: actionTypes.GET_ENEMY_POSITION, payload: { range: response.data , droneNumber } });
-                    } 
+                   // } 
                     
                 }
             } catch {
 
             }
-            dispatch({ type: actionTypes.UPDATE_SKELETON_RANGE, payload: { skeletonRange: range } });
+            if(getState().map.selectedDrone == droneNumber){
+                dispatch({ type: actionTypes.UPDATE_SKELETON_RANGE, payload: { skeletonRange: range } });
+            }
         });
     };
 };
