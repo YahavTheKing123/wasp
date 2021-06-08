@@ -5,11 +5,32 @@ import MapContainer from '../MapContainer/MapContainer';
 import Video from '../Video/Video';
 import OutputTabs from '../OutputTabs/OutputTabs';
 import ActionButtons from '../ActionButtons/ActionButtons';
-
-export default class Main extends Component {
+import { connect } from 'react-redux';
+import {appUiElements} from '../../store/reducers/layoutReducer'
+class Main extends Component {
 
     getMainLeftPane() {
-        return <MapContainer />;
+        switch (this.props.appPrimaryUiElement) {
+            case appUiElements.map:
+                return <MapContainer />;
+            case appUiElements.tabs:
+                return <OutputTabs />;                
+            default:
+                return <MapContainer />;
+
+        }
+    }
+
+    getSecondaryAppUiElement() {
+        switch (this.props.appPrimaryUiElement) {
+            case appUiElements.map:
+                return <OutputTabs />;
+            case appUiElements.tabs:
+                return <MapContainer />;                
+            default:
+                return <OutputTabs />;
+
+        }
     }
 
     getMainRightPane() {
@@ -19,7 +40,7 @@ export default class Main extends Component {
                     <Video />
                 </div>
                 <div className={classNames.RightPaneWrapperItem}>
-                    <OutputTabs />
+                    {this.getSecondaryAppUiElement()}
                 </div>
             </div>
         );
@@ -49,3 +70,11 @@ export default class Main extends Component {
     }
 }
 
+const mapStateToProps = state => {
+    return {
+        appPrimaryUiElement: state.layout.appPrimaryUiElement
+    }
+};
+
+
+export default connect(mapStateToProps, null)(Main);

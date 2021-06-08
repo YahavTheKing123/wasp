@@ -71,6 +71,10 @@
     -webkit-mask-image: url('../../assets/images/cube.svg');
     mask-image: url('../../assets/images/cube.svg');
 }
+.SwitchArrows {
+    -webkit-mask-image: url('../../assets/images/switch-arrows.svg');
+    mask-image: url('../../assets/images/switch-arrows.svg');
+}
 
 .AddMapLocation {
     -webkit-mask-image: url('../../assets/images/addMapLocation.svg');

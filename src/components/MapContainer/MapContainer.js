@@ -88,6 +88,11 @@ class MapContainer extends PureComponent {
 
     componentDidMount() {
         window.addEventListener('resize', this.resizeCanvases);
+        if (this.props.isMapCoreSDKLoaded) {
+            this.openMap(this.props.mapToShow.groupName, false);
+            console.log('mapCore version: ', window.MapCore.IMcMapDevice.GetVersion());
+            this.CreateMapcoreObjects();
+        }
         //this.callGetCapabilitiesApi();
     }
 
@@ -147,10 +152,6 @@ class MapContainer extends PureComponent {
             (viewerState != prevProps.viewerState || draftMissionStages != prevProps.draftMissionStages)) {
             this.DrawMissionWayPoints(draftMissionStages);
         }
-
-
-
-
     }
 
     RemoveDroneData = (droneNumber) => {
@@ -2082,10 +2083,17 @@ class MapContainer extends PureComponent {
                 iconCss: "ThreeD"
             }
 
+            const toggleBetweenMapToTabs = {
+                name: 'Toggle Map and Tabs',
+                func: this.props.toggleBetweenMapToTabs,
+                iconCss: "SwitchArrows"
+            }
+
             menuItemsList.push(showHideDtmAction);
             menuItemsList.push(showHide3DAction);
             menuItemsList.push(selectOrigin);
             menuItemsList.push(selectOtherMapAction);
+            menuItemsList.push(toggleBetweenMapToTabs);
         }
 
         this.props.showContextMenu(e.nativeEvent.x, e.nativeEvent.y, menuItemsList);
@@ -2141,7 +2149,8 @@ const mapStateToProps = (state) => {
         savedMissionPlan: state.planner.savedMissionPlan,
         draftMissionStages: state.planner.draftMissionStages,
         viewerState: state.planner.viewerState,
-        selectedDrone: state.map.selectedDrone
+        selectedDrone: state.map.selectedDrone,
+        appPrimaryUiElement: state.layout.appPrimaryUiElement
     };
 };
 
@@ -2154,6 +2163,7 @@ const mapDispachToProps = (dispatch) => {
         deleteDronePosition: () => dispatch({ type: actionTypes.DELETE_DRONE_POSITION }),
         togglePointSelectionMode: () => dispatch({ type: actionTypes.TOGGLE_POINT_SELECTION_MODE }),
         selectPointFromMap: (pointFromMap) => dispatch({ type: actionTypes.SELECT_POINT_FROM_MAP, payload: { pointFromMap } }),
+        toggleBetweenMapToTabs: () => dispatch({ type: actionTypes.TOGGLE_MAP_AND_OUTPUT_TABS }),
     };
 };
 
