@@ -18,7 +18,8 @@ class Video extends Component {
         targetPosition: null,
         showTarget: true,
         showExposure: false,
-        isRecording: false
+        isRecording: false,
+        randomKey: Math.random()
 
     }
 
@@ -27,11 +28,11 @@ class Video extends Component {
     }
 
     getVideoSrc() {
-        console.log("render video",this.props.selectedDrone );
-        const {DRONES_DATA} = externalConfig.getConfiguration();
+        console.log("render video", this.props.selectedDrone);
+        const { DRONES_DATA } = externalConfig.getConfiguration();
         const ip = `//${DRONES_DATA.segment}.${this.props.selectedDrone}:${DRONES_DATA.port}`;
         const snapshotUrl = `${ip}${config.urls.videoSnapshot}`;
-        const streamUrl =`${ip}${config.urls.videoStream}`;
+        const streamUrl = `${ip}${config.urls.videoStream}`;
 
         if (this.props.isPaused) {
             return process.env.NODE_ENV === 'developments' ? devVideoSnapshotUrl : snapshotUrl;
@@ -189,11 +190,15 @@ class Video extends Component {
                 }
 
                 <img
-                    key={this.props.selectedDrone}
+                    key={this.props.selectedDrone +  this.state.randomKey}
                     crossOrigin="anonymous"
                     onLoad={this.onVideoLoaded}
                     className={cn.VideoImage}
                     src={this.getVideoSrc()}
+                    onError={() => setTimeout(() => {
+                        this.setState({randomKey :  Math.random()})
+                    }, 3000)
+                    }
                     id='droneImage'
                     onClick={this.props.pointVideoImage}
                 //onTouchStart={this.props.pointVideoImage}
