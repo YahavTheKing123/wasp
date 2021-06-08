@@ -10,7 +10,7 @@ export default class CustomSelect extends Component {
     render() {
         const props = {
             ...this.props,
-            styles: dropDownStyles,
+            styles: this.props.styles || dropDownStyles,
             components: {
                 DropdownIndicator
             },

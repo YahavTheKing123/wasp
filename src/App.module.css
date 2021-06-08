@@ -83,6 +83,18 @@
   padding-left: 10px;
   padding-right: 10px;
 }
+.DroneSelectItem {
+  position: relative;
+}
+.DroneSelectItem::after {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 1px;
+  bottom: -1px;
+  z-index: 1;
+  background: var(--app-bg-color-alt);
+}
 
 .HeaderItem:first-child{
   border-left: 1px solid var(--app-bg-color);  
@@ -118,7 +130,7 @@
 }
 .DroneIcon {
   -webkit-mask-image: url(./assets/images/drone.svg);
-  background-repeat: no-repeat;
+  -webkit-mask-repeat: no-repeat;
   display: inline-block;
   height: 40px;
   width: 80px;

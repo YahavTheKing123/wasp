@@ -2,24 +2,16 @@
     display: flex;
     position: fixed;
     padding: 15px 25px;
-    top: 150px;
-    right: 50%;
+    bottom: 30px;
+    left: 30px;
     align-items: center;
     font-size: 14px;
     background: #191919;
     border-radius: 3px;
-    transform: translateX(50%);
     white-space: nowrap;
     z-index: 3;
 }
 
-.Wrapper.MissionPlannerOpen {
-    top: unset;
-    right: unset;
-    bottom: 10px;
-    left: 60px;
-    transform: unset;
-}
 
 .Icon {
     height: 16px;

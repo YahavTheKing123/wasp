@@ -1,5 +1,9 @@
 import actionTypes from '../actions/actionTypes';
-import externalConfig from '../../ExternalConfigurationHandler';
+
+export const appUiElements = {
+    map: 'map',
+    tabs: 'tabs'
+}
 
 const initialState = {
     appGlobalMessage: null,
@@ -9,6 +13,7 @@ const initialState = {
     imageSentToDroneData: null,
     isMissionPlanScreenHidden: true,
     isPointSelectionMode: false,
+    appPrimaryUiElement: appUiElements.map
 };
 
 const layoutReducer = (state = initialState, action) => {
@@ -97,7 +102,12 @@ const layoutReducer = (state = initialState, action) => {
                 isMissionPlanScreenHidden: !state.isMissionPlanScreenHidden
             }
         }
-
+        case actionTypes.TOGGLE_MAP_AND_OUTPUT_TABS: {
+            return {
+                ...state,
+                appPrimaryUiElement: state.appPrimaryUiElement === appUiElements.map ? appUiElements.tabs : appUiElements.map
+            }
+        }
         
         default:
             return state;
