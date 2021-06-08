@@ -121,6 +121,7 @@ class MapContainer extends PureComponent {
                     if (!prevProps.dronesPositions[droneNumber] ||  // first position
                         (dronesPositions[droneNumber].offset != prevProps.dronesPositions[droneNumber].offset)) {  // cahnged position
                         this.MoveDrone(droneNumber);
+                     //   this.DrawDroneMapImage();
                     }
                     else if (dronesPositions[droneNumber].enemyOffsets != prevProps.dronesPositions[droneNumber].enemyOffsets) {
                         this.DrawEnemyObject(droneNumber);
@@ -255,20 +256,21 @@ class MapContainer extends PureComponent {
         this.MapObjects[this.props.selectedDrone].WorkingOrigin.SetTextureProperty(1, window.MapCore.IMcImageFileTexture.Create(window.MapCore.SMcFileSource("http:ObjectWorld/Images/location4.png", false), false));
         this.MapObjects[this.props.selectedDrone].WorkingOrigin.SetDrawPriority(1);
         this.setState({ isOriginSelectionMode: true });
+
     }
 
 
     DrawDroneMapImage = () => {
         const { DRONES_DATA } = externalConfig.getConfiguration();
-        const ip = `//${DRONES_DATA.segment}.${this.props.selectedDrone}:${DRONES_DATA.port}`;
-        const mapImageStream = `${ip}${config.urls.mapImageStream}`;
+        const ip = `http://${DRONES_DATA.segment}.${this.props.selectedDrone}:${DRONES_DATA.port}`;
+        const mapImageStream = `http://192.168.1.116:8081/stream?topic=/map_image/full`;
 
         if (this.DroneMapImage) {
-            this.DroneMapImage.GetTextureProperty(1).SetImageFile(window.MapCore.SMcFileSource(mapImageStream, true));
+            this.DroneMapImage.GetTextureProperty(1).SetImageFile(window.MapCore.SMcFileSource(mapImageStream, false));
         }
         else {
             this.DroneMapImage = window.MapCore.IMcObject.Create(this.overlay, this.WorldPictureScheme, [this.MapObjects[this.props.selectedDrone].WorkingOrigin.GetLocationPoints()[0]]);
-            this.DroneMapImage.SetTextureProperty(1, window.MapCore.IMcImageFileTexture.Create(window.MapCore.SMcFileSource(mapImageStream, true), false));
+            this.DroneMapImage.SetTextureProperty(1, window.MapCore.IMcImageFileTexture.Create(window.MapCore.SMcFileSource(mapImageStream, false), false));
             this.DroneMapImage.SetBColorProperty(4, new window.MapCore.SMcBColor(255, 255, 255, 100));
         }
 
@@ -344,7 +346,7 @@ class MapContainer extends PureComponent {
         routeCoordinates.push(coordinateWithOffset);
         this.MapObjects[droneNumber].Route.SetLocationPoints(routeCoordinates);
         this.SetOpacityToDroneObjects(droneNumber, droneNumber == this.props.selectedDrone);
-        //this.DrawDroneMapImage();
+        
     }
 
 
