@@ -28,7 +28,7 @@ export default class AddMissionPlanStageForm extends Component {
         }
     }
     parseMultiParams = () => {
-        if (this.props.stage && this.props.stage.stageParamsInput!="") {
+        if (this.props.stage && this.props.stage.stageParamsInput && this.props.stage.stageParamsInput!="") {
             const [x, y, z] = this.props.stage.stageParamsInput.split(',');
             return {x,y,z};
         }
@@ -97,7 +97,7 @@ export default class AddMissionPlanStageForm extends Component {
 
         return (
             <div className={cn.Row}>
-                <span className={`${cn.Label}`}>{this.state.selectedStageType.label + ":"}</span>
+                <span className={`${cn.Label}`}>{this.state.selectedStageType.params.label}</span>
                 <div className={cn.InputWrapper}>
                     {selectedStageType.isMultiInputs ?
                         <>
@@ -110,6 +110,8 @@ export default class AddMissionPlanStageForm extends Component {
                         this.getInputField(stageParamsInput)
                     }
                 </div>
+                {this.props.isSelectOrigin &&  <span className={`${cn.Label}`}>{"Origin angle:"}</span>}
+                {this.props.isSelectOrigin &&  this.getInputField(multiParamsInput.angle || 0, 'angle')}
             </div>
         )
 
@@ -135,7 +137,7 @@ export default class AddMissionPlanStageForm extends Component {
     render() {
         return (
             <div className={cn.Wrapper}>
-                {this.renderStageType()}
+                {this.props.isSelectOrigin ? "" : this.renderStageType()}
                 {this.renderStageInput()}
             </div>
         )
