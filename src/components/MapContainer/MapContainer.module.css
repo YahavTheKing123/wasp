@@ -78,6 +78,18 @@
   padding: 0 10px;
 }
 
+.SwithViewBtn {
+  background-image: url(../../assets/images/switch-arrows.svg);  
+  cursor: pointer;
+  background-repeat: no-repeat;
+  display: inline-block;
+  height: 15px;
+  width: 4px;
+  position: absolute;
+  left: 10px;
+  background-position: center;
+  padding: 0 10px;
+}
 .SwitchMapForm {
   position: absolute;
   height: 0%;

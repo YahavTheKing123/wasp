@@ -20,7 +20,7 @@ class FlightTelemetry extends Component {
                 </span>
                 <span className={cn.TelemetryWrapper}>
                     <span>Speed:</span>
-                    <span>21<span className={cn.Units}>km/h</span></span>
+                    <span>{` - `}<span className={cn.Units}>km/h</span></span>
                 </span>
             </div>
         )

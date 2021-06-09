@@ -272,23 +272,41 @@ class MapContainer extends PureComponent {
     }
 
 
-    DrawDroneMapImage = () => {
+    DrawDroneMapImage = async () => {
         const { DRONES_DATA } = externalConfig.getConfiguration();
-        const ip = `http://${DRONES_DATA.segment}.${this.props.selectedDrone}:${DRONES_DATA.port}`;
-        const mapImageStream = `http://192.168.1.116:8081/stream?topic=/map_image/full`;
+        const droneMapUrl = `//${DRONES_DATA.segment}.${this.props.selectedDrone}:${DRONES_DATA.port}${config.mapImageStream}`;
+
+        //const mapImageStream = `http://192.168.1.116:8081/stream?topic=/map_image/full`;
+        
+
+        const image = document.getElementById('droneImage');
+
+        //image.src = '//192.168.1.116:8081/stream?topic=/d415/color/image_raw';
+
+        const canvas = document.createElement("canvas");
+        canvas.width = image.naturalWidth;
+        canvas.height = image.naturalHeight;
+
+        // Copy the image contents to the canvas
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(image, 0, 0);
+
+        let pixels = ctx.getImageData(0, 0, image.naturalWidth, image.naturalHeight).data;
+
+        let texture = window.MapCore.IMcMemoryBufferTexture.Create(image.naturalWidth, image.naturalHeight, window.MapCore.IMcTexture.EPixelFormat.EPF_A8B8G8R8, window.MapCore.IMcTexture.EUsage.EU_STATIC_WRITE_ONLY, false, pixels, 0);
 
         if (this.DroneMapImage) {                   
-            this.DroneMapImage.GetTextureProperty(1).SetImageFile(window.MapCore.SMcFileSource('http://88.53.197.250/axis-cgi/mjpg/video.cgi?resolution=320x240', false));
+            this.DroneMapImage.SetTextureProperty(1, texture);
         } else {
                 this.DroneMapImage = window.MapCore.IMcObject.Create(this.overlay, this.WorldPictureScheme, [this.MapObjects[this.props.selectedDrone].WorkingOrigin.GetLocationPoints()[0]]);
-                this.DroneMapImage.SetTextureProperty(1, window.MapCore.IMcImageFileTexture.Create(window.MapCore.SMcFileSource(
-                    'http://88.53.197.250/axis-cgi/mjpg/video.cgi?resolution=320x240', false), false));
+                this.DroneMapImage.SetTextureProperty(1, texture);
+
                 this.DroneMapImage.SetBColorProperty(4, new window.MapCore.SMcBColor(255, 255, 255, 100));            
-            this.DroneMapImage.SetBColorProperty(4, new window.MapCore.SMcBColor(255, 255, 255, 100));
+                this.DroneMapImage.SetBColorProperty(4, new window.MapCore.SMcBColor(255, 255, 255, 100));
                 this.DroneMapImage.SetBColorProperty(4, new window.MapCore.SMcBColor(255, 255, 255, 100));            
         }
 
-        setTimeout(this.DrawDroneMapImage, 500);
+        //setTimeout(this.DrawDroneMapImage, 1000);
     }
 
 
@@ -2122,6 +2140,7 @@ class MapContainer extends PureComponent {
                 <div className={cn.Description}>
                     {this.props.mapToShow.groupName}
                 </div>
+                <span className={cn.SwithViewBtn} onClick={this.props.toggleBetweenMapToTabs}></span>
                 <span className={cn.MoreActionsBtn} onClick={this.onMoreActionsClick}></span>
             </div>
         )

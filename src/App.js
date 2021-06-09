@@ -192,7 +192,7 @@ class App extends Component {
             <header className={classNames.AppHeader} style={{borderBottomColor : droneColor }} >
                 <div className={classNames.LogoWrapper} onClick={() => this.props.history.push('/')}>
                     <img src={logo} alt='logo' />
-                    <span className={classNames.VersionText}>version: 21.05.26 </span>
+                    <span className={classNames.VersionText}>version: 21.06.09 </span>
                 </div>
                 <div className={classNames.HeaderLeftWrapper}>
                     <span className={`${classNames.HeaderItem} ${classNames.DroneSelectItem}`} style={{borderRightColor : droneColor, borderLeftColor : droneColor}}>

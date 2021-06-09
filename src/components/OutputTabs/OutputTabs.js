@@ -189,7 +189,21 @@ class OutputTabs extends Component {
     }
 
     getOccupancyTab() {
-        return (<div id="occupancyTab"/>);
+        return (<div className={`${cn.WindowTab}`} >
+            <img
+                key={"Occupancy" +this.props.selectedDrone +  this.state.randomKey}
+                crossOrigin="anonymous"
+                //    onLoad={this.onVideoLoaded}
+                onError={() => setTimeout(() => {
+                    this.setState({randomKey :  Math.random()})
+                }, 3000)
+                }
+                className={cn.VideoImage}
+                src={this.geOccupancyDetectionSrc()}                
+            //    onClick={this.props.pointVideoImage}
+            />
+            <span className={`${cn.AlertIcon}`} />
+        </div>)
     }
 
     
@@ -206,6 +220,17 @@ class OutputTabs extends Component {
             return process.env.NODE_ENV === 'developments' ? devVideoStreamUrl : streamUrl;
         }
     }
+
+    geOccupancyDetectionSrc() {
+        const { DRONES_DATA } = externalConfig.getConfiguration();
+        const ip = `//${DRONES_DATA.segment}.${this.props.selectedDrone}:${DRONES_DATA.port}`;
+//        const snapshotUrl = `${ip}${config.urls.windowDetectionSnapshot}`;
+        const streamUrl = `${ip}${config.urls.mapImageStream}`;
+        
+        return streamUrl;
+                    
+    }
+
     getSkeletonVideoSrc() {
         const { DRONES_DATA } = externalConfig.getConfiguration();
         const ip = `//${DRONES_DATA.segment}.${this.props.selectedDrone}:${DRONES_DATA.port}`;
