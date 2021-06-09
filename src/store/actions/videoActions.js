@@ -196,16 +196,18 @@ export const subscribeToSkeletonRange = (droneNumber) => {
         getService('getSkeletonRange', droneNumber).subscribe(function (response) {
             console.log("subscribe: getSkeletonRange", response);
             try {
-                if (response && response.point) {
-                    //range = (response.data / 1000);
-                    //const INDOOR_EXPLORATION = "INDOOR_EXPLORATION";
-                    //  if(getState().output.missionState.startsWith(INDOOR_EXPLORATION)){
-                    dispatch({ type: actionTypes.GET_ENEMY_POSITION, payload: { enemyOffset: response.point, droneNumber } });
-                    // } 
+                if (getState().map.dronesPositions[droneNumber] && getState().map.dronesPositions[droneNumber].workingOrigin) {
+                    if (response && response.point) {
+                        //range = (response.data / 1000);
+                        //const INDOOR_EXPLORATION = "INDOOR_EXPLORATION";
+                        //  if(getState().output.missionState.startsWith(INDOOR_EXPLORATION)){
+                        dispatch({ type: actionTypes.GET_ENEMY_POSITION, payload: { enemyOffset: response.point, droneNumber } });
+                        // } 
 
-                    if (getState().map.selectedDrone == droneNumber && getState().map.dronesPositions[droneNumber]) {
-                        let skeletonRange = geoCalculations.calculateDistanceBetween2Points(getState().map.dronesPositions[droneNumber].offset, response.point , true) ;
-                        dispatch({ type: actionTypes.UPDATE_SKELETON_RANGE, payload: { skeletonRange } });
+                        if (getState().map.selectedDrone == droneNumber && getState().map.dronesPositions[droneNumber]) {
+                            let skeletonRange = geoCalculations.calculateDistanceBetween2Points(getState().map.dronesPositions[droneNumber].offset, response.point, true);
+                            dispatch({ type: actionTypes.UPDATE_SKELETON_RANGE, payload: { skeletonRange } });
+                        }
                     }
                 }
             } catch {
