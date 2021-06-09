@@ -7,7 +7,7 @@ import externalConfig from '../../ExternalConfigurationHandler';
 import config, { devVideoSnapshotUrl, devVideoStreamUrl } from '../../config';
 import targetIcon from '../../assets/images/target.svg';
 import Slider from '../controls/Slider/Slider';
-
+import {appUiElements} from '../../store/reducers/layoutReducer';
 
 class Video extends Component {
 
@@ -209,9 +209,11 @@ class Video extends Component {
     }
 
     render() {
+        const fixedClass = this.props.appPrimaryUiElement === appUiElements.tabs ? cn.Fixed : '';
         const fullHeightClass = this.state.isImageLoadingError || this.state.isImageLoading ? cn.FullHeight : '';
+
         return (
-            <div className={`${cn.Wrapper} ${fullHeightClass}`} id='videoWrapper'>
+            <div className={`${cn.Wrapper} ${fullHeightClass} ${fixedClass}`} id='videoWrapper'>
                 {this.renderImgElement()}
             </div>
         );
@@ -222,7 +224,8 @@ const mapStateToProps = (state) => {
     return {
         isPaused: state.video.isPaused,
         weaponDetected: state.output.weaponDetected,
-        selectedDrone: state.map.selectedDrone
+        selectedDrone: state.map.selectedDrone,
+        appPrimaryUiElement: state.layout.appPrimaryUiElement
     };
 };
 
