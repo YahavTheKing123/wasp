@@ -15,7 +15,7 @@ const config = {
       windowDetectionSnapshot: '/snapshot?topic=/seeker/detectionImage',
     },
 
-    MIN_DRONE_DISTANCE_MOVE : 1,
+    MIN_DRONE_DISTANCE_MOVE : 0.25,
     MIN_ENEMY_RADIUS : 1,
     EXPOSURE_MAX_LEVEL : 100,
     COORDINATE_DECIMALS_PRECISION : 2,
