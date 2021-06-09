@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import cn from './MissionPlanStages.module.css';
 import actionTypes from '../../../store/actions/actionTypes';
+import * as geoCalculations from '../../../utils/geoCalculations';
 
 class MissionPlanStage extends Component {
 
@@ -26,10 +27,6 @@ class MissionPlanStage extends Component {
         }
     }
 
-    selectPointFromMap = () => {
-        this.props.togglePointSelectionMode();
-    }
-
     onAddOrEditStageBtnClicked = (isAddStage = false) => {
         const popupDetails = {
             title: isAddStage ? 'Add New Stage' : `Edit Stage #${this.props.stageIndex + 1} `,
@@ -38,7 +35,8 @@ class MissionPlanStage extends Component {
                 stage: isAddStage ? null : this.props.stage,
                 size: 'small',
                 onPopupInitalLoad: getChildState => this.getAddMissionPlanStageFormState = getChildState,
-                selectPointFromMap: this.selectPointFromMap,
+                selectPointFromMap:  this.props.togglePointSelectionMode,
+                getDronePosition:  this.props.dronesPositions[this.props.selectedDrone] &&  this.props.dronesPositions[this.props.selectedDrone].offset ? this.getDronePosition : undefined
 
             },
             onCloseButtonClick: () => { },
@@ -52,6 +50,15 @@ class MissionPlanStage extends Component {
             }
         };
         this.props.showPopup(popupDetails);
+    }
+
+    getDronePosition = () => {
+        const dronePosition = this.props.dronesPositions[this.props.selectedDrone];
+        let coordinateWithOffset = null;
+        if(dronePosition && dronePosition.offset){
+            coordinateWithOffset = geoCalculations.getMapCoordinate(dronePosition.workingOrigin , dronePosition.offset);
+            this.props.setPositionToPopup(coordinateWithOffset);
+        }
     }
 
     onMenuBtnClick = e => {
@@ -119,9 +126,13 @@ class MissionPlanStage extends Component {
     }
 }
 
-const mapStateToProps = (state) => ({
 
-})
+const mapStateToProps = (state) => {
+    return {
+        dronesPositions: state.map.dronesPositions,
+        selectedDrone: state.map.selectedDrone
+    }
+};
 
 const mapDispachToProps = (dispatch) => {
     return {
@@ -133,6 +144,7 @@ const mapDispachToProps = (dispatch) => {
         moveStageDown: (index) => dispatch({ type: actionTypes.MOVE_DOWN_MISSION_PLAN_STAGE, payload: index }),
         moveStageUp: (index) => dispatch({ type: actionTypes.MOVE_UP_MISSION_PLAN_STAGE, payload: index }),
         addNewStage: stage => dispatch({ type: actionTypes.ADD_NEW_MISSION_PLAN_STAGE, payload: stage }),
+        setPositionToPopup: (position) => dispatch({ type: actionTypes.SELECT_POINT_FROM_MAP, payload: { position } }),
     };
 };
 

@@ -78,7 +78,7 @@ const layoutReducer = (state = initialState, action) => {
         }
         case actionTypes.SELECT_POINT_FROM_MAP: {
             let popupDetails = {...state.popupDetails};
-            popupDetails.modalChildProps.pointFromMap = action.payload.pointFromMap;
+            popupDetails.modalChildProps.pointFromMap = action.payload.position;
             return {
                 ...state,
                 popupDetails

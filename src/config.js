@@ -15,11 +15,11 @@ const config = {
       windowDetectionSnapshot: '/snapshot?topic=/seeker/detectionImage',
     },
 
-    MIN_DRONE_DISTANCE_MOVE : 1, // 25 cm
-    MIN_ENEMY_RADIUS : 0.5, // 25 cm
+    MIN_DRONE_DISTANCE_MOVE : 1,
+    MIN_ENEMY_RADIUS : 1,
     EXPOSURE_MAX_LEVEL : 100,
     COORDINATE_DECIMALS_PRECISION : 2,
-    DEFAULT_MISSION_POINT_HEIGHT : 0
+    DEFAULT_MISSION_POINT_HEIGHT : 0,
 };
 
 export const devVideoSnapshotUrl = `https://images.pexels.com/photos/78783/submachine-gun-rifle-automatic-weapon-weapon-78783.jpeg?auto=compress&cs=tinysrgb&h=750&w=1260`;

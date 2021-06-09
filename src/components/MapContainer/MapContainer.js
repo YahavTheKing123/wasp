@@ -311,7 +311,6 @@ class MapContainer extends PureComponent {
 
         this.MapObjects[droneNumber].Route = window.MapCore.IMcObject.Create(this.overlay, this.lineScheme, [originCoordinate]);
         this.MapObjects[droneNumber].Route.SetFloatProperty(2, 3);
-
         let lineColor = new window.MapCore.SMcBColor(44, 229, 246, 255);
         if (droneList.indexOf(this.props.selectedDrone) == 1) {
             lineColor = new window.MapCore.SMcBColor(0, 128, 0, 255);
@@ -399,7 +398,7 @@ class MapContainer extends PureComponent {
             //this.SelectedMissionPointObject.SetFloatProperty(2, 0.8);
             let locationPoints = this.SelectedMissionPointObject.GetLocationPoints()[0];
             locationPoints.z = config.DEFAULT_MISSION_POINT_HEIGHT;
-            this.props.selectPointFromMap(geoCalculations.roundCoordinate(locationPoints, config.COORDINATE_DECIMALS_PRECISION));
+            this.props.setPositionToPopup(geoCalculations.roundCoordinate(locationPoints, config.COORDINATE_DECIMALS_PRECISION));
             this.SelectedMissionPointObject.Remove();
         }
 
@@ -2181,7 +2180,7 @@ const mapDispachToProps = (dispatch) => {
         saveOriginCoordinate: (coordinate, angle) => dispatch({ type: actionTypes.SAVE_ORIGIN_COORDINATE, payload: { coordinate, angle } }),
         deleteDronePosition: () => dispatch({ type: actionTypes.DELETE_DRONE_POSITION }),
         togglePointSelectionMode: () => dispatch({ type: actionTypes.TOGGLE_POINT_SELECTION_MODE }),
-        selectPointFromMap: (pointFromMap) => dispatch({ type: actionTypes.SELECT_POINT_FROM_MAP, payload: { pointFromMap } }),
+        setPositionToPopup: (position) => dispatch({ type: actionTypes.SELECT_POINT_FROM_MAP, payload: { position } }),
         toggleBetweenMapToTabs: () => dispatch({ type: actionTypes.TOGGLE_MAP_AND_OUTPUT_TABS }),
     };
 };

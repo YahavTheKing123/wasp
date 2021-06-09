@@ -23,16 +23,16 @@ export default class AddMissionPlanStageForm extends Component {
     componentDidUpdate(prevProps) {
         if (prevProps.pointFromMap != this.props.pointFromMap) {
             const pointFromMap = this.props.pointFromMap;
-            const stageParamsInput = pointFromMap.x + "," +pointFromMap.y + "," + pointFromMap.z;
-            this.setState({ multiParamsInput: pointFromMap , stageParamsInput })
+            const stageParamsInput = pointFromMap.x + "," + pointFromMap.y + "," + pointFromMap.z;
+            this.setState({ multiParamsInput: pointFromMap, stageParamsInput })
         }
     }
     parseMultiParams = () => {
-        if (this.props.stage && this.props.stage.stageParamsInput && this.props.stage.stageParamsInput!="") {
+        if (this.props.stage && this.props.stage.stageParamsInput && this.props.stage.stageParamsInput != "") {
             const [x, y, z] = this.props.stage.stageParamsInput.split(',');
-            return {x,y,z};
+            return { x, y, z };
         }
-        else{
+        else {
             return null
         }
     }
@@ -101,17 +101,26 @@ export default class AddMissionPlanStageForm extends Component {
                 <div className={cn.InputWrapper}>
                     {selectedStageType.isMultiInputs ?
                         <>
-                            <span className={`${cn.Icon} ${cn.PositionIcon}`} title="Select On Map" onClick={this.props.selectPointFromMap} />
+
                             {this.getInputField(multiParamsInput.x, 'x')}
                             {this.getInputField(multiParamsInput.y, 'y')}
                             {this.getInputField(multiParamsInput.z, 'z')}
+
                         </>
                         :
                         this.getInputField(stageParamsInput)
                     }
                 </div>
-                {this.props.isSelectOrigin &&  <span className={`${cn.Label}`}>{"Origin angle:"}</span>}
-                {this.props.isSelectOrigin &&  this.getInputField(multiParamsInput.angle || 0, 'angle')}
+                {selectedStageType.isMultiInputs && (
+                    <div className={cn.InputWrapper}>
+                        <span className={`${cn.Icon} ${cn.PositionIcon}`} title="Select On Map" onClick={this.props.selectPointFromMap} />
+                        {this.props.getDronePosition && <span className={`${cn.Icon} ${cn.DroneIcon}`} title="Get Drone Position" onClick={this.props.getDronePosition} />}
+                    </div>
+                )
+                }
+
+                {this.props.isSelectOrigin && <span className={`${cn.Label}`}>{"Origin angle:"}</span>}
+                {this.props.isSelectOrigin && this.getInputField(multiParamsInput.angle || 0, 'angle')}
             </div>
         )
 
@@ -123,7 +132,7 @@ export default class AddMissionPlanStageForm extends Component {
             <div className={cn.InnerInputWrapper}>
                 <Input
                     parentRef={this.inputRef}
-                    value={value !== null && value !== undefined? value : ""}
+                    value={value !== null && value !== undefined ? value : ""}
                     onChange={e => this.onInputChange(e, subField)}
                     disabled={false}
                     type={selectedStageType.params.type || ""}
