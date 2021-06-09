@@ -37,3 +37,11 @@
 .PositionIcon {
     background-image: url(../../../assets/images/position.svg);
 }
+
+.DroneIcon {
+    -webkit-mask-image: url(../../../assets/images/drone.svg);  
+    mask-image:  url(../../../assets/images/drone.svg);  
+    -webkit-mask-repeat: no-repeat;
+    background-color: #8b8d92;
+    width: 47px;
+  }

@@ -11,6 +11,7 @@
 			"121"
 		]
 	},
+	"MIN_ENEMY_RADIUS" : 1.5 , 
 	"MAPCORE_LAYER_SERVER_URL": false,
 	"streamingLayers": [		
 		{

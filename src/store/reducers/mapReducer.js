@@ -35,21 +35,23 @@ const mapReducer = (state = initialState, action) => {
             }
         }
         case actionTypes.GET_ENEMY_POSITION: {
-            let range = action.payload.range;
+            let enemyOffset = action.payload.enemyOffset;
             let droneNumber = action.payload.droneNumber;
-            const droneAngleRadians = (360 - state.dronesPositions[droneNumber].angle) * Math.PI / 180;
+            //   const droneAngleRadians = (360 - state.dronesPositions[droneNumber].angle) * Math.PI / 180;
 
-            let enemyOffsetFromDrone = {
-                x: range * Math.cos(droneAngleRadians) ,
-                y: range * Math.sin(droneAngleRadians) ,
-                z: 0
-            }
-            let enemyOffset = geoCalculations.addCoordinates(state.dronesPositions[droneNumber].offset, enemyOffsetFromDrone);
+            //  let enemyOffsetFromDrone = {
+            //      x: range * Math.cos(droneAngleRadians) ,
+            //      y: range * Math.sin(droneAngleRadians) ,
+            //      z: 0
+            //  }
+            //  let enemyOffset = geoCalculations.addCoordinates(state.dronesPositions[droneNumber].offset, enemyOffsetFromDrone);
 
-            let dronePosition = { ...state.dronesPositions[action.payload.droneNumber] };
+            let dronePosition = { ...state.dronesPositions[droneNumber] };
 
             if (dronePosition.enemyOffsets &&
-                dronePosition.enemyOffsets.some(offset => (geoCalculations.calculateDistanceBetween2Points(offset, enemyOffset) < config.MIN_ENEMY_RADIUS))) {
+                dronePosition.enemyOffsets.some(offset => {
+                    return (geoCalculations.calculateDistanceBetween2Points(offset, enemyOffset, true) < externalConfig.getConfiguration().MIN_ENEMY_RADIUS);
+                })) {
                 //enemy already exists in this radius
                 return state;
             }
@@ -59,7 +61,7 @@ const mapReducer = (state = initialState, action) => {
                 ...state,
                 dronesPositions: {
                     ...state.dronesPositions,
-                    [action.payload.droneNumber]: dronePosition
+                    [droneNumber]: dronePosition
                 },
             }
         }

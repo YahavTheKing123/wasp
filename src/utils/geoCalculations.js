@@ -1,7 +1,7 @@
-export function calculateDistanceBetween2Points(p1, p2) {
+export function calculateDistanceBetween2Points(p1, p2 , ignorHeight) {
     var a = p2.x - p1.x;
     var b = p2.y - p1.y;
-    var c = p2.z - p1.z;
+    var c = ignorHeight ? 0 : p2.z - p1.z;
 
     return Math.sqrt(a * a + b * b + c * c);
 }
