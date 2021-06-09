@@ -301,7 +301,6 @@ class MapContainer extends PureComponent {
 
         let texture = window.MapCore.IMcMemoryBufferTexture.Create(image.naturalWidth, image.naturalHeight, window.MapCore.IMcTexture.EPixelFormat.EPF_A8B8G8R8, window.MapCore.IMcTexture.EUsage.EU_STATIC_WRITE_ONLY, false, pixels, 0);
 
-<<<<<<< HEAD
         if (this.DroneMapImage) {                   
             this.DroneMapImage.SetTextureProperty(1, texture);
         } else {
@@ -309,19 +308,7 @@ class MapContainer extends PureComponent {
                 this.DroneMapImage.SetTextureProperty(1, texture);
 
                 this.DroneMapImage.SetBColorProperty(4, new window.MapCore.SMcBColor(255, 255, 255, 100));            
-                this.DroneMapImage.SetBColorProperty(4, new window.MapCore.SMcBColor(255, 255, 255, 100));
-                this.DroneMapImage.SetBColorProperty(4, new window.MapCore.SMcBColor(255, 255, 255, 100));            
-=======
-        if (this.DroneMapImage) {
-            this.DroneMapImage.GetTextureProperty(1).SetImageFile(window.MapCore.SMcFileSource('http://88.53.197.250/axis-cgi/mjpg/video.cgi?resolution=320x240', false));
-        } else {
-            this.DroneMapImage = window.MapCore.IMcObject.Create(this.overlay, this.WorldPictureScheme, [this.MapObjects[this.props.selectedDrone].WorkingOrigin.GetLocationPoints()[0]]);
-            this.DroneMapImage.SetTextureProperty(1, window.MapCore.IMcImageFileTexture.Create(window.MapCore.SMcFileSource(
-                'http://88.53.197.250/axis-cgi/mjpg/video.cgi?resolution=320x240', false), false));
-            this.DroneMapImage.SetBColorProperty(4, new window.MapCore.SMcBColor(255, 255, 255, 100));
-            this.DroneMapImage.SetBColorProperty(4, new window.MapCore.SMcBColor(255, 255, 255, 100));
-            this.DroneMapImage.SetBColorProperty(4, new window.MapCore.SMcBColor(255, 255, 255, 100));
->>>>>>> 6aca028944ae0d3aa7aa4e4c62e5e647d171f203
+
         }
 
         //setTimeout(this.DrawDroneMapImage, 1000);
