@@ -2,6 +2,7 @@ import actionTypes from './actionTypes';
 import { getBase64Image } from '../../utils/imageUtils';
 import { getService } from '../../services';
 import { logSeverities } from '../../config';
+import * as geoCalculations from '../../utils/geoCalculations';
 import { showGlobalMessage } from './layoutActions';
 
 export const locate = () => {
@@ -190,26 +191,29 @@ export const setExposure = (exposureVal) => {
 
 
 export const subscribeToSkeletonRange = (droneNumber) => {
-    return (dispatch,getState) => {
-      
+    return (dispatch, getState) => {
+
         getService('getSkeletonRange', droneNumber).subscribe(function (response) {
-            console.log("subscribe: getSkeletonRange");
-            let range = 0;
+            console.log("subscribe: getSkeletonRange", response);
             try {
-                if (response.data) {
-                    range = (response.data / 1000);
-                    const INDOOR_EXPLORATION = "INDOOR_EXPLORATION";
-                  //  if(getState().output.missionState.startsWith(INDOOR_EXPLORATION)){
-                        dispatch({ type: actionTypes.GET_ENEMY_POSITION, payload: { range , droneNumber } });
-                   // } 
-                    
+                if (getState().map.dronesPositions[droneNumber] && getState().map.dronesPositions[droneNumber].workingOrigin) {
+                    if (response && response.point) {
+                        //range = (response.data / 1000);
+                        //const INDOOR_EXPLORATION = "INDOOR_EXPLORATION";
+                        //  if(getState().output.missionState.startsWith(INDOOR_EXPLORATION)){
+                        dispatch({ type: actionTypes.GET_ENEMY_POSITION, payload: { enemyOffset: response.point, droneNumber } });
+                        // } 
+
+                        if (getState().map.selectedDrone == droneNumber && getState().map.dronesPositions[droneNumber]) {
+                            let skeletonRange = geoCalculations.calculateDistanceBetween2Points(getState().map.dronesPositions[droneNumber].offset, response.point, true);
+                            dispatch({ type: actionTypes.UPDATE_SKELETON_RANGE, payload: { skeletonRange } });
+                        }
+                    }
                 }
             } catch {
 
             }
-            if(getState().map.selectedDrone == droneNumber){
-                dispatch({ type: actionTypes.UPDATE_SKELETON_RANGE, payload: { skeletonRange: range.toFixed(1)} });
-            }
+
         });
     };
 };
@@ -226,7 +230,7 @@ export const subscribeToWeaponDetection = (droneNumber) => {
             console.log(response);
 
             if (response && response.data) {
-            
+
 
                 if (response.data && response.data.startsWith(INDOOR_EXPLORATION)) {
                     dispatch({ type: actionTypes.SET_INDOOR_EXPLORATION_FLAG });
