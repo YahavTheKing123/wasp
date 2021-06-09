@@ -1,0 +1,40 @@
+{
+  "files": {
+    "main.css": "./static/css/main.48b11ef5.chunk.css",
+    "main.js": "./static/js/main.593cd272.chunk.js",
+    "main.js.map": "./static/js/main.593cd272.chunk.js.map",
+    "runtime-main.js": "./static/js/runtime-main.34f8fc90.js",
+    "runtime-main.js.map": "./static/js/runtime-main.34f8fc90.js.map",
+    "static/css/2.65aa3b33.chunk.css": "./static/css/2.65aa3b33.chunk.css",
+    "static/js/2.269242ab.chunk.js": "./static/js/2.269242ab.chunk.js",
+    "static/js/2.269242ab.chunk.js.map": "./static/js/2.269242ab.chunk.js.map",
+    "index.html": "./index.html",
+    "static/css/2.65aa3b33.chunk.css.map": "./static/css/2.65aa3b33.chunk.css.map",
+    "static/css/main.48b11ef5.chunk.css.map": "./static/css/main.48b11ef5.chunk.css.map",
+    "static/js/2.269242ab.chunk.js.LICENSE.txt": "./static/js/2.269242ab.chunk.js.LICENSE.txt",
+    "static/media/EnemySpotted.efd0437a.mp3": "./static/media/EnemySpotted.efd0437a.mp3",
+    "static/media/WeaponDetection.758e844f.png": "./static/media/WeaponDetection.758e844f.png",
+    "static/media/ActionButtons.module.css": "./static/media/refresh1.85f1dc2b.svg",
+    "static/media/ContextMenu.module.css": "./static/media/switch-arrows.4ab27ec2.svg",
+    "static/media/armedRed.91c4decb.svg": "./static/media/armedRed.91c4decb.svg",
+    "static/media/App.module.css": "./static/media/signal.3ded7355.svg",
+    "static/media/MissionPlanner.module.css": "./static/media/uploadDoc.4343e61c.svg",
+    "static/media/MapContainer.module.css": "./static/media/context.06cc0957.svg",
+    "static/media/Select.module.css": "./static/media/dropdownArrow1.dfa5b9fa.svg",
+    "static/media/errorIcon.8ac257c2.svg": "./static/media/errorIcon.8ac257c2.svg",
+    "static/media/Video.module.css": "./static/media/target.66f71b44.svg",
+    "static/media/infoFull.51dc3050.svg": "./static/media/infoFull.51dc3050.svg",
+    "static/media/newLogo.990b2210.svg": "./static/media/newLogo.990b2210.svg",
+    "static/media/AddMissionPlanStageForm.module.css": "./static/media/position.cffc0829.svg",
+    "static/media/index.css": "./static/media/scroll-arrow.f90f6c25.svg",
+    "static/media/success.617ddc92.svg": "./static/media/success.617ddc92.svg",
+    "static/media/OutputTabs.module.css": "./static/media/warnIcon.a363b201.svg"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.34f8fc90.js",
+    "static/css/2.65aa3b33.chunk.css",
+    "static/js/2.269242ab.chunk.js",
+    "static/css/main.48b11ef5.chunk.css",
+    "static/js/main.593cd272.chunk.js"
+  ]
+}
