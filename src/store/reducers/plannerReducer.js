@@ -91,8 +91,7 @@ const plannerReducer = (state = initialState, action) => {
                 viewerState: state.viewerState === viewerStates.draft ? viewerStates.savedMission : viewerStates.draft
             }            
         }
-        case actionTypes.LOAD_DEFAULT_PLAN: {
-            debugger;
+        case actionTypes.LOAD_DEFAULT_PLAN: {            
             if (state.viewerState === viewerStates.savedMission) {
                 return {
                     ...state,

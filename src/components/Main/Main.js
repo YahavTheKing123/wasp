@@ -5,32 +5,14 @@ import MapContainer from '../MapContainer/MapContainer';
 import Video from '../Video/Video';
 import OutputTabs from '../OutputTabs/OutputTabs';
 import ActionButtons from '../ActionButtons/ActionButtons';
-import { connect } from 'react-redux';
-import {appUiElements} from '../../store/reducers/layoutReducer'
-class Main extends Component {
+export default class Main extends Component {
 
     getMainLeftPane() {
-        switch (this.props.appPrimaryUiElement) {
-            case appUiElements.map:
-                return <MapContainer />;
-            case appUiElements.tabs:
-                return <OutputTabs />;                
-            default:
-                return <MapContainer />;
-
-        }
+        return <MapContainer />;
     }
 
     getSecondaryAppUiElement() {
-        switch (this.props.appPrimaryUiElement) {
-            case appUiElements.map:
-                return <OutputTabs />;
-            case appUiElements.tabs:
-                return <MapContainer />;                
-            default:
-                return <OutputTabs />;
-
-        }
+        return <OutputTabs />;
     }
 
     getMainRightPane() {
@@ -52,9 +34,6 @@ class Main extends Component {
 
 
     render() {
-
-        //const hiddenClass = !this.props.isMissionPlanScreenHidden ? ` ${classNames.Hidden}` : '';
-
         return (
             <div className={`${classNames.MainContentWrapper}`}>
                 <div className={`${classNames.Split} ${classNames.Left}`}>
@@ -69,12 +48,3 @@ class Main extends Component {
         )
     }
 }
-
-const mapStateToProps = state => {
-    return {
-        appPrimaryUiElement: state.layout.appPrimaryUiElement
-    }
-};
-
-
-export default connect(mapStateToProps, null)(Main);

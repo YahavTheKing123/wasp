@@ -9,6 +9,7 @@ import actions from '../../store/actions';
 import SwitchMapForm from '../SwitchMapForm/SwitchMapForm';
 import * as geoCalculations from '../../utils/geoCalculations';
 import { viewerStates } from '../../store/reducers/plannerReducer';
+import {appUiElements} from '../../store/reducers/layoutReducer';
 
 class SLayerGroup {
     constructor(coordSystemString, bShowGeoInMetricProportion, bSetTerrainBoxByStaticLayerOnly, InitialScale2D) {
@@ -121,7 +122,7 @@ class MapContainer extends PureComponent {
                     if (!prevProps.dronesPositions[droneNumber] ||  // first position
                         (dronesPositions[droneNumber].offset != prevProps.dronesPositions[droneNumber].offset)) {  // cahnged position
                         this.MoveDrone(droneNumber);
-                     //   this.DrawDroneMapImage();
+                        //this.DrawDroneMapImage();
                     }
                     else if (dronesPositions[droneNumber].enemyOffsets != prevProps.dronesPositions[droneNumber].enemyOffsets) {
                         this.DrawEnemyObject(droneNumber);
@@ -152,6 +153,17 @@ class MapContainer extends PureComponent {
         else if (viewerState == viewerStates.draft &&
             (viewerState != prevProps.viewerState || draftMissionStages != prevProps.draftMissionStages)) {
             this.DrawMissionWayPoints(draftMissionStages);
+        }
+
+        // if (this.props.dronesPositions && 
+        //     this.props.selectedDrone && 
+        //     this.props.dronesPositions[this.props.selectedDrone] && 
+        //     this.props.dronesPositions[this.props.selectedDrone].workingOrigin) {
+        //     this.DrawDroneMapImage();
+        // }
+
+        if (this.props.appPrimaryUiElement !== prevProps.appPrimaryUiElement) {
+            this.resizeCanvases()
         }
     }
 
@@ -265,21 +277,22 @@ class MapContainer extends PureComponent {
         const ip = `http://${DRONES_DATA.segment}.${this.props.selectedDrone}:${DRONES_DATA.port}`;
         const mapImageStream = `http://192.168.1.116:8081/stream?topic=/map_image/full`;
 
-        if (this.DroneMapImage) {
-            this.DroneMapImage.GetTextureProperty(1).SetImageFile(window.MapCore.SMcFileSource(mapImageStream, false));
-        }
-        else {
-            this.DroneMapImage = window.MapCore.IMcObject.Create(this.overlay, this.WorldPictureScheme, [this.MapObjects[this.props.selectedDrone].WorkingOrigin.GetLocationPoints()[0]]);
-            this.DroneMapImage.SetTextureProperty(1, window.MapCore.IMcImageFileTexture.Create(window.MapCore.SMcFileSource(mapImageStream, false), false));
+        if (this.DroneMapImage) {                   
+            this.DroneMapImage.GetTextureProperty(1).SetImageFile(window.MapCore.SMcFileSource('http://88.53.197.250/axis-cgi/mjpg/video.cgi?resolution=320x240', false));
+        } else {
+                this.DroneMapImage = window.MapCore.IMcObject.Create(this.overlay, this.WorldPictureScheme, [this.MapObjects[this.props.selectedDrone].WorkingOrigin.GetLocationPoints()[0]]);
+                this.DroneMapImage.SetTextureProperty(1, window.MapCore.IMcImageFileTexture.Create(window.MapCore.SMcFileSource(
+                    'http://88.53.197.250/axis-cgi/mjpg/video.cgi?resolution=320x240', false), false));
+                this.DroneMapImage.SetBColorProperty(4, new window.MapCore.SMcBColor(255, 255, 255, 100));            
             this.DroneMapImage.SetBColorProperty(4, new window.MapCore.SMcBColor(255, 255, 255, 100));
+                this.DroneMapImage.SetBColorProperty(4, new window.MapCore.SMcBColor(255, 255, 255, 100));            
         }
 
-        //  setTimeout(this.DrawDroneMapImage, 3000);
+        setTimeout(this.DrawDroneMapImage, 500);
     }
 
 
-    DrawEnemyObject(droneNumber) {
-        debugger;
+    DrawEnemyObject(droneNumber) {        
         let dronePosition = this.props.dronesPositions[droneNumber];
         const coordinateWithOffset = geoCalculations.getMapCoordinate(dronePosition.workingOrigin, dronePosition.enemyOffsets[dronePosition.enemyOffsets.length - 1]);
         this.EnemyObject = window.MapCore.IMcObject.Create(this.overlay, this.ScreenPictureClick, [coordinateWithOffset]);
@@ -1998,8 +2011,7 @@ class MapContainer extends PureComponent {
         this.props.showPopup(popupDetails);
     }
 
-    SetWorkingOrigin = () => {
-        debugger;
+    SetWorkingOrigin = () => {        
         this.RemoveDroneData(this.props.selectedDrone);
         if (!this.MapObjects[this.props.selectedDrone]) {
             this.MapObjects[this.props.selectedDrone] = {
@@ -2136,8 +2148,10 @@ class MapContainer extends PureComponent {
     }
 
     render() {
+        const smallMapClass = this.props.appPrimaryUiElement === appUiElements.tabs ? cn.SmallMap : '';
+
         return (
-            <div className={cn.Wrapper}>
+            <div className={`${cn.Wrapper} ${smallMapClass}`}>
                 {this.props.isMapCoreSDKLoaded ? this.getCanvas() : this.renderLoadingMessage()}
             </div>
         );

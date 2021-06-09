@@ -8,7 +8,7 @@ import { connect } from 'react-redux';
 import EnemySpottedSound from '../../assets/EnemySpotted.mp3';
 import ArmedRed from '../../assets/images/armedRed.svg';
 import rosWebSocket from '../../rosWebsocket';
-
+import {appUiElements} from '../../store/reducers/layoutReducer';
 class OutputTabs extends Component {
 
 
@@ -235,9 +235,10 @@ class OutputTabs extends Component {
     }
 
     render() {
+        const enlargeClass = this.props.appPrimaryUiElement === appUiElements.tabs ? cn.Enlarge : '';
 
         return (
-            <div className={cn.Wrapper}>
+            <div className={`${cn.Wrapper} ${enlargeClass}`}>
                 {this.renderTabsToggle()}
                 <div className={cn.Tabs} id='tabs-wrapper'>
                     {this.getSelectedTab()}
@@ -254,7 +255,8 @@ const mapStateToProps = (state) => {
         skeletonRange: state.output.skeletonRange,
         weaponDetected: state.output.weaponDetected,
         indoorExplorationFlag: state.output.indoorExplorationFlag,
-        selectedDrone: state.map.selectedDrone
+        selectedDrone: state.map.selectedDrone,
+        appPrimaryUiElement: state.layout.appPrimaryUiElement
     };
 };
 
