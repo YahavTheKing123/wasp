@@ -204,9 +204,9 @@ export const subscribeToSkeletonRange = (droneNumber) => {
                         dispatch({ type: actionTypes.GET_ENEMY_POSITION, payload: { enemyOffset: response.point, droneNumber } });
                         // } 
 
-                        if (getState().map.selectedDrone == droneNumber && getState().map.dronesPositions[droneNumber]) {
+                        if (getState().map.selectedDrone == droneNumber) {
                             let skeletonRange = geoCalculations.calculateDistanceBetween2Points(getState().map.dronesPositions[droneNumber].offset, response.point, true);
-                            dispatch({ type: actionTypes.UPDATE_SKELETON_RANGE, payload: { skeletonRange } });
+                            dispatch({ type: actionTypes.UPDATE_SKELETON_RANGE, payload: { skeletonRange : skeletonRange.toFixed(1) } });
                         }
                     }
                 }
@@ -228,9 +228,9 @@ export const subscribeToWeaponDetection = (droneNumber) => {
             const INDOOR_EXPLORATION_THREAT = "INDOOR_EXPLORATION_THREAT";
 
             console.log(response);
-
+            
             if (response && response.data) {
-
+            dispatch({ type: actionTypes.SET_MISSION_STATE, payload: { missionState: response.data } });
 
                 if (response.data && response.data.startsWith(INDOOR_EXPLORATION)) {
                     dispatch({ type: actionTypes.SET_INDOOR_EXPLORATION_FLAG });

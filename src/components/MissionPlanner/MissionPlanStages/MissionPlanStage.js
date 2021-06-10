@@ -109,7 +109,7 @@ class MissionPlanStage extends Component {
     render() {
         const { selectedStageType, stageParamsInput } = this.props.stage;
         let params = stageParamsInput;
-        if (selectedStageType.label == "Go To Waypoint") {
+        if (selectedStageType.label == "Go To Waypoint" && stageParamsInput) {
             const [x, y, z] = stageParamsInput.split(',');
             params = `x: ${x.split(".")[0]}\ny: ${y.split(".")[0]}\nz: ${z.split(".")[0]}`
         }

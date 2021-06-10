@@ -6,8 +6,8 @@
 		"port": 8081,
 		"selectedDrone": 116,
 		"dronesList": [
+			"136",
 			"116",
-			"100",
 			"121"
 		]
 	},
