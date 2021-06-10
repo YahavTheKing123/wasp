@@ -16,8 +16,6 @@ const outputReducer = (state = initialState, action) => {
             }
         }
         case actionTypes.UPDATE_SKELETON_RANGE:
-  
-          return state;
             return {
                 ...state,
                 skeletonRange: action.payload.skeletonRange

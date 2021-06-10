@@ -18,7 +18,7 @@ class OutputTabs extends Component {
             pointPosition: null,
             showCapture: true,
             selectedTab: "WindowDetection",
-            random: Math.random()
+            randomKey: Math.random()
         }
         this.EnemySpotted = new Audio(EnemySpottedSound);
 
@@ -49,7 +49,7 @@ class OutputTabs extends Component {
 
     }
 
-    componentDidUpdate(prevProps) {
+    componentDidUpdate(prevProps, prevState) {
         if (prevProps.imageSentToDroneData !== this.props.imageSentToDroneData) {
             const img = document.createElement('img');
             img.onload = this.onImageLoaded;
@@ -67,6 +67,9 @@ class OutputTabs extends Component {
             this.onToggleTabClick("Skeleton");
         }
 
+        if(this.state.selectedTab != prevState.selectedTab){
+            this.setState({randomKey: Math.random()})
+        }
         if (this.props.selectedTab === 'Occupancy' && this.props.selectedDrone !== prevProps.selectedDrone) {
             /*const viewer = new window.ROS2D.Viewer({
                 divID: 'occupancyTab',
