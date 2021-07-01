@@ -219,7 +219,7 @@ export const subscribeToSkeletonRange = (droneNumber) => {
 };
 
 export const subscribeToWeaponDetection = (droneNumber) => {
-    return (dispatch) => {
+    return (dispatch,getState) => {
         console.log("subscribe: getDroneExploreState");
         getService('getDroneExploreState', droneNumber).subscribe(function (response) {
 
@@ -227,8 +227,6 @@ export const subscribeToWeaponDetection = (droneNumber) => {
             const INDOOR_EXPLORATION = "INDOOR_EXPLORATION";
             const INDOOR_EXPLORATION_THREAT = "INDOOR_EXPLORATION_THREAT";
 
-            console.log(response);
-            
             if (response && response.data) {
             dispatch({ type: actionTypes.SET_MISSION_STATE, payload: { missionState: response.data } });
 
@@ -236,7 +234,7 @@ export const subscribeToWeaponDetection = (droneNumber) => {
                     dispatch({ type: actionTypes.SET_INDOOR_EXPLORATION_FLAG });
                     //    dispatch({ type: actionTypes.SET_WEAPON_DETECTION, payload: { weaponDetected: true } });                
                     //   dispatch(showGlobalMessage({ text: `Threat Detected`, type: logSeverities.warn, isRemoved: true }));                    
-                } else if (response.data === INDOOR_EXPLORATION_THREAT) {
+                } else if (getState().output.isArmed && response.data === INDOOR_EXPLORATION_THREAT) {
                     dispatch({ type: actionTypes.SET_WEAPON_DETECTION, payload: { weaponDetected: true } });
                     dispatch(showGlobalMessage({ text: `Threat Detected`, type: logSeverities.warn, isRemoved: true }));
                 }

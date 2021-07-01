@@ -4,7 +4,8 @@ const initialState = {
     skeletonRange: 'N/A',
     weaponDetected: false,
     indoorExplorationFlag: false,
-    missionState: ''
+    missionState: '',
+    isArmed : false
 };
 
 const outputReducer = (state = initialState, action) => {
@@ -40,6 +41,13 @@ const outputReducer = (state = initialState, action) => {
                 ...state,
                 missionState: action.payload.missionState
             }
+        case actionTypes.TOGGLE_ARM_STATE:
+            return {
+                ...state,
+                isArmed: !state.isArmed
+            }
+
+
         default:
             return state;
     }

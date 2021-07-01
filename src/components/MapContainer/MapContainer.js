@@ -127,7 +127,7 @@ class MapContainer extends PureComponent {
                             //this.DrawDroneMapImage();
                         }
                     }
-                    
+
                     if ( dronesPositions[droneNumber].enemyOffsets && 
                         (!prevProps.dronesPositions[droneNumber] ||
                         (dronesPositions[droneNumber].enemyOffsets != prevProps.dronesPositions[droneNumber].enemyOffsets))) {
@@ -406,15 +406,16 @@ class MapContainer extends PureComponent {
             );
     }
 
-    OnEditClickWorkingOrigin = (droneNumber) => {
+   // OnEditClickWorkingOrigin = (droneNumber) => {
+//
+   //     if (this.MapObjects[droneNumber].WorkingOrigin && this.MapObjects[droneNumber].WorkingOrigin.GetLocationPoints().length > 0) {
+   //         //    this.WorkingOrigin.SetFloatProperty(2, 1);
+   //         const originCoordinate = geoCalculations.roundCoordinate(this.MapObjects[droneNumber].WorkingOrigin.GetLocationPoints()[0], config.COORDINATE_DECIMALS_PRECISION);
+   //         this.props.saveOriginCoordinate(originCoordinate, 360 - this.TempOriginAngle);
+   //     }
+   //     this.setState({ isOriginSelectionMode: false });
+   // }
 
-        if (this.MapObjects[droneNumber].WorkingOrigin && this.MapObjects[droneNumber].WorkingOrigin.GetLocationPoints().length > 0) {
-            //    this.WorkingOrigin.SetFloatProperty(2, 1);
-            const originCoordinate = geoCalculations.roundCoordinate(this.MapObjects[droneNumber].WorkingOrigin.GetLocationPoints()[0], config.COORDINATE_DECIMALS_PRECISION);
-            this.props.saveOriginCoordinate(originCoordinate, 360 - this.TempOriginAngle);
-        }
-        this.setState({ isOriginSelectionMode: false });
-    }
     OnEditClickMissionPoint = () => {
         if (this.SelectedMissionPointObject && this.SelectedMissionPointObject.GetLocationPoints().length > 0) {
             this.props.togglePointSelectionMode();
@@ -2006,33 +2007,7 @@ class MapContainer extends PureComponent {
                 is3DClicked: !this.state.is3DClicked
             }, () => this.openMap(this.props.mapToShow.groupName, this.state.is3DClicked))
     }
-    setTempAngle = (value) => {
-        this.TempOriginAngle = value;
-    }
-
-    setOriginAngle = () => {
-        const popupDetails = {
-            title: 'Set Origin Angle',
-            modalChild: 'SingleInputForm',
-            modalChildProps: {
-                size: 'small',
-                label: 'Set Angle(degrees ,North = 0):',
-                defaultValue: 0,
-                onValueChange: this.setTempAngle
-            },
-            onCloseButtonClick: () => {
-            },
-            primayButton: {
-                title: 'Set Origin',
-                callback: () => this.SetWorkingOrigin()
-            },
-            secondaryButton: {
-                title: 'Cancel',
-                callback: () => this.setTempAngle(0)
-            }
-        };
-        this.props.showPopup(popupDetails);
-    }
+  
 
     SetWorkingOrigin = () => {
         this.RemoveDroneData(this.props.selectedDrone);
@@ -2057,7 +2032,7 @@ class MapContainer extends PureComponent {
             this.MapObjects[this.props.selectedDrone].WorkingOrigin.SetDrawPriority(1);
 
             const originCoordinate = geoCalculations.roundCoordinate(this.MapObjects[this.props.selectedDrone].WorkingOrigin.GetLocationPoints()[0], config.COORDINATE_DECIMALS_PRECISION);
-            this.props.saveOriginCoordinate(originCoordinate, 360 - parseFloat(selectedOriginData.angle || 0));
+            this.props.saveOriginCoordinate(originCoordinate, parseFloat(selectedOriginData.angle || 0));
         }
     }
 
