@@ -16,3 +16,4 @@ export const showGlobalMessage = ({text, type, isRemoved}) => {
         }
     };
 };
+
