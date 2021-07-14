@@ -11,9 +11,9 @@
 			"121"
 		]
 	},
-	"MIN_ENEMY_RADIUS" : 1.5 , 
+	"MIN_ENEMY_RADIUS": 1.5,
 	"MAPCORE_LAYER_SERVER_URL": false,
-	"streamingLayers": [		
+	"streamingLayers": [
 		{
 			"groupName": "LegoRoom",
 			"coordSystemType": "IMcGridUTM",
@@ -27,20 +27,20 @@
 			]
 		},
 		{
-			"groupName": "Zeelim",
+			"groupName": "EmptyMap",
 			"coordSystemType": "IMcGridUTM",
 			"coordSystemParams": "36, MapCore.IMcGridCoordinateSystem.EDatumType.EDT_ED50_ISRAEL",
 			"InitialScale2D": 0.02,
-			"layers": [
-				{
-					"type": "IMcNative3DModelMapLayer",
-					"path": "Maps/StaticObjects/ZahelimMapCoreUTM-ED50"
-				},
-				{
-					"type": "IMcNativeDtmMapLayer",
-					"path": "Maps/DTM/Tzeelim-DTM-Web"
-				}
-			]
+			"gridParams": {
+				"basicNextLineGap": 2000.0,
+				"basicfMaxScale": 80
+			},
+			"cameraPosition": {
+				"x": 687370,
+				"y": 3543998,
+				"z": 10000
+			},
+			"layers": []
 		},
 		{
 			"groupName": "Elbit Campus",
