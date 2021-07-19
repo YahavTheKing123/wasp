@@ -77,13 +77,9 @@ class MapContainer extends PureComponent {
     aObjects = [];
     lineScheme = null;
     textScheme = null;
-
     TempOriginAngle = 0;
-
     MapObjects = {};
-
     EnemyPositions = [];
-
     SelectedMissionPointObject = null;
     MissionPointsObjects = [];
 
@@ -112,6 +108,7 @@ class MapContainer extends PureComponent {
             console.log('mapCore version: ', window.MapCore.IMcMapDevice.GetVersion());
             this.CreateMapcoreObjects();
             this.RemoveDroneData();
+            this.setState({ gridVisible: false })
         }
 
         const dronesPositions = this.props.dronesPositions;
@@ -128,9 +125,9 @@ class MapContainer extends PureComponent {
                         }
                     }
 
-                    if ( dronesPositions[droneNumber].enemyOffsets && 
+                    if (dronesPositions[droneNumber].enemyOffsets &&
                         (!prevProps.dronesPositions[droneNumber] ||
-                        (dronesPositions[droneNumber].enemyOffsets != prevProps.dronesPositions[droneNumber].enemyOffsets))) {
+                            (dronesPositions[droneNumber].enemyOffsets != prevProps.dronesPositions[droneNumber].enemyOffsets))) {
                         this.DrawEnemyObject(droneNumber);
                     }
                 }
@@ -197,6 +194,7 @@ class MapContainer extends PureComponent {
         this.LoadMapcoreObject("ScreenPictureDrone", "ScreenPictureDrone.json");
         this.LoadMapcoreObject("WorldPictureScheme", "WorldPicture3.json");
         this.LoadMapcoreObject("textScheme", "TextScheme.m");
+
     }
 
     LoadMapcoreObject(objectName, schemeName) {
@@ -283,7 +281,7 @@ class MapContainer extends PureComponent {
         const droneMapUrl = `//${DRONES_DATA.segment}.${this.props.selectedDrone}:${DRONES_DATA.port}${config.mapImageStream}`;
 
         //const mapImageStream = `http://192.168.1.116:8081/stream?topic=/map_image/full`;
-        
+
 
         const image = document.getElementById('droneImage');
 
@@ -301,13 +299,13 @@ class MapContainer extends PureComponent {
 
         let texture = window.MapCore.IMcMemoryBufferTexture.Create(image.naturalWidth, image.naturalHeight, window.MapCore.IMcTexture.EPixelFormat.EPF_A8B8G8R8, window.MapCore.IMcTexture.EUsage.EU_STATIC_WRITE_ONLY, false, pixels, 0);
 
-        if (this.DroneMapImage) {                   
+        if (this.DroneMapImage) {
             this.DroneMapImage.SetTextureProperty(1, texture);
         } else {
-                this.DroneMapImage = window.MapCore.IMcObject.Create(this.overlay, this.WorldPictureScheme, [this.MapObjects[this.props.selectedDrone].WorkingOrigin.GetLocationPoints()[0]]);
-                this.DroneMapImage.SetTextureProperty(1, texture);
+            this.DroneMapImage = window.MapCore.IMcObject.Create(this.overlay, this.WorldPictureScheme, [this.MapObjects[this.props.selectedDrone].WorkingOrigin.GetLocationPoints()[0]]);
+            this.DroneMapImage.SetTextureProperty(1, texture);
 
-                this.DroneMapImage.SetBColorProperty(4, new window.MapCore.SMcBColor(255, 255, 255, 100));            
+            this.DroneMapImage.SetBColorProperty(4, new window.MapCore.SMcBColor(255, 255, 255, 100));
 
         }
 
@@ -406,15 +404,15 @@ class MapContainer extends PureComponent {
             );
     }
 
-   // OnEditClickWorkingOrigin = (droneNumber) => {
-//
-   //     if (this.MapObjects[droneNumber].WorkingOrigin && this.MapObjects[droneNumber].WorkingOrigin.GetLocationPoints().length > 0) {
-   //         //    this.WorkingOrigin.SetFloatProperty(2, 1);
-   //         const originCoordinate = geoCalculations.roundCoordinate(this.MapObjects[droneNumber].WorkingOrigin.GetLocationPoints()[0], config.COORDINATE_DECIMALS_PRECISION);
-   //         this.props.saveOriginCoordinate(originCoordinate, 360 - this.TempOriginAngle);
-   //     }
-   //     this.setState({ isOriginSelectionMode: false });
-   // }
+    // OnEditClickWorkingOrigin = (droneNumber) => {
+    //
+    //     if (this.MapObjects[droneNumber].WorkingOrigin && this.MapObjects[droneNumber].WorkingOrigin.GetLocationPoints().length > 0) {
+    //         //    this.WorkingOrigin.SetFloatProperty(2, 1);
+    //         const originCoordinate = geoCalculations.roundCoordinate(this.MapObjects[droneNumber].WorkingOrigin.GetLocationPoints()[0], config.COORDINATE_DECIMALS_PRECISION);
+    //         this.props.saveOriginCoordinate(originCoordinate, 360 - this.TempOriginAngle);
+    //     }
+    //     this.setState({ isOriginSelectionMode: false });
+    // }
 
     OnEditClickMissionPoint = () => {
         if (this.SelectedMissionPointObject && this.SelectedMissionPointObject.GetLocationPoints().length > 0) {
@@ -802,12 +800,140 @@ class MapContainer extends PureComponent {
         // ask the browser to render again
         this.requestAnimationFrameId = requestAnimationFrame(this.renderMapContinuously);
     }
+    // fuction creating / hiding map grid
+    DoCreateGrid = () => {
+        if (!this.viewport || this.viewport.GetMapType() == window.MapCore.IMcMapCamera.EMapType.EMT_3D) {
+            // grid is not supported in 3D
+            return;
+        }
 
+        if (!this.viewport.GetGridVisibility() || this.viewport.GetGrid() == null) {
+            if (this.viewport.GetGrid() == null) {
+                let gridRegion = new window.MapCore.IMcMapGrid.SGridRegion();
+
+                gridRegion.pGridLine = window.MapCore.IMcLineItem.Create(window.MapCore.IMcObjectSchemeItem.EItemSubTypeFlags.EISTF_SCREEN.value, window.MapCore.IMcLineBasedItem.ELineStyle.ELS_SOLID, window.MapCore.bcBlackOpaque, 2);
+
+                gridRegion.pGridText = window.MapCore.IMcTextItem.Create(window.MapCore.IMcObjectSchemeItem.EItemSubTypeFlags.EISTF_SCREEN.value, null, new window.MapCore.SMcFVector2D(12, 12));
+                gridRegion.pGridText.SetTextColor(new window.MapCore.SMcBColor(255, 0, 0, 255));
+
+                gridRegion.pCoordinateSystem = this.viewport.GetCoordinateSystem();
+                gridRegion.GeoLimit.MinVertex = window.MapCore.SMcVector3D(0, 0, 0);
+                gridRegion.GeoLimit.MaxVertex = window.MapCore.SMcVector3D(0, 0, 0);
+
+                let currentStep = 2000.0;     //The gap between one line to the following one along each axis. 
+                let currentfMaxScale = 80;    //The upper scale of the current grid step parameters. 
+                debugger;
+                if (this.props.mapToShow.gridParams) {
+                    currentStep = this.props.mapToShow.gridParams.basicNextLineGap;
+                    currentfMaxScale = this.props.mapToShow.gridParams.basicfMaxScale;
+                }
+
+
+                let scaleStep = [];
+                scaleStep[0] = new window.MapCore.IMcMapGrid.SScaleStep();
+
+                scaleStep[0].fMaxScale = currentfMaxScale;
+                scaleStep[0].eAngleValuesFormat = window.MapCore.IMcMapGrid.EAngleFormat.EAF_DECIMAL_DEG;
+                scaleStep[0].NextLineGap = window.MapCore.SMcVector2D(currentStep, currentStep);
+                scaleStep[0].uNumOfLinesBetweenDifferentTextX = 2;
+                scaleStep[0].uNumOfLinesBetweenDifferentTextY = 2;
+                scaleStep[0].uNumOfLinesBetweenSameTextX = 2;
+                scaleStep[0].uNumOfLinesBetweenSameTextY = 2;
+                scaleStep[0].uNumMetricDigitsToTruncate = 3;
+
+                currentStep *= 2;
+                currentfMaxScale *= 2;
+
+                scaleStep[1] = new window.MapCore.IMcMapGrid.SScaleStep();
+                scaleStep[1].fMaxScale = currentfMaxScale;
+                scaleStep[1].eAngleValuesFormat = window.MapCore.IMcMapGrid.EAngleFormat.EAF_DECIMAL_DEG;
+                scaleStep[1].NextLineGap = window.MapCore.SMcVector2D(currentStep, currentStep);
+                scaleStep[1].uNumOfLinesBetweenDifferentTextX = 2;
+                scaleStep[1].uNumOfLinesBetweenDifferentTextY = 2;
+                scaleStep[1].uNumOfLinesBetweenSameTextX = 2;
+                scaleStep[1].uNumOfLinesBetweenSameTextY = 2;
+                scaleStep[1].uNumMetricDigitsToTruncate = 3;
+
+                currentStep *= 2;
+                currentfMaxScale *= 2;
+
+                scaleStep[2] = new window.MapCore.IMcMapGrid.SScaleStep();
+                scaleStep[2].fMaxScale = currentfMaxScale;
+                scaleStep[2].eAngleValuesFormat = window.MapCore.IMcMapGrid.EAngleFormat.EAF_DECIMAL_DEG;
+                scaleStep[2].NextLineGap = window.MapCore.SMcVector2D(currentStep, currentStep);
+                scaleStep[2].uNumOfLinesBetweenDifferentTextX = 2;
+                scaleStep[2].uNumOfLinesBetweenDifferentTextY = 2;
+                scaleStep[2].uNumOfLinesBetweenSameTextX = 2;
+                scaleStep[2].uNumOfLinesBetweenSameTextY = 2;
+                scaleStep[2].uNumMetricDigitsToTruncate = 3;
+
+                currentStep *= 2;
+                currentfMaxScale *= 2;
+
+                scaleStep[3] = new window.MapCore.IMcMapGrid.SScaleStep();
+                scaleStep[3].fMaxScale = currentfMaxScale;
+                scaleStep[3].eAngleValuesFormat = window.MapCore.IMcMapGrid.EAngleFormat.EAF_DECIMAL_DEG;
+                scaleStep[3].NextLineGap = window.MapCore.SMcVector2D(currentStep, currentStep);
+                scaleStep[3].uNumOfLinesBetweenDifferentTextX = 2;
+                scaleStep[3].uNumOfLinesBetweenDifferentTextY = 2;
+                scaleStep[3].uNumOfLinesBetweenSameTextX = 2;
+                scaleStep[3].uNumOfLinesBetweenSameTextY = 2;
+                scaleStep[3].uNumMetricDigitsToTruncate = 3;
+
+                currentStep *= 2;
+                currentfMaxScale *= 2;
+
+                scaleStep[4] = new window.MapCore.IMcMapGrid.SScaleStep();
+                scaleStep[4].fMaxScale = currentfMaxScale;
+                scaleStep[4].eAngleValuesFormat = window.MapCore.IMcMapGrid.EAngleFormat.EAF_DECIMAL_DEG;
+                scaleStep[4].NextLineGap = window.MapCore.SMcVector2D(currentStep, currentStep);
+                scaleStep[4].uNumOfLinesBetweenDifferentTextX = 2;
+                scaleStep[4].uNumOfLinesBetweenDifferentTextY = 2;
+                scaleStep[4].uNumOfLinesBetweenSameTextX = 2;
+                scaleStep[4].uNumOfLinesBetweenSameTextY = 2;
+                scaleStep[4].uNumMetricDigitsToTruncate = 3;
+
+                currentStep *= 2;
+                currentfMaxScale *= 2;
+
+                scaleStep[5] = new window.MapCore.IMcMapGrid.SScaleStep();
+                scaleStep[5].fMaxScale = currentfMaxScale;
+                scaleStep[5].eAngleValuesFormat = window.MapCore.IMcMapGrid.EAngleFormat.EAF_DECIMAL_DEG;
+                scaleStep[5].NextLineGap = window.MapCore.SMcVector2D(currentStep, currentStep);
+                scaleStep[5].uNumOfLinesBetweenDifferentTextX = 2;
+                scaleStep[5].uNumOfLinesBetweenDifferentTextY = 2;
+                scaleStep[5].uNumOfLinesBetweenSameTextX = 2;
+                scaleStep[5].uNumOfLinesBetweenSameTextY = 2;
+                scaleStep[5].uNumMetricDigitsToTruncate = 3;
+
+                currentStep *= 2;
+
+                scaleStep[6] = new window.MapCore.IMcMapGrid.SScaleStep();
+                scaleStep[6].fMaxScale = window.MapCore.FLT_MAX;
+                scaleStep[6].eAngleValuesFormat = window.MapCore.IMcMapGrid.EAngleFormat.EAF_DECIMAL_DEG;
+                scaleStep[6].NextLineGap = window.MapCore.SMcVector2D(currentStep, currentStep);
+                scaleStep[6].uNumOfLinesBetweenDifferentTextX = 2;
+                scaleStep[6].uNumOfLinesBetweenDifferentTextY = 2;
+                scaleStep[6].uNumOfLinesBetweenSameTextX = 2;
+                scaleStep[6].uNumOfLinesBetweenSameTextY = 2;
+                scaleStep[6].uNumMetricDigitsToTruncate = 3;
+
+                let grid = window.MapCore.IMcMapGrid.Create([gridRegion], scaleStep);
+                this.viewport.SetGrid(grid);
+            }
+            this.viewport.SetGridVisibility(true);
+        }
+        else {
+            this.viewport.SetGridVisibility(false);
+        }
+        this.setState({ gridVisible: !this.state.gridVisible })
+
+    }
     trySetTerainBox = () => {
         for (let j = 0; j < this.aViewports.length; j++) {
             if (this.aViewports[j].terrainBox == null) {
                 let aViewportLayers = this.aViewports[j].aLayers;
-                if (aViewportLayers.length != 0) {
+                if (aViewportLayers && aViewportLayers.length != 0) {
                     this.aViewports[j].terrainBox = new window.MapCore.SMcBox(-window.MapCore.DBL_MAX, -window.MapCore.DBL_MAX, 0, window.MapCore.DBL_MAX, window.MapCore.DBL_MAX, 0);
                     for (let i = 0; i < aViewportLayers.length; ++i) {
                         if (this.aViewports[j].bSetTerrainBoxByStaticLayerOnly && aViewportLayers[i].GetLayerType() != window.MapCore.IMcNativeStaticObjectsMapLayer.LAYER_TYPE) {
@@ -844,14 +970,14 @@ class MapContainer extends PureComponent {
 
             if (!this.aViewports[j].bCameraPositionSet) {
                 if (this.aViewports[j].viewport.GetMapType() == window.MapCore.IMcMapCamera.EMapType.EMT_2D) {
-                    this.aViewports[j].viewport.SetCameraPosition(this.aViewports[j].terrainCenter);
+                    this.aViewports[j].viewport.SetCameraPosition(this.props.mapToShow.cameraPosition? this.props.mapToShow.cameraPosition : this.aViewports[j].terrainCenter);
                     this.aViewports[j].bCameraPositionSet = true;
                 }
                 else // 3D
                 {
                     let height = {};
                     this.aViewports[j].terrainCenter.z = 100;
-                    this.aViewports[j].viewport.SetCameraPosition(this.aViewports[j].terrainCenter);
+                    this.aViewports[j].viewport.SetCameraPosition(this.props.mapToShow.cameraPosition? this.props.mapToShow.cameraPosition : this.aViewports[j].terrainCenter );
                     let params = new window.MapCore.IMcSpatialQueries.SQueryParams();
                     params.eTerrainPrecision = window.MapCore.IMcSpatialQueries.EQueryPrecision.EQP_HIGH;
                     this.aViewports[j].bCameraPositionSet = true;
@@ -1883,6 +2009,7 @@ class MapContainer extends PureComponent {
                 });
             }
         })
+
     }
 
     doDtmVisualization() {
@@ -2007,7 +2134,7 @@ class MapContainer extends PureComponent {
                 is3DClicked: !this.state.is3DClicked
             }, () => this.openMap(this.props.mapToShow.groupName, this.state.is3DClicked))
     }
-  
+
 
     SetWorkingOrigin = () => {
         this.RemoveDroneData(this.props.selectedDrone);
@@ -2081,16 +2208,22 @@ class MapContainer extends PureComponent {
         const dtmLayer = this.props.mapToShow.layers.find(layer => layer.type.toLowerCase().includes('dtm'));
 
         if (true) {
-            const showHideDtmAction = {
-                name: (this.state.isDTMClicked ? 'Hide' : 'Show') + " DTM visualization",
-                func: () => this.showHideDtmActionClicked(),
-                iconCss: "DTM"
-            }
             const selectOrigin = {
                 name: "Select Origin",
                 func: () => this.onAddOrEditStageBtnClicked(),
                 iconCss: "AddMapLocation"
             }
+            const showHideDtmAction = {
+                name: (this.state.isDTMClicked ? 'Hide' : 'Show') + " DTM visualization",
+                func: () => this.showHideDtmActionClicked(),
+                iconCss: "DTM"
+            }
+            const addGrid = {
+                name: this.state.gridVisible ? "Hide Grid" : "Show Grid",
+                func: () => this.DoCreateGrid(),
+                iconCss: "Grid"
+            }
+
             const showHide3DAction = {
                 name: 'Switch To ' + (this.state.is3DClicked ? '2D' : '3D'),
                 func: this.showHide3DActionClicked,
@@ -2106,6 +2239,7 @@ class MapContainer extends PureComponent {
             menuItemsList.push(showHideDtmAction);
             menuItemsList.push(showHide3DAction);
             menuItemsList.push(selectOrigin);
+            menuItemsList.push(addGrid);
             menuItemsList.push(selectOtherMapAction);
             menuItemsList.push(toggleBetweenMapToTabs);
         }

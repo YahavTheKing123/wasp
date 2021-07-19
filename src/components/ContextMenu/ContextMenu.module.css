@@ -71,6 +71,10 @@
     -webkit-mask-image: url('../../assets/images/cube.svg');
     mask-image: url('../../assets/images/cube.svg');
 }
+.Grid {
+    -webkit-mask-image: url('../../assets/images/grid.svg');
+    mask-image: url('../../assets/images/grid.svg');
+}
 .SwitchArrows {
     -webkit-mask-image: url('../../assets/images/switch-arrows.svg');
     mask-image: url('../../assets/images/switch-arrows.svg');
