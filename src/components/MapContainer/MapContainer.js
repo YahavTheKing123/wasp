@@ -199,7 +199,7 @@ class MapContainer extends PureComponent {
 
     LoadMapcoreObject(objectName, schemeName) {
         if (this[objectName] == null) {
-            this.FetchFileToByteArray("http:ObjectWorld/Schemes/" + schemeName).then(
+            this.FetchFileToByteArray(`${window.location.protocol}ObjectWorld/Schemes/` + schemeName).then(
                 bytes => {
                     if (bytes != null) {
                         this[objectName] = this.overlayManager.LoadObjectSchemes(bytes)[0];
@@ -243,7 +243,7 @@ class MapContainer extends PureComponent {
             if (rossService && rossService == 'addMissionWP') {
                 const [x, y, z] = stage.stageParamsInput.split(',');
                 let wayPoint = window.MapCore.IMcObject.Create(this.overlay, this.ScreenPictureClick, [{ x: parseFloat(x), y: parseFloat(y), z: parseFloat(z) }]);
-                wayPoint.SetTextureProperty(1, window.MapCore.IMcImageFileTexture.Create(window.MapCore.SMcFileSource("http:ObjectWorld/Images/pinPoint.png", false), false));
+                wayPoint.SetTextureProperty(1, window.MapCore.IMcImageFileTexture.Create(window.MapCore.SMcFileSource(`${window.location.protocol}ObjectWorld/Images/pinPoint.png`, false), false));
                 if (this.props.viewerState == viewerStates.draft) {
                     wayPoint.SetBColorProperty(3, new window.MapCore.SMcBColor(255, 255, 255, 100));
                 }
@@ -269,7 +269,7 @@ class MapContainer extends PureComponent {
         }
         this.MapObjects[this.props.selectedDrone].WorkingOrigin = this.StartEditMode();
 
-        this.MapObjects[this.props.selectedDrone].WorkingOrigin.SetTextureProperty(1, window.MapCore.IMcImageFileTexture.Create(window.MapCore.SMcFileSource("http:ObjectWorld/Images/location4.png", false), false));
+        this.MapObjects[this.props.selectedDrone].WorkingOrigin.SetTextureProperty(1, window.MapCore.IMcImageFileTexture.Create(window.MapCore.SMcFileSource(`${window.location.protocol}ObjectWorld/Images/location4.png`, false), false));
         this.MapObjects[this.props.selectedDrone].WorkingOrigin.SetDrawPriority(1);
         this.setState({ isOriginSelectionMode: true });
 
@@ -317,7 +317,7 @@ class MapContainer extends PureComponent {
         let dronePosition = this.props.dronesPositions[droneNumber];
         const coordinateWithOffset = geoCalculations.getMapCoordinate(dronePosition.workingOrigin, dronePosition.enemyOffsets[dronePosition.enemyOffsets.length - 1]);
         this.EnemyObject = window.MapCore.IMcObject.Create(this.overlay, this.ScreenPictureClick, [coordinateWithOffset]);
-        this.EnemyObject.SetTextureProperty(1, window.MapCore.IMcImageFileTexture.Create(window.MapCore.SMcFileSource("http:ObjectWorld/Images/enemy.png", false), false));
+        this.EnemyObject.SetTextureProperty(1, window.MapCore.IMcImageFileTexture.Create(window.MapCore.SMcFileSource(`${window.location.protocol}ObjectWorld/Images/enemy.png`, false), false));
         this.EnemyObject.SetFloatProperty(2, 0.5);
     }
 
@@ -325,7 +325,7 @@ class MapContainer extends PureComponent {
         const droneList = externalConfig.getConfiguration().DRONES_DATA.dronesList;
         const originCoordinate = this.MapObjects[droneNumber].WorkingOrigin.GetLocationPoints()[0];
         this.MapObjects[droneNumber].Drone = window.MapCore.IMcObject.Create(this.overlay, this.ScreenPictureDrone, [originCoordinate]);
-        this.MapObjects[droneNumber].Drone.SetTextureProperty(1, window.MapCore.IMcImageFileTexture.Create(window.MapCore.SMcFileSource(`http:ObjectWorld/Images/droneNew${droneList.indexOf(droneNumber) + 1}.png`, false), false));
+        this.MapObjects[droneNumber].Drone.SetTextureProperty(1, window.MapCore.IMcImageFileTexture.Create(window.MapCore.SMcFileSource(`${window.location.protocol}ObjectWorld/Images/droneNew${droneList.indexOf(droneNumber) + 1}.png`, false), false));
         this.MapObjects[droneNumber].Drone.SetFloatProperty(2, 0.9);
         this.MapObjects[droneNumber].Drone.SetFloatProperty(4, this.props.dronesPositions[droneNumber].workingOrigin.angle);
         this.MapObjects[droneNumber].Drone.SetDrawPriority(2);
@@ -2155,7 +2155,7 @@ class MapContainer extends PureComponent {
         }
         if (addStageState.multiParamsInput) {
             this.MapObjects[this.props.selectedDrone].WorkingOrigin = window.MapCore.IMcObject.Create(this.overlay, this.ScreenPictureClick, [selectedOrigin]);
-            this.MapObjects[this.props.selectedDrone].WorkingOrigin.SetTextureProperty(1, window.MapCore.IMcImageFileTexture.Create(window.MapCore.SMcFileSource("http:ObjectWorld/Images/location4.png", false), false));
+            this.MapObjects[this.props.selectedDrone].WorkingOrigin.SetTextureProperty(1, window.MapCore.IMcImageFileTexture.Create(window.MapCore.SMcFileSource(`${window.location.protocol}ObjectWorld/Images/location4.png`, false), false));
             this.MapObjects[this.props.selectedDrone].WorkingOrigin.SetDrawPriority(1);
 
             const originCoordinate = geoCalculations.roundCoordinate(this.MapObjects[this.props.selectedDrone].WorkingOrigin.GetLocationPoints()[0], config.COORDINATE_DECIMALS_PRECISION);
