@@ -8,8 +8,8 @@ const config = {
       skeletonStream: '/stream?topic=/SkeletonDetector/Image',
       skeletonSnapshot: '/snapshot?topic=/SkeletonDetector/Image',
       
-      mapImageStream: '/stream?topic=/map_image/full',
-      mapImageSnapshot: '/snapshot?topic=/map_image/full',
+      mapImageStream: '/stream?topic=/OccupancyGridManager/Image',
+      mapImageSnapshot: '/snapshot?topic=/OccupancyGridManager/Image',
 
       windowDetectionStream: '/stream?topic=/seeker/detectionImage',
       windowDetectionSnapshot: '/snapshot?topic=/seeker/detectionImage',
