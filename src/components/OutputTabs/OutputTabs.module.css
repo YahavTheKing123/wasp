@@ -134,6 +134,14 @@
   margin: auto;
 }
 
+.VideoImage.Occupancy {  
+  width: 100%;
+  object-fit: contain;  
+  object-position: center;
+  height: 100%;
+  cursor: initial;
+}
+
 .AlertIcon{
   cursor: pointer;
   background-repeat: no-repeat;

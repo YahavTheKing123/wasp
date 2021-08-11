@@ -201,8 +201,8 @@ class OutputTabs extends Component {
                     this.setState({randomKey :  Math.random()})
                 }, 3000)
                 }
-                className={cn.VideoImage}
-                src={this.geOccupancyDetectionSrc()}                
+                className={`${cn.VideoImage} ${cn.Occupancy}`}
+                src={WeaponDetection/*this.geOccupancyDetectionSrc()*/}
             //    onClick={this.props.pointVideoImage}
             />
             <span className={`${cn.AlertIcon}`} />
