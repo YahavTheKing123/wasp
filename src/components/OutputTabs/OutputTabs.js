@@ -202,8 +202,7 @@ class OutputTabs extends Component {
                 }, 3000)
                 }
                 className={`${cn.VideoImage} ${cn.Occupancy}`}
-                src={WeaponDetection/*this.geOccupancyDetectionSrc()*/}
-            //    onClick={this.props.pointVideoImage}
+                src={this.geOccupancyDetectionSrc()}            
             />
             <span className={`${cn.AlertIcon}`} />
         </div>)
