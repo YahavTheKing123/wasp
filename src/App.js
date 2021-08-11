@@ -90,7 +90,7 @@ const dropDownStyles = {
         ...provided,
         color: 'var(--app-font-color)',        
     })    
-  }
+}
 
   const colors = [
       'aqua',
@@ -118,27 +118,6 @@ class App extends Component {
 
     componentWillUnmount() {
         window.removeEventListener('touchstart', this.disableZoomInTouchScreen);
-    }
-
-    closeErrorPopup = () => {
-        this.setState({
-            generalErrorMessage: false,
-        });
-    };
-
-    getGeneralErrorPopup() {
-        if (false) {
-            return (
-                <Popup
-                    buttonOk='OK'
-                    header={''}
-                    hideXButton
-                    onOk={this.closeErrorPopup}>
-                    <Error errorMsg={''} />
-                </Popup>
-            );
-        }
-        return null;
     }
 
     getClock() {
@@ -171,6 +150,43 @@ class App extends Component {
         this.props.selectDrone(droneNumber.label);
     }
 
+    getBatteyIcon(value) {
+
+        switch (true) {
+            case (value === 'N/A'):
+                return '';
+            case (value < 30):
+                return classNames.BatteryIconEmpty;
+            case (value < 80):
+                return classNames.BatteryIconHalf;                
+            default:
+                return classNames.BatteryIconFull;
+        }
+    }
+
+    getBatteryTextColor(value) {
+        if (value !== 'N/A' && value < 30) {
+            return classNames.EmptyBatteryColor;
+        }
+    }
+
+    getBatteyData() {
+        let batteryValue = parseInt(this.props.batteryLevel);        
+        
+        if (isNaN(batteryValue)) {
+            batteryValue = 'N/A'
+        }
+
+        const displayValue = batteryValue !== 'N/A' ? `${batteryValue}%` : 'N/A';
+
+        return (
+            <span className={classNames.HeaderItem}>
+                <span className={`${classNames.Icon} ${this.getBatteyIcon(batteryValue)}`}></span>
+                <span className={`${classNames.BatteryValue} ${this.getBatteryTextColor(batteryValue)}`}>{`${displayValue}`}</span>
+            </span>
+        )
+    }
+    
     getMainHeader() {
         const dronePosition = this.props.dronesPositions[this.props.selectedDrone];
         let droneOffset = null;
@@ -246,10 +262,7 @@ class App extends Component {
                         </span>
                     </span>
                     <span className={classNames.HeaderItem}><span className={`${classNames.Icon} ${classNames.WifiIcon}`}></span></span>
-                    <span className={classNames.HeaderItem}>
-                        <span className={`${classNames.Icon} ${classNames.BatteryIcon}`}></span>
-                        <span className={classNames.BatteryValue}>59%</span>
-                    </span>
+                    {this.getBatteyData()}
                     <div className={classNames.HeaderItem}>{this.getClock()}</div>
                     <button className={classNames.MenuBtn}
                         onClick={this.props.dronesPositions[this.props.selectedDrone] &&
@@ -290,8 +303,7 @@ class App extends Component {
             <div className={classNames.App}>
                 <GlobalMessage />
                 {this.props.popupDetails ? <Popup popupDetails={this.props.popupDetails} /> : null}
-                {this.props.contextMenu ? <ContextMenu contextMenu={this.props.contextMenu} /> : null}
-                {this.getGeneralErrorPopup()}
+                {this.props.contextMenu ? <ContextMenu contextMenu={this.props.contextMenu} /> : null}                
                 {this.getMainHeader()}
                 <Main isMissionPlanScreenHidden={this.props.isMissionPlanScreenHidden} />
                 <div className={`${classNames.MissionPlannerOverlay}${plannerHiddenClass}`}>
@@ -303,13 +315,15 @@ class App extends Component {
 }
 
 const mapStateToProps = state => {
+
     return {
         contextMenu: state.layout.contextMenu,
         popupDetails: state.layout.popupDetails,
         missionState: state.output.missionState || 'N/A',
         isMissionPlanScreenHidden: state.layout.isMissionPlanScreenHidden,
         dronesPositions: state.map.dronesPositions,
-        selectedDrone: state.map.selectedDrone
+        selectedDrone: state.map.selectedDrone,
+        batteryLevel: state.layout.batteryLevel[state.map.selectedDrone]
     }
 };
 

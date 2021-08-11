@@ -88,6 +88,11 @@ export function getService(serviceName,droneNumber = store.getState().map.select
             name: '/seeker/SkeletonWorldPos',
             messageType: 'geometry_msgs/PointStamped'
         }),
+        getBatteryLevel: new window.ROSLIB.Topic({
+            ros: rosWebSocket.getRosWebsocketObject(droneNumber),
+            name: '/seeker/getBatteryLevel',
+            messageType: 'std_msgs/Float32'
+        }),
         // Mission Plan Execute - state
         doMissionReset: new window.ROSLIB.Service({
             ros: rosWebSocket.getRosWebsocketObject(droneNumber),

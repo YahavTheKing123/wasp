@@ -1,8 +1,5 @@
-
-
-
 import actionTypes from './actionTypes';
-
+import { getService } from '../../services';
 
 export const showGlobalMessage = ({text, type, isRemoved}) => {
     return (dispatch) => {
@@ -17,3 +14,15 @@ export const showGlobalMessage = ({text, type, isRemoved}) => {
     };
 };
 
+export const subscribeToBatteryLevel = (droneNumber) => {
+    return (dispatch) => {
+
+        getService('getBatteryLevel', droneNumber).subscribe(function (response) {
+            console.log("subscribe: getBatteryLevel", response, 'drone:', droneNumber);
+
+            if (response && response.data) {
+                dispatch({ type: actionTypes.SET_BATTERY_LEVEL, payload: { batteryLevel: response.data, droneNumber } });
+            }
+        });
+    };
+};

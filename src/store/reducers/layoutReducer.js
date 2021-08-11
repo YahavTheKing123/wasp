@@ -13,7 +13,8 @@ const initialState = {
     imageSentToDroneData: null,
     isMissionPlanScreenHidden: true,
     isPointSelectionMode: false,
-    appPrimaryUiElement: appUiElements.map
+    appPrimaryUiElement: appUiElements.map,
+    batteryLevel: {},
 };
 
 const layoutReducer = (state = initialState, action) => {
@@ -108,7 +109,18 @@ const layoutReducer = (state = initialState, action) => {
                 appPrimaryUiElement: state.appPrimaryUiElement === appUiElements.map ? appUiElements.tabs : appUiElements.map
             }
         }
-        
+        case actionTypes.SET_BATTERY_LEVEL: {
+            const {batteryLevel, droneNumber} = action.payload;
+
+            batteryLevel = {...state.batteryLevel};
+            batteryLevel[droneNumber] = batteryLevel;
+
+            return {
+                ...state,
+                batteryLevel
+            }
+        }
+
         default:
             return state;
     }

@@ -140,6 +140,7 @@
   object-position: center;
   height: 100%;
   cursor: initial;
+  image-rendering: crisp-edges;
 }
 
 .AlertIcon{

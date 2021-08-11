@@ -125,8 +125,22 @@
   width: 25px;
   height: 20px;
 }
-.BatteryIcon {
+
+.BatteryIconHalf {
   background-image: url(./assets/images/battery/battertHalf.svg);
+}
+
+.BatteryIconEmpty {
+  transform: rotate(180deg);
+  background-image: url(./assets/images/battery/batteryEmpty.svg);
+}
+
+.BatteryIconFull {
+  background-image: url(./assets/images/battery/batteryFull.svg); 
+}
+
+.EmptyBatteryColor {
+  color: #f25858
 }
 .DroneIcon {
   -webkit-mask-image: url(./assets/images/drone.svg);
