@@ -90,7 +90,7 @@ export function getService(serviceName,droneNumber = store.getState().map.select
         }),
         getBatteryLevel: new window.ROSLIB.Topic({
             ros: rosWebSocket.getRosWebsocketObject(droneNumber),
-            name: '/seeker/getBatteryLevel',
+            name: '/seeker/BatteryLevel',
             messageType: 'std_msgs/Float32'
         }),
         // Mission Plan Execute - state

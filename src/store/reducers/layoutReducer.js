@@ -14,7 +14,7 @@ const initialState = {
     isMissionPlanScreenHidden: true,
     isPointSelectionMode: false,
     appPrimaryUiElement: appUiElements.map,
-    batteryLevel: {},
+    batteryLevelMap: {},
 };
 
 const layoutReducer = (state = initialState, action) => {
@@ -110,14 +110,14 @@ const layoutReducer = (state = initialState, action) => {
             }
         }
         case actionTypes.SET_BATTERY_LEVEL: {
-            const {batteryLevel, droneNumber} = action.payload;
+            let {batteryLevel, droneNumber} = action.payload;
 
-            batteryLevel = {...state.batteryLevel};
-            batteryLevel[droneNumber] = batteryLevel;
+            const batteryLevelMap = {...state.batteryLevelMap};
+            batteryLevelMap[droneNumber] = batteryLevel;
 
             return {
                 ...state,
-                batteryLevel
+                batteryLevelMap
             }
         }
 

@@ -323,7 +323,7 @@ const mapStateToProps = state => {
         isMissionPlanScreenHidden: state.layout.isMissionPlanScreenHidden,
         dronesPositions: state.map.dronesPositions,
         selectedDrone: state.map.selectedDrone,
-        batteryLevel: state.layout.batteryLevel[state.map.selectedDrone]
+        batteryLevel: state.layout.batteryLevelMap[state.map.selectedDrone]
     }
 };
 
