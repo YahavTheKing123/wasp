@@ -20,7 +20,7 @@ export const toggleIsArmed = () => {
         const currentState = getState().output.isArmed;        
     
         const message = new window.ROSLIB.Message({
-            isMissionArmed: !currentState
+            data: !currentState
         });
         
         getService('sendIsArmedFlag').publish(message);
