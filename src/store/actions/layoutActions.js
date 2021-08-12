@@ -18,20 +18,12 @@ export const toggleIsArmed = () => {
     return (dispatch,getState) => {
 
         const currentState = getState().output.isArmed;        
-        
-        
-        debugger;
-        const rossMessage = new window.ROSLIB.Message({
-            isArmed: !currentState
+    
+        const message = new window.ROSLIB.Message({
+            isMissionArmed: !currentState
         });
-
-        const request = new window.ROSLIB.ServiceRequest({ rossMessage });
-
-        getService('sendIsArmedFlag').callService(request, result => {
-
-            console.log(getService('sendIsArmedFlag').name, result);
-        });
-
+        
+        getService('sendIsArmedFlag').publish(message);
         dispatch({type: actionTypes.TOGGLE_ARM_STATE});
     };
 };
