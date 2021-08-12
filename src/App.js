@@ -171,7 +171,7 @@ class App extends Component {
     }
 
     getBatteyData() {
-        let batteryValue = parseInt(this.props.batteryLevel);        
+        let batteryValue = parseInt(this.props.batteryLevel);
         
         if (isNaN(batteryValue)) {
             batteryValue = 'N/A'

@@ -15,6 +15,7 @@ const initialState = {
     isPointSelectionMode: false,
     appPrimaryUiElement: appUiElements.map,
     batteryLevelMap: {},
+    airSpeedMap: {},
 };
 
 const layoutReducer = (state = initialState, action) => {
@@ -118,6 +119,17 @@ const layoutReducer = (state = initialState, action) => {
             return {
                 ...state,
                 batteryLevelMap
+            }
+        }
+        case actionTypes.SET_AIR_SPEED: {
+            let {airSpeed, droneNumber} = action.payload;
+
+            const airSpeedMap = {...state.airSpeedMap};
+            airSpeedMap[droneNumber] = airSpeed;
+
+            return {
+                ...state,
+                airSpeedMap
             }
         }
 

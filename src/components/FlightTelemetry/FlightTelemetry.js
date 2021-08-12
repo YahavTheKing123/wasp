@@ -10,6 +10,17 @@ class FlightTelemetry extends Component {
         return 0;
     }
 
+    getSpeed() {
+        let airSpeedValue = parseInt(this.props.airSpeed);
+        
+        if (isNaN(airSpeedValue)) {
+            airSpeedValue = ` - `;
+        }
+
+        const displayValue = airSpeedValue !== ` - ` ? `${airSpeedValue}` : ` - `;
+        return displayValue;
+    }
+
     render() {
         const dronePosition = this.props.dronesPositions && this.props.dronesPositions[this.props.selectedDrone];
         return (
@@ -20,7 +31,7 @@ class FlightTelemetry extends Component {
                 </span>
                 <span className={cn.TelemetryWrapper}>
                     <span>Speed:</span>
-                    <span>{` - `}<span className={cn.Units}>km/h</span></span>
+                    <span>{this.getSpeed()}<span className={cn.Units}>km/h</span></span>
                 </span>
             </div>
         )
@@ -32,7 +43,8 @@ class FlightTelemetry extends Component {
 const mapStateToProps = (state) => {
     return {
         dronesPositions: state.map.dronesPositions,
-        selectedDrone: state.map.selectedDrone
+        selectedDrone: state.map.selectedDrone,
+        airSpeed: state.layout.airSpeedMap[state.map.selectedDrone]
     };
 };
 

@@ -50,7 +50,7 @@ class ActionButtons extends Component {
         const isHiddenClass = this.props.isRosWebsocketConncted ? '' : cn.Hidden;
         return (
             <div className={`${cn.Wrapper} ${isHiddenClass}`}>
-                <button className={cn.Button} onClick={this.props.toggleisArmed}>
+                <button className={cn.Button} onClick={this.props.toggleIsArmed}>
                     <Toggle isChecked={this.props.isArmed}/>
                     <span className={cn.ButtonLabel}>Arm</span>
                 </button>
@@ -106,7 +106,7 @@ const mapDispachToProps = dispatch => {
         showPopup: details => dispatch({ type: actionTypes.SHOW_POPUP, payload: details }),
         goToLocation: location => dispatch(actions.goToLocation(location)),
         runSavedMissionPlan: () => dispatch(actions.runSavedMissionPlan()),
-        toggleisArmed: () => dispatch({ type: actionTypes.TOGGLE_ARM_STATE }),
+        toggleIsArmed: () => dispatch(actions.toggleIsArmed()),
     }
 }
 

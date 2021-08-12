@@ -11,7 +11,7 @@
     letter-spacing: 0.5px;
 }
 .TelemetryWrapper:first-child {
-    margin-right: 10px;
+    margin-right: 20px;
 }
 .TelemetryWrapper > span:first-child {
     margin-right: 5px;

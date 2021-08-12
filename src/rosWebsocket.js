@@ -40,6 +40,7 @@ class RosWebSocket {
                 store.dispatch(actions.subscribeToSkeletonRange(droneNumber));
                 store.dispatch(actions.subscribeToWeaponDetection(droneNumber));
                 store.dispatch(actions.subscribeToBatteryLevel(droneNumber));
+                store.dispatch(actions.subscribeToAirSpeed(droneNumber));
             });
 
             this.rosWebSockets[droneNumber].on('error', error => {

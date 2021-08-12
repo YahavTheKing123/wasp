@@ -36,17 +36,17 @@
     width: 26px;
     left: 4px;
     bottom: 4px;
-    background-color: white;
+    background-color: #0d0d0d;
     -webkit-transition: .4s;
     transition: .4s;
   }
   
   Input:checked + .sliderRound {
-    background-color: #ca0b0b;
+    background-color: #f53838;
   }
   
   Input:focus + .sliderRound {
-    box-shadow: 0 0 1px #ca0b0b;
+    box-shadow: 0 0 1px #f53838;
   }
   
   input:checked + .sliderRound:before {

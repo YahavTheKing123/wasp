@@ -47,6 +47,11 @@ export function getService(serviceName,droneNumber = store.getState().map.select
             name: 'Reset',
             serviceType: 'pointingfinger/Reset'
         }),
+        sendIsArmedFlag: new window.ROSLIB.Service({
+            ros: rosWebSocket.getRosWebsocketObject(droneNumber),
+            name: '/seeker/IsArmed',
+            serviceType: '/seeker/IsArmed'
+        }),
         seekerReset: new window.ROSLIB.Service({
             ros: rosWebSocket.getRosWebsocketObject(droneNumber),
             name: 'seeker/Reset',
@@ -93,6 +98,11 @@ export function getService(serviceName,droneNumber = store.getState().map.select
             name: '/seeker/BatteryLevel',
             messageType: 'std_msgs/Float32'
         }),
+        getAirSpeed: new window.ROSLIB.Topic({
+            ros: rosWebSocket.getRosWebsocketObject(droneNumber),
+            name: '/seeker/AirSpeed',
+            messageType: 'std_msgs/Float32'
+        }),        
         // Mission Plan Execute - state
         doMissionReset: new window.ROSLIB.Service({
             ros: rosWebSocket.getRosWebsocketObject(droneNumber),

@@ -14,6 +14,29 @@ export const showGlobalMessage = ({text, type, isRemoved}) => {
     };
 };
 
+export const toggleIsArmed = () => {
+    return (dispatch,getState) => {
+
+        const currentState = getState().output.isArmed;        
+        
+        
+        debugger;
+        const rossMessage = new window.ROSLIB.Message({
+            isArmed: !currentState
+        });
+
+        const request = new window.ROSLIB.ServiceRequest({ rossMessage });
+
+        getService('sendIsArmedFlag').callService(request, result => {
+
+            console.log(getService('sendIsArmedFlag').name, result);
+        });
+
+        dispatch({type: actionTypes.TOGGLE_ARM_STATE});
+    };
+};
+
+
 export const subscribeToBatteryLevel = (droneNumber) => {
     return (dispatch) => {
 
@@ -22,6 +45,19 @@ export const subscribeToBatteryLevel = (droneNumber) => {
 
             if (response && response.data) {
                 dispatch({ type: actionTypes.SET_BATTERY_LEVEL, payload: { batteryLevel: response.data, droneNumber } });
+            }
+        });
+    };
+};
+
+export const subscribeToAirSpeed = (droneNumber) => {
+    return (dispatch) => {
+
+        getService('getAirSpeed', droneNumber).subscribe(function (response) {
+            console.log("subscribe: getAirSpeed", response, 'drone:', droneNumber);
+
+            if (response && response.data) {
+                dispatch({ type: actionTypes.SET_AIR_SPEED, payload: { airSpeed: response.data, droneNumber } });
             }
         });
     };
