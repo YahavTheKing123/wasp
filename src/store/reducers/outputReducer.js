@@ -46,8 +46,6 @@ const outputReducer = (state = initialState, action) => {
                 ...state,
                 isArmed: !state.isArmed
             }
-
-
         default:
             return state;
     }

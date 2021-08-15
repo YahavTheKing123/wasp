@@ -246,3 +246,16 @@ export const subscribeToWeaponDetection = (droneNumber) => {
 
 
 
+export const toggleIsRecording = () => {
+    return (dispatch,getState) => {
+
+        const currentState = getState().video.isRecording;        
+    
+        const message = new window.ROSLIB.Message({
+            data: !currentState
+        });
+        
+        getService('sendIsRecodringFlag').publish(message);
+        dispatch({type: actionTypes.TOGGLE_RECORDING_STATE});
+    };
+};

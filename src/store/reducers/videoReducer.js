@@ -1,7 +1,8 @@
 import actionTypes from '../actions/actionTypes';
 
 const initialState = {        
-    isPaused: false
+    isPaused: false,
+    isRecording: false
 };
 
 const videoReducer = (state = initialState, action ) => {
@@ -16,6 +17,11 @@ const videoReducer = (state = initialState, action ) => {
                 ...state,
                 isPaused: false
             }
+        case actionTypes.TOGGLE_RECORDING_STATE:
+            return {
+                ...state,
+                isRecording: !state.isRecording
+            }    
         default:
             return state;
     }

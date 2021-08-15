@@ -52,6 +52,11 @@ export function getService(serviceName,droneNumber = store.getState().map.select
             name: '/seeker/IsMissionArmed',
             messageType: 'std_msgs/Bool'
         }),
+        sendIsRecodringFlag: new window.ROSLIB.Topic({
+            ros: rosWebSocket.getRosWebsocketObject(droneNumber),
+            name: '/seeker/RosRecording',
+            messageType: 'std_msgs/Bool'
+        }),
         seekerReset: new window.ROSLIB.Service({
             ros: rosWebSocket.getRosWebsocketObject(droneNumber),
             name: 'seeker/Reset',

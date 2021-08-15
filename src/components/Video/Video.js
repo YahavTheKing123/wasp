@@ -112,11 +112,11 @@ class Video extends Component {
     }
 
     getRecordButton = () => {
-        return this.state.isRecording ? cn.RecordindIcon : cn.RecordIcon
+        return this.props.isRecording ? cn.RecordindIcon : cn.RecordIcon
     }
 
     getRecordTitle = () => {
-        return this.state.isRecording ? 'Recording' : 'Start Recording'
+        return this.props.isRecording ? 'Recording' : 'Start Recording'
     }
 
     renderVideoHeader() {
@@ -148,7 +148,7 @@ class Video extends Component {
                     className={`${cn.ControlBtn} ${this.getPlayOrPauseButton()}`}>
                 </button>
                 <button
-                    onClick={() => this.setState({ isRecording: !this.state.isRecording })}
+                    onClick={this.props.toggleIsRecording}
                     title={this.getRecordTitle()}
                     className={`${cn.ControlBtn} ${cn.RecordButton}`}>
                     <span className={`${this.getRecordButton()}`} />
@@ -225,7 +225,8 @@ const mapStateToProps = (state) => {
         isPaused: state.video.isPaused,
         weaponDetected: state.output.weaponDetected,
         selectedDrone: state.map.selectedDrone,
-        appPrimaryUiElement: state.layout.appPrimaryUiElement
+        appPrimaryUiElement: state.layout.appPrimaryUiElement,
+        isRecording: state.video.isRecording
     };
 };
 
@@ -235,6 +236,7 @@ const mapDispachToProps = (dispatch) => {
         setExposure: exposureValue => dispatch(actions.setExposure(exposureValue)),
         pause: () => dispatch({ type: actionTypes.PAUSE_VIDEO }),
         resume: () => dispatch({ type: actionTypes.RESUME_VIDEO }),
+        toggleIsRecording: () => dispatch(actions.toggleIsRecording()),
     };
 };
 
