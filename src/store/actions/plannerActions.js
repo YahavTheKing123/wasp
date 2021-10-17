@@ -52,6 +52,7 @@ export const runSavedMissionPlan = () => {
                         break;
 
                     case 'addMissionTakeoff':
+                    case 'addMissionLand':
                         serviceRequest = new window.ROSLIB.ServiceRequest({});
                         break;
                     default:

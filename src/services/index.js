@@ -129,6 +129,11 @@ export function getService(serviceName,droneNumber = store.getState().map.select
             name: '/seeker/AddMissionTakeoff',
             serviceType: '/seeker/AddMissionTakeoff'
         }),
+        addMissionLand: new window.ROSLIB.Service({
+            ros: rosWebSocket.getRosWebsocketObject(droneNumber),
+            name: '/seeker/AddMissionLand',
+            serviceType: '/seeker/AddMissionLand'
+        }),
         addMissionWP: new window.ROSLIB.Service({
             ros: rosWebSocket.getRosWebsocketObject(droneNumber),
             name: '/seeker/AddMissionWP',

@@ -20,6 +20,7 @@ export default class AddMissionPlanStageForm extends Component {
             this.props.onPopupInitalLoad(this.getMissionPlanState);
         }
     }
+
     componentDidUpdate(prevProps) {
         if (prevProps.pointFromMap != this.props.pointFromMap) {
             const pointFromMap = this.props.pointFromMap;
@@ -27,6 +28,7 @@ export default class AddMissionPlanStageForm extends Component {
             this.setState({ multiParamsInput: pointFromMap, stageParamsInput })
         }
     }
+
     parseMultiParams = () => {
         if (this.props.stage && this.props.stage.stageParamsInput && this.props.stage.stageParamsInput != "") {
             const [x, y, z] = this.props.stage.stageParamsInput.split(',');
@@ -36,6 +38,7 @@ export default class AddMissionPlanStageForm extends Component {
             return null
         }
     }
+
     getMissionPlanState = () => {
         return this.state;
     }
@@ -48,12 +51,12 @@ export default class AddMissionPlanStageForm extends Component {
         });
     }
 
-
     renderStageType() {
         const options = [
             { label: 'Takeoff', params: { label: 'Height:', placeHolder: "meters" }, rossService: 'addMissionTakeoff' },
             { label: 'Go To Waypoint', isMultiInputs: true, params: { label: 'Waypoint Coordinate:', }, rossService: 'addMissionWP' },
             { label: 'Pause', params: { label: 'Pause for:', placeHolder: "seconds" } },
+            { label: 'Land',  rossService: 'addMissionLand'},
             { label: 'Set Speed', params: { label: 'Speed Value:', placeHolder: "km/h" } },
             { label: 'Set Waypoint Radius', params: { label: 'Radius Value:', placeHolder: "meters" } },
         ]
