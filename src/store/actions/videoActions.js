@@ -134,6 +134,20 @@ export const takeoff = () => {
         });
     };
 };
+
+export const land = () => {
+    return async (dispatch) => {
+        dispatch({ type: actionTypes.LAND_START });
+        dispatch(showGlobalMessage({ text: `Landing...`, type: logSeverities.info, isRemoved: true }));
+        const landRequest = new window.ROSLIB.ServiceRequest({});
+
+        getService('seekerLand').callService(landRequest, result => {
+            dispatch({ type: actionTypes.LAND_SUCCESS });            
+        });
+    };
+};
+
+
 export const startIndoorExploration = () => {
     return async (dispatch) => {
         dispatch({ type: actionTypes.START_INDOOR_EXPLORATION });

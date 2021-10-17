@@ -55,8 +55,17 @@ class ActionButtons extends Component {
                     <span className={cn.ButtonLabel}>Arm</span>
                 </button>
                 <button className={cn.Button} onClick={this.props.takeoff}>
-                    <span className={`${cn.Icon} ${cn.TakeoffIcon}`}></span>
+                    <span className={cn.IconWithArrow}>
+                        <span className={`${cn.Icon} ${cn.TakeoffIcon}`}></span>                        
+                    </span>
                     <span className={cn.ButtonLabel}>Takeoff</span>
+                </button>
+                <button className={cn.Button} onClick={this.props.land}>
+                    <span className={cn.IconWithArrow}>
+                        <span className={`${cn.Icon} ${cn.TakeoffIcon}`}></span>
+                        <span className={`${cn.Icon} ${cn.ArrowDownIcon}`}></span>
+                    </span>
+                    <span className={cn.ButtonLabel}>Land</span>
                 </button>
                 <button className={`${cn.Button} ${this.props.indoorExplorationFlag ? cn.Clicked : ''}`} onClick={this.props.startIndoorExploration}>
                     <span className={`${cn.Icon} ${cn.IndoorExploration}`}></span>
@@ -100,6 +109,7 @@ const mapStateToProps = (state) => {
 const mapDispachToProps = dispatch => {
     return {
         takeoff: () => dispatch(actions.takeoff()),
+        land: () => dispatch(actions.land()),
         startIndoorExploration: () => dispatch(actions.startIndoorExploration()),
         locate: () => dispatch(actions.locate()),
         restart: () => dispatch(actions.restart()),

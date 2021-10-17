@@ -64,6 +64,9 @@
     opacity: 0.7;
     margin-top: 5px;
 }
+.IconWithArrow {
+    display: flex;
+}
 
 .LocateIcon {
     background-image: url(../../assets/images/locate.svg);
@@ -80,7 +83,8 @@
 }
 
 .TakeoffIcon {
-    background-image: url(../../assets/images/drone.svg);
+    background-image: url(../../assets/images/drone.svg);    
+    width: 36px;
 }
 
 .SetLocationIcon {
@@ -98,4 +102,17 @@
 }
 .RunPlanIcon {
     background-image: url(../../assets/images/play.svg);
+}
+
+.ArrowDownIcon {
+    background-image: url(../../assets/images/longArrowDown.svg);
+    width: 14px;
+    height: 28px;    
+}
+
+.ArrowUpIcon {
+    background-image: url(../../assets/images/longArrowDown.svg);
+    width: 14px;
+    height: 28px;  
+    transform: rotate(0.5turn);  
 }
